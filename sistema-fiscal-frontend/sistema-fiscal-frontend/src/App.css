@@ -158,3 +158,62 @@ button:disabled {
   padding: 1rem;
   border-radius: 4px;
 }
+/* Layout principal com sidebar */
+.app-main {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar fixa à esquerda */
+.sidebar {
+  width: 220px;
+  background-color: #a13751; /* cor primária Nótus */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+/* Logo dentro da sidebar */
+.sidebar .logo {
+  height: 50px;
+  width: auto;
+  margin-bottom: 1rem;
+}
+
+/* Links da sidebar */
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.sidebar a:hover {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+/* Área de conteúdo principal */
+.content {
+  margin-left: 220px; /* mesmo valor da sidebar */
+  flex-grow: 1;
+  padding: 2rem;
+}
+
+/* Rodapé */
+.footer {
+  margin-left: 220px;
+  padding: 1rem 2rem;
+  background-color: #f8f8f8;
+  color: #555;
+  text-align: center;
+  border-top: 1px solid var(--cor-borda);
+  font-size: 0.9rem;
+}
