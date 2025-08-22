@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "Backend (Java)",
+			"path": "sistema-fiscal-backend"
+		},
+		{
+			"name": "Frontend (React)",
+			"path": "sistema-fiscal-frontend"
+		}
+	],
+	"settings": {}
+}
