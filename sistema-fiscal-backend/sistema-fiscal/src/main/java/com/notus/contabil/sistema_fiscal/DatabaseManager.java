@@ -44,11 +44,10 @@ public class DatabaseManager {
     public record Cliente(Long id, String cnpj, String razaoSocial) {}
     public record ParametrosSN(Long id, Long clienteId, double rbt12Atual, double folhaPagamento12mAtual) {}
     
-    // --- RECORD ATUALIZADO ---
     public record Calculo(
         long id, long clienteId, int mesReferencia, int anoReferencia, 
         double dasTotal,
-        String dataCalculo, // Adicionado o campo para a data
+        String dataCalculo,
         List<ResultadoCalculoDetalhado> detalhes
     ) {}
 
@@ -106,7 +105,6 @@ public class DatabaseManager {
         }
     }
     public class ParametrosSNDAO { 
-        // ... (código do ParametrosSNDAO permanece o mesmo)
         public void save(long clienteId, double rbt12, double folha12m) {
             String sql = "INSERT INTO simples_nacional.parametros_sn (cliente_id, rbt12_atual, folha_pagamento_12m_atual) VALUES (?, ?, ?)";
             try (Connection conn = getConnection();
@@ -117,6 +115,20 @@ public class DatabaseManager {
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException("Erro ao salvar parâmetros: " + e.getMessage(), e);
+            }
+        }
+
+        // --- NOVO MÉTODO PARA ATUALIZAR PARÂMETROS ---
+        public void updateByClienteId(long clienteId, double rbt12, double folha12m) {
+            String sql = "UPDATE simples_nacional.parametros_sn SET rbt12_atual = ?, folha_pagamento_12m_atual = ? WHERE cliente_id = ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setDouble(1, rbt12);
+                pstmt.setDouble(2, folha12m);
+                pstmt.setLong(3, clienteId);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException("Erro ao atualizar parâmetros: " + e.getMessage(), e);
             }
         }
 
@@ -143,6 +155,7 @@ public class DatabaseManager {
     }
 
     public class CalculoDAO {
+        // ... (código do CalculoDAO permanece o mesmo)
         private final ObjectMapper objectMapper = new ObjectMapper();
         private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -242,7 +255,6 @@ public class DatabaseManager {
             return Optional.empty();
         }
 
-        // --- NOVO MÉTODO AUXILIAR PARA EVITAR REPETIÇÃO ---
         private Calculo mapRowToCalculo(ResultSet rs) throws SQLException, JsonProcessingException {
             String detalhesJson = rs.getString("detalhes_json");
             List<ResultadoCalculoDetalhado> detalhes = (detalhesJson == null || detalhesJson.isBlank())

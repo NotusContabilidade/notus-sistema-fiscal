@@ -1,27 +1,208 @@
-.container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+/* ==========================================================================
+   Arquivo de Estilos Principal - Nótus Sistema Fiscal
+   ========================================================================== */
+
+/* * ESTRUTURA DO ARQUIVO:
+ * 1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
+ * 2. ESTRUTURA PRINCIPAL E LAYOUT
+ * 3. SIDEBAR E NAVEGAÇÃO
+ * 4. COMPONENTES GERAIS (REUTILIZÁVEIS)
+ * 5. ESTILOS DE TELAS ESPECÍFICAS
+ * 6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
+ * 7. ANIMAÇÕES
+*/
+
+/* ==========================================================================
+   1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+:root {
+  /* Paleta de Cores */
+  --cor-primaria: #a13751;
+  --cor-fundo: #f8f8f8;
+  --cor-texto: #333;
+  --cor-borda: #e0e0e0;
+  --cor-erro: #d9534f;
+  
+  /* Sombras */
+  --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sombra-card-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
-header {
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+/* ==========================================================================
+   2. ESTRUTURA PRINCIPAL E LAYOUT
+   ========================================================================== */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-left: 90px; 
+  width: calc(100% - 90px);
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.sidebar:hover + .content-wrapper {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #fff;
+  color: #6c757d;
+  font-size: 0.9rem;
+  border-top: 1px solid var(--cor-borda);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   3. SIDEBAR E NAVEGAÇÃO
+   ========================================================================== */
+
+.sidebar {
+  width: 90px;
+  background-color: var(--cor-primaria); 
+  color: #f0f0f0;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+  z-index: 10;
+}
+
+.sidebar:hover {
+  width: 260px;
+}
+
+.sidebar-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
-.logo {
-  max-width: 250px;
+.sidebar-logo {
+  width: 50px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 5px;
   margin-bottom: 1rem;
+  transition: width 0.3s ease;
+}
+.sidebar:hover .sidebar-logo { width: 100px; }
+
+.sidebar-title {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sidebar:hover .sidebar-title { opacity: 1; }
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0 1.5rem;
+  margin: 0;
 }
 
-header h1 {
-  color: var(--cor-primaria);
-  margin: 0;
-  font-size: 2rem;
+.sidebar-nav-item a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 6px;
+  color: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+  overflow: hidden;
 }
+
+.sidebar-nav-item a:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-nav-item span, .sidebar-nav-item svg {
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.2s ease;
+}
+.sidebar-nav-item span { opacity: 0; }
+.sidebar:hover .sidebar-nav-item span {
+    opacity: 1;
+    transition-delay: 0.1s;
+}
+
+.sidebar-nav-item a.active::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 15px;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.sidebar:hover .sidebar-nav-item a.active::before {
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transform: translateY(0);
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-nav-item a.active {
+    color: white;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   4. COMPONENTES GERAIS (REUTILIZÁVEIS)
+   ========================================================================== */
 
 .card {
   background-color: white;
@@ -33,187 +214,120 @@ header h1 {
   text-align: center;
 }
 
-.card h2, .card h3 {
-  margin-top: 0;
-  color: var(--cor-primaria);
-  border-bottom: 1px solid var(--cor-borda);
-  padding-bottom: 0.5rem;
-  margin-bottom: 1.5rem;
-}
+.page-header { margin-bottom: 2rem; }
+.page-title { font-size: 2rem; font-weight: bold; color: var(--cor-texto); margin: 0; }
 
-.input-group {
-  display: inline-flex;
-  justify-content: center;
-  gap: 1rem;
-}
+.input-group { display: flex; justify-content: center; gap: 1rem; }
+.input-group input { width: 300px; }
 
-.input-group input {
-  width: 250px;
+.form-group { text-align: left; margin-bottom: 1rem; }
+.form-group input { width: 100%; box-sizing: border-box; }
+
+.input-group input, .form-group input {
   padding: 0.75rem;
   border: 1px solid var(--cor-borda);
   border-radius: 4px;
   font-size: 1rem;
-  text-align: left;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.input-group input:focus, .form-group input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(161, 55, 81, 0.2);
 }
 
-button {
+button { font-family: 'Inter', sans-serif; }
+.btn-primario, .btn-secundario {
   padding: 0.75rem 1.5rem;
-  background-color: var(--cor-primaria);
-  color: white;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.2s;
-}
-
-button:hover {
-  background-color: #812c41;
-  transform: translateY(-2px);
-}
-
-button:disabled {
-  background-color: #a0a0a0;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-secundario {
-  background-color: #6c757d;
-}
-
-.erro-mensagem {
-  color: var(--cor-erro);
-  font-weight: bold;
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
-.cliente-card p {
-  line-height: 1.6;
-  text-align: center;
-}
-
-.form-row {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  gap: 8px;
+}
+.btn-primario { background-color: var(--cor-primaria); color: white; }
+.btn-secundario { background-color: #6c757d; color: white; }
+.btn-primario:hover, .btn-secundario:hover { transform: translateY(-2px); }
+.btn-primario:hover { background-color: #812c41; }
+.btn-secundario:hover { background-color: #5a6268; }
+button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: none; }
+
+.botoes-acao { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--cor-borda); padding-top: 1.5rem; }
+.erro-mensagem { color: var(--cor-erro); font-weight: bold; margin-top: 1.5rem; }
+
+/* ==========================================================================
+   5. ESTILOS DE TELAS ESPECÍFICAS
+   ========================================================================== */
+
+.welcome-card { margin-bottom: 2rem; background-color: transparent; border: none; box-shadow: none; }
+.welcome-card h3 { border-bottom: none; font-size: 1.5rem; }
+.welcome-card p { color: #6c757d; max-width: 500px; margin: 0 auto; }
+
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; }
+.dashboard-info-card { background-color: #f8f9fa; padding: 1rem; border-radius: 5px; position: relative; }
+.dashboard-info-card h4 { margin-top: 0; color: var(--cor-primaria); }
+.historico-tabela { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
+.historico-tabela th, .historico-tabela td { padding: 0.75rem; border-bottom: 1px solid var(--cor-borda); }
+.historico-tabela th { background-color: #f1f1f1; }
+.historico-tabela tr:hover { background-color: #f5f5f5; }
+.btn-edit { position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; padding: 5px; color: #6c757d; }
+.btn-edit:hover { color: var(--cor-primaria); }
+
+.form-row { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
+.separador-ou { margin: 2rem auto; font-weight: bold; color: #999; text-align: center; }
+.selecao-anexos { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 1.5rem 0; padding-bottom: 1.5rem; border-bottom: 1px solid var(--cor-borda); }
+.btn-anexo { padding: 10px 15px; font-size: 0.9rem; border: 1px solid var(--cor-borda); background-color: #fff; color: #555; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+.btn-anexo.selecionado { background-color: var(--cor-primaria); color: white; border-color: var(--cor-primaria); font-weight: bold; }
+.anexo-bloco { border: 1px solid var(--cor-borda); border-radius: 5px; padding: 1.5rem; margin-top: 1.5rem; text-align: left; }
+.anexo-bloco h4 { margin-top: 0; color: var(--cor-primaria); }
+
+.info-relatorio-geral { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--cor-borda); font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
+.total-das { font-size: 1.3rem; font-weight: bold; color: var(--cor-primaria); text-align: center; background-color: #fceeee; border: 1px solid var(--cor-primaria); padding: 1rem; border-radius: 4px; margin-bottom: 2rem; }
+.detalhe-anexo-card { margin-top: 1.5rem; border: 1px solid var(--cor-borda); border-radius: 5px; padding: 1.5rem; text-align: left; }
+.detalhe-anexo-card h4 { margin-top: 0; color: var(--cor-primaria); font-size: 1.2rem; }
+.relatorio-tabela { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.relatorio-tabela th, .relatorio-tabela td { padding: 0.75rem; border-bottom: 1px solid #eee; }
+.relatorio-tabela th:first-child, .relatorio-tabela td:first-child { text-align: left; }
+.relatorio-tabela th:not(:first-child), .relatorio-tabela td:not(:first-child) { text-align: right; }
+.relatorio-tabela .subtotal-row { font-weight: bold; border-top: 2px solid var(--cor-texto); background-color: #f8f9fa; }
+.info-extra-relatorio { text-align: right; font-size: 0.9rem; color: #555; margin-top: 0.5rem; padding-right: 0.75rem; }
+
+/* ==========================================================================
+   6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
+   ========================================================================== */
+
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s ease-in-out infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.skeleton-card {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
 }
 
-.form-group label {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
+/* ==========================================================================
+   7. ANIMAÇÕES
+   ========================================================================== */
 
-.form-group input {
-  text-align: center;
+.view-container {
+  animation: fadeIn 0.5s ease-in-out;
 }
-
-.anexo-bloco {
-  border-top: 1px solid var(--cor-borda);
-  padding-top: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.botoes-acao {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  border-top: 1px solid var(--cor-borda);
-  padding-top: 1.5rem;
-}
-
-.resultado-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  font-size: 1.1rem;
-  text-align: left;
-}
-
-.resultado-grid p {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-}
-
-.total-das {
-  grid-column: 1 / -1;
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: var(--cor-primaria);
-  text-align: center;
-  margin-top: 1rem !important;
-  background-color: #fceeee !important;
-  border: 1px solid var(--cor-primaria);
-  padding: 1rem;
-  border-radius: 4px;
-}
-/* Layout principal com sidebar */
-.app-main {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* Sidebar fixa à esquerda */
-.sidebar {
-  width: 220px;
-  background-color: #a13751; /* cor primária Nótus */
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-}
-
-/* Logo dentro da sidebar */
-.sidebar .logo {
-  height: 50px;
-  width: auto;
-  margin-bottom: 1rem;
-}
-
-/* Links da sidebar */
-.sidebar a {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 0;
-  font-weight: bold;
-  transition: background 0.2s;
-}
-
-.sidebar a:hover {
-  background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
-}
-
-/* Área de conteúdo principal */
-.content {
-  margin-left: 220px; /* mesmo valor da sidebar */
-  flex-grow: 1;
-  padding: 2rem;
-}
-
-/* Rodapé */
-.footer {
-  margin-left: 220px;
-  padding: 1rem 2rem;
-  background-color: #f8f8f8;
-  color: #555;
-  text-align: center;
-  border-top: 1px solid var(--cor-borda);
-  font-size: 0.9rem;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

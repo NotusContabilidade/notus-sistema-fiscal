@@ -1,97 +1,193 @@
-Nótus Sistema Fiscal
-1. Visão Geral
-O Nótus Sistema Fiscal é uma plataforma web moderna projetada para otimizar e automatizar as rotinas de um escritório de contabilidade. A aplicação evoluiu de uma simples calculadora de linha de comando para uma solução completa com uma arquitetura robusta, separando a lógica de negócio (backend) da interface do utilizador (frontend).
+# Nótus Sistema Fiscal
 
-O objetivo é centralizar diversas operações contábeis, desde o cálculo de impostos até a gestão de documentos e comunicação com o cliente, numa única plataforma intuitiva e eficiente.
+Bem-vindo ao Nótus Sistema Fiscal, uma aplicação web completa para cálculo e gestão do imposto Simples Nacional. O sistema foi desenvolvido com uma arquitetura moderna, composta por uma API REST em Java (Backend) e uma Single-Page Application em React (Frontend).
 
-2. Arquitetura e Tecnologias Utilizadas
-O projeto adota uma arquitetura de Monorepo, contendo dois projetos distintos, mas interligados:
+Este documento serve como um guia completo para configuração do ambiente, execução do projeto e também como um repositório central para todo o código-fonte do frontend.
 
-Backend (API REST)
-Linguagem: Java 21
+---
 
-Framework: Spring Boot 3
+## Sumário
 
-Banco de Dados: PostgreSQL
+* [Funcionalidades Principais](#funcionalidades-principais)
+* [Tech Stack (Tecnologias Utilizadas)](#tech-stack-tecnologias-utilizadas)
+* [Pré-requisitos](#pré-requisitos)
+* [Guia de Instalação e Execução](#guia-de-instalação-e-execução)
+    * [1. Clonar o Repositório](#1-clonar-o-repositório)
+    * [2. Configurar o Banco de Dados (PostgreSQL)](#2-configurar-o-banco-de-dados-postgresql)
+    * [3. Configurar e Rodar o Backend (API Java)](#3-configurar-e-rodar-o-backend-api-java)
+    * [4. Configurar e Rodar o Frontend (React)](#4-configurar-e-rodar-o-frontend-react)
+* [Estrutura do Projeto](#estrutura-do-projeto)
+* [Endpoints da API](#endpoints-da-api)
+* [Código-Fonte Completo do Frontend](#código-fonte-completo-do-frontend)
+    * [`src/main.jsx`](#srcmainjsx)
+    * [`src/App.jsx`](#srcappjsx)
+    * [`src/App.css`](#srcappcss)
+    * [`src/components/Layout.jsx`](#srccomponentslayoutjsx)
+    * [`src/components/Spinner.jsx`](#srccomponentsspinnerjsx)
+    * [`src/pages/BuscaCliente.jsx`](#srcpagesbuscaclientejsx)
+    * [`src/pages/NovoCliente.jsx`](#srcpagesnovoclientejsx)
+    * [`src/pages/Dashboard.jsx`](#srcpagesdashboardjsx)
+    * [`src/pages/Calculo.jsx`](#srcpagescalculojsx)
+    * [`src/pages/Resultado.jsx`](#srcpagesresultadojsx)
 
-Acesso a Dados: JDBC com pool de conexões HikariCP
+---
 
-Função: Servir como uma API REST pura, responsável por toda a lógica de negócio, cálculos fiscais, segurança e persistência de dados. Não gera HTML, apenas consome e produz dados em formato JSON.
+## Funcionalidades Principais
 
-Frontend (Single-Page Application)
-Framework: React 18 com Vite
+* **Gestão de Clientes:** Cadastro, busca e atualização de clientes.
+* **Cálculo do Simples Nacional:** Lógica completa para cálculo com atividades concomitantes (múltiplos anexos).
+* **Fator R:** Cálculo automático do Fator R para enquadramento correto nos Anexos III e V.
+* **Histórico de Cálculos:** Consulta detalhada de todos os cálculos já realizados para um cliente.
+* **Interface Moderna:** Experiência de usuário fluida e reativa, com notificações, máscaras de input e design profissional.
 
-Linguagem: JavaScript (JSX)
+---
 
-Comunicação com API: Axios
+## Tech Stack (Tecnologias Utilizadas)
 
-Estilização: CSS puro com variáveis
+### Backend (API REST)
 
-Função: Construir uma interface de utilizador rica e interativa que corre inteiramente no navegador do cliente. É responsável por toda a apresentação visual e consome os dados fornecidos pela API do backend.
+* **Linguagem:** Java 21
+* **Framework:** Spring Boot 3
+* **Build Tool:** Apache Maven
+* **Banco de Dados:** PostgreSQL
+* **Acesso a Dados:** JDBC com pool de conexões HikariCP
+* **Serialização:** Jackson (para dados JSON)
 
-3. Como Executar o Projeto
-Para executar a aplicação completa, é necessário iniciar os dois servidores (backend e frontend) em terminais separados.
+### Frontend (SPA - Single-Page Application)
 
-Pré-requisitos
-Java JDK 21 ou superior
+* **Framework:** React 18 com Vite
+* **Linguagem:** JavaScript (JSX)
+* **Roteamento:** React Router DOM
+* **Requisições HTTP:** Axios
+* **UI/UX:**
+    * **Notificações:** React Toastify
+    * **Máscaras de Input:** React Input Mask
+    * **Ícones:** Lucide Icons
 
-Maven 3.8 ou superior
+---
 
-Node.js 18 ou superior
+## Pré-requisitos
 
-Uma instância do PostgreSQL em execução
+Antes de começar, garanta que você tem as seguintes ferramentas instaladas em seu sistema:
 
-Passo 1: Configurar o Backend
-Navegue até à pasta do backend:
+* **Java JDK 21** ou superior
+* **Apache Maven 3.8+**
+* **Node.js v18+** (que inclui o npm)
+* **PostgreSQL 14+** (ou um servidor PostgreSQL rodando)
+* **Git** para clonar o repositório.
 
-cd notus-sistema-fiscal-backend
+---
 
-Configure as suas credenciais do banco de dados no ficheiro src/main/resources/application.properties.
+## Guia de Instalação e Execução
 
-Execute a aplicação Spring Boot:
+Siga estes passos para ter o ambiente completo rodando localmente.
 
-Pelo seu IDE (VS Code, IntelliJ), execute a classe principal SistemaFiscalApplication.java.
+### 1. Clonar o Repositório
 
-Ou, via terminal, use o Maven: mvn spring-boot:run
+```bash
+git clone [https://url-do-seu-repositorio.git](https://url-do-seu-repositorio.git)
+cd nome-da-pasta-do-projeto
+2. Configurar o Banco de Dados (PostgreSQL)
+a. Crie o banco de dados e o usuário:
+Use um cliente SQL (como DBeaver, pgAdmin ou o psql no terminal) para executar os seguintes comandos:
 
-O servidor da API estará em execução em http://localhost:8080.
+SQL
 
-Passo 2: Iniciar o Frontend
-Abra um novo terminal e navegue até à pasta do frontend:
+-- Crie um usuário para a aplicação (substitua 'senhaforte' por uma senha segura)
+CREATE USER notus_user WITH PASSWORD 'senhaforte';
 
-cd notus-sistema-fiscal-frontend
+-- Crie o banco de dados
+CREATE DATABASE notus_fiscal OWNER notus_user;
+b. Crie os Schemas e as Tabelas:
+Conecte-se ao banco de dados notus_fiscal recém-criado e execute os comandos abaixo:
 
-Instale as dependências (apenas na primeira vez):
+SQL
+
+-- Garante que o usuário da aplicação seja o dono do schema public
+GRANT ALL ON SCHEMA public TO notus_user;
+
+-- Cria o schema para as tabelas do Simples Nacional
+CREATE SCHEMA IF NOT EXISTS simples_nacional;
+GRANT ALL ON SCHEMA simples_nacional TO notus_user;
+
+-- Tabela de Clientes
+CREATE TABLE public.clientes (
+    id BIGSERIAL PRIMARY KEY,
+    cnpj VARCHAR(14) NOT NULL UNIQUE,
+    razao_social VARCHAR(255) NOT NULL
+);
+
+-- Tabela de Parâmetros Fiscais
+CREATE TABLE simples_nacional.parametros_sn (
+    id BIGSERIAL PRIMARY KEY,
+    cliente_id BIGINT NOT NULL REFERENCES public.clientes(id),
+    rbt12_atual NUMERIC(15, 2) NOT NULL,
+    folha_pagamento_12m_atual NUMERIC(15, 2) NOT NULL
+);
+
+-- Tabela de Histórico de Cálculos
+CREATE TABLE simples_nacional.calculos (
+    id BIGSERIAL PRIMARY KEY,
+    cliente_id BIGINT NOT NULL REFERENCES public.clientes(id),
+    mes_referencia INT NOT NULL,
+    ano_referencia INT NOT NULL,
+    das_total NUMERIC(15, 2) NOT NULL,
+    data_calculo TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    detalhes_json JSONB,
+    CONSTRAINT unique_calculo_periodo UNIQUE (cliente_id, mes_referencia, ano_referencia)
+);
+3. Configurar e Rodar o Backend (API Java)
+a. Navegue até a pasta do backend:
+
+Bash
+
+cd backend
+b. Configure a Conexão com o Banco:
+Abra o arquivo src/main/resources/application.properties e edite as informações de conexão:
+
+Properties
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/notus_fiscal
+spring.datasource.username=notus_user
+spring.datasource.password=senhaforte
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.maximum-pool-size=5
+c. Instale as dependências e rode a aplicação:
+
+Bash
+
+# Baixa as dependências e compila o projeto
+mvn clean install
+
+# Inicia a aplicação
+mvn spring-boot:run
+O backend estará rodando na porta 8080.
+
+4. Configurar e Rodar o Frontend (React)
+a. Abra um novo terminal e navegue até a pasta do frontend:
+
+Bash
+
+cd frontend
+b. Instale as dependências:
+
+Bash
 
 npm install
+c. Rode o servidor de desenvolvimento:
 
-Inicie o servidor de desenvolvimento do React:
+Bash
 
 npm run dev
+O frontend estará rodando, geralmente, em http://localhost:5173.
 
-A interface do utilizador estará acessível em http://localhost:5173 (ou na porta indicada pelo Vite).
+Estrutura do Projeto
+O projeto é um monorepo com duas pastas principais:
 
-4. Estrutura de Pastas
-O repositório está organizado da seguinte forma:
+/backend: Contém a API REST em Java/Spring.
 
-/notus-sistema-fiscal
-├── .gitignore                # Ficheiro de exclusão do Git
-├── README.md                 # Este ficheiro
-├── notus-sistema-fiscal-backend/ # Projeto do Backend (Java/Spring Boot)
-│   ├── src/
-│   └── pom.xml
-└── notus-sistema-fiscal-frontend/ # Projeto do Frontend (React/Vite)
-    ├── src/
-    ├── public/
-    └── package.json
+/frontend: Contém a aplicação React/Vite.
 
-5. Próximos Passos (Roadmap)
-A plataforma está em constante evolução. Os próximos grandes objetivos incluem:
+src/components/: Componentes reutilizáveis (Layout, Sidebar, Spinner).
 
-Dashboard do Cliente: Uma página central com o histórico de cálculos.
-
-Autenticação e Permissões: Sistema de login para diferentes tipos de utilizadores (Contador, Gerente).
-
-Portal do Cliente: Uma área segura para o cliente final aceder a documentos.
-
-Gestão de Documentos: Funcionalidade de upload e download de ficheiros.
+src/pages/: Componentes que representam as telas/páginas da aplicação.

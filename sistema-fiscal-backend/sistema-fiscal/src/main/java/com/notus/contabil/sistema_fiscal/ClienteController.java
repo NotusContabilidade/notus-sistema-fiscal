@@ -2,10 +2,13 @@ package com.notus.contabil.sistema_fiscal;
 
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +21,6 @@ public class ClienteController {
 
     private final DatabaseManager dbManager = new DatabaseManager();
 
-    // Novo DTO para enviar todos os dados do dashboard de uma só vez
     public record ClienteDashboardDTO(DatabaseManager.Cliente cliente, DatabaseManager.ParametrosSN parametros) {}
 
     @GetMapping
@@ -29,35 +31,63 @@ public class ClienteController {
 
         if (clienteOpt.isPresent()) {
             DatabaseManager.Cliente cliente = clienteOpt.get();
-            // Busca também os parâmetros fiscais
             Optional<DatabaseManager.ParametrosSN> parametrosOpt = dbManager.parametrosSNDAO.findByClienteId(cliente.id());
             
             if (parametrosOpt.isPresent()) {
-                // Se encontrar tudo, envia o DTO completo
                 return ResponseEntity.ok(new ClienteDashboardDTO(cliente, parametrosOpt.get()));
             }
         }
         
-        // Se não encontrar o cliente ou os parâmetros, retorna Not Found
         return ResponseEntity.notFound().build();
     }
 
-    // O endpoint de salvar cliente permanece o mesmo
     public record NovoClienteDTO(String cnpj, String razaoSocial, double rbt12, double folha12m) {}
+    
     @PostMapping
     public ResponseEntity<DatabaseManager.Cliente> salvarCliente(@RequestBody NovoClienteDTO novoClienteDTO) {
-        // ... (código sem alterações)
         try {
-            String cnpjLimpo = novoClienteDTO.cnpj().replaceAll("[^0-9]", "");
+            String cnpjLimpo = novoClienteDTO.cnpj().replaceAll("[^0-g]", "");
             if (dbManager.clienteDAO.findByCnpj(cnpjLimpo).isPresent()) {
-                return ResponseEntity.status(org.springframework.http.HttpStatus.CONFLICT).build();
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
             DatabaseManager.Cliente clienteSalvo = dbManager.clienteDAO.save(cnpjLimpo, novoClienteDTO.razaoSocial());
             dbManager.parametrosSNDAO.save(clienteSalvo.id(), novoClienteDTO.rbt12(), novoClienteDTO.folha12m());
-            return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(clienteSalvo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
         } catch (Exception e) {
             e.printStackTrace(); 
-            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    // --- NOVO ENDPOINT PARA ATUALIZAR PARÂMETROS ---
+    public record ParametrosUpdateDTO(double rbt12, double folha12m) {}
+
+    @PutMapping("/{clienteId}/parametros")
+    public ResponseEntity<?> updateParametros(@PathVariable Long clienteId, @RequestBody ParametrosUpdateDTO dto) {
+        try {
+            dbManager.parametrosSNDAO.updateByClienteId(clienteId, dto.rbt12(), dto.folha12m());
+            return ResponseEntity.ok().build(); // Retorna 200 OK se for bem-sucedido
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    // ADICIONE ESTE NOVO MÉTODO DENTRO DA CLASSE ClienteController
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> buscarClientePorId(@PathVariable Long id) {
+        Optional<DatabaseManager.Cliente> clienteOpt = dbManager.clienteDAO.findById(id);
+
+        if (clienteOpt.isPresent()) {
+            DatabaseManager.Cliente cliente = clienteOpt.get();
+            Optional<DatabaseManager.ParametrosSN> parametrosOpt = dbManager.parametrosSNDAO.findByClienteId(cliente.id());
+            
+            // Retorna o mesmo DTO do dashboard, garantindo consistência
+            if (parametrosOpt.isPresent()) {
+                return ResponseEntity.ok(new ClienteDashboardDTO(cliente, parametrosOpt.get()));
+            }
+        }
+        
+        return ResponseEntity.notFound().build();
     }
 }
