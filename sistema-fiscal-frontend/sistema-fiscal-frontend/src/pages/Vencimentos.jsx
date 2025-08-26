@@ -10,7 +10,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import ControleVencimentos from '../components/ControleVencimentos';
-import { useDebounce } from '../hooks/useDebounce'; // ✅ 1. Importar o seu hook de debounce
+import { useDebounce } from '../hooks/useDebounce';
+import FormularioVencimento from '../components/FormularioVencimento'; // ✅ 1. Importar o formulário
 
 // Configs (sem mudanças)
 const locales = { 'pt-BR': ptBR };
@@ -23,26 +24,27 @@ function Vencimentos() {
     const [isLoading, setIsLoading] = useState(true);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState(Views.MONTH);
-
-    // ✅ 2. ESTADOS PARA GERENCIAR O FILTRO
     const [filtro, setFiltro] = useState('');
-    // Usa o debounce para esperar 500ms após o usuário parar de digitar antes de pesquisar
     const filtroDebounced = useDebounce(filtro, 500);
 
-    const fetchEventos = useCallback(async (start, end, filtroAtual) => {
+    // ✅ 2. State para controlar a visibilidade do modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // Função para buscar eventos (agora com useCallback para incluir na dependência do useEffect)
+    const fetchEventos = useCallback(async () => {
         setIsLoading(true);
+        const primeiroDia = new Date(date.getFullYear(), date.getMonth(), 1);
+        const ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+        const startDate = format(primeiroDia, 'yyyy-MM-dd');
+        const endDate = format(ultimoDia, 'yyyy-MM-dd');
+        
+        let apiUrl = `http://localhost:8080/api/vencimentos?start=${startDate}&end=${endDate}`;
+        if (filtroDebounced) {
+            apiUrl += `&filtro=${encodeURIComponent(filtroDebounced)}`;
+        }
+        
         try {
-            const startDate = format(start, 'yyyy-MM-dd');
-            const endDate = format(end, 'yyyy-MM-dd');
-            
-            // ✅ 3. MODIFICAR A URL DA API PARA INCLUIR O FILTRO
-            let apiUrl = `http://localhost:8080/api/vencimentos?start=${startDate}&end=${endDate}`;
-            if (filtroAtual) {
-                apiUrl += `&filtro=${encodeURIComponent(filtroAtual)}`;
-            }
-
             const response = await axios.get(apiUrl);
-            
             const eventosFormatados = response.data.map(evento => ({ ...evento, start: new Date(evento.start), end: new Date(evento.end) }));
             setEventos(eventosFormatados);
         } catch (error) {
@@ -50,21 +52,26 @@ function Vencimentos() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [date, filtroDebounced]); // Depende da data e do filtro
 
-    // ✅ 4. O useEffect AGORA REAGE TAMBÉM AO FILTRO "DEBOUNCED"
     useEffect(() => {
-        const [start, end] = (() => {
-            const primeiroDia = new Date(date.getFullYear(), date.getMonth(), 1);
-            const ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
-            return [primeiroDia, ultimoDia];
-        })();
-        
-        fetchEventos(start, end, filtroDebounced);
-
-    }, [date, view, filtroDebounced, fetchEventos]);
+        fetchEventos();
+    }, [fetchEventos]);
 
     const eventPropGetter = useCallback((event) => ({ className: `status-${event.status}` }), []);
+
+    // ✅ 3. Função para salvar o novo vencimento
+    const handleSaveVencimento = async (formData) => {
+        try {
+            await axios.post('http://localhost:8080/api/vencimentos', formData);
+            toast.success('Vencimento salvo com sucesso!');
+            setIsModalOpen(false); // Fecha o modal
+            fetchEventos(); // Atualiza o calendário com o novo evento
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Erro ao salvar o vencimento.');
+            // Não fecha o modal em caso de erro, para o usuário poder corrigir
+        }
+    };
 
     return (
         <div className="view-container">
@@ -72,8 +79,11 @@ function Vencimentos() {
                 <h1 className="page-title">Controle de Vencimentos</h1>
             </div>
 
-            {/* ✅ 5. PASSAR O ESTADO E A FUNÇÃO PARA O COMPONENTE FILHO */}
-            <ControleVencimentos filtro={filtro} onFiltroChange={setFiltro} />
+            <ControleVencimentos 
+                filtro={filtro} 
+                onFiltroChange={setFiltro}
+                onAdicionarClick={() => setIsModalOpen(true)} // ✅ 4. Ação para abrir o modal
+            />
             
             <div className="card" style={{ height: '75vh', padding: '1rem', position: 'relative', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
                 {isLoading && <div style={{position: 'absolute', top: '50%', left: '50%'}}><Spinner/></div>}
@@ -92,6 +102,13 @@ function Vencimentos() {
                     onView={newView => setView(newView)}
                 />
             </div>
+
+            {/* ✅ 5. Renderizar o formulário modal */}
+            <FormularioVencimento 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveVencimento}
+            />
         </div>
     );
 }

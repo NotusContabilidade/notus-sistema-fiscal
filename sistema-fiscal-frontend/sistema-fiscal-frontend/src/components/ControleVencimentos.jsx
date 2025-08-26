@@ -1,8 +1,8 @@
 import React from 'react';
 import { PlusCircle, Search } from 'lucide-react';
 
-// ✅ CORREÇÃO: O componente agora recebe props do componente pai.
-function ControleVencimentos({ filtro, onFiltroChange }) {
+// Agora o componente recebe a função onAdicionarClick
+function ControleVencimentos({ filtro, onFiltroChange, onAdicionarClick }) {
   return (
     <div className="card controle-vencimentos-card">
       <div className="form-group-inline">
@@ -13,14 +13,14 @@ function ControleVencimentos({ filtro, onFiltroChange }) {
             type="text"
             id="filtroCliente"
             placeholder="Digite o nome ou CNPJ..."
-            // ✅ CORREÇÃO: O valor e a ação de mudança vêm do pai.
             value={filtro}
             onChange={e => onFiltroChange(e.target.value)}
           />
         </div>
       </div>
       
-      <button className="btn-primario">
+      {/* O clique neste botão agora chama a função passada pelo pai */}
+      <button className="btn-primario" onClick={onAdicionarClick}>
         <PlusCircle size={16} />
         <span>Adicionar Novo Vencimento</span>
       </button>
