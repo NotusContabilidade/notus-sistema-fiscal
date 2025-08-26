@@ -1,27 +1,33 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Users } from 'lucide-react'; 
+// 1. Importe o 'Link' do react-router-dom
+import { NavLink, Outlet, Link } from 'react-router-dom';
+import { LayoutDashboard, Users, CalendarClock } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Sidebar = () => {
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <img src="/logo-notus.jpg" alt="Logotipo Nótus Contábil" className="sidebar-logo" />
-        <div className="sidebar-title">Nótus Fiscal</div>
-      </div>
-      <ul className="sidebar-nav">
-        <li className="sidebar-nav-item">
-          <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
-            <Users size={20} />
-            <span>Clientes</span>
-          </NavLink>
-        </li>
-      </ul>
-    </aside>
-  );
-};
+const Header = () => (
+  <header className="top-navbar">
+    {/* 2. O <div> foi trocado por um <Link> que aponta para a home "/" */}
+    <Link to="/" className="navbar-brand">
+      <img src="/logo-notus.jpg" alt="Logotipo Nótus Contábil" className="navbar-logo" />
+      <h1>Nótus Sistema Fiscal</h1>
+    </Link>
+    <nav className="navbar-links">
+      <NavLink to="/" end>
+        <LayoutDashboard size={18} />
+        <span>Dashboard Gerencial</span>
+      </NavLink>
+      <NavLink to="/clientes/busca">
+        <Users size={18} />
+        <span>Clientes</span>
+      </NavLink>
+      <a href="#vencimentos" className="disabled-link">
+        <CalendarClock size={18} />
+        <span>Vencimentos</span>
+      </a>
+    </nav>
+  </header>
+);
 
 const Footer = () => (
   <footer className="app-footer">
@@ -31,7 +37,7 @@ const Footer = () => (
 
 function Layout() {
   return (
-    <div className="app-layout">
+    <div className="app-layout-vertical">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -44,13 +50,11 @@ function Layout() {
         pauseOnHover
         theme="colored"
       />
-      <Sidebar />
-      <div className="content-wrapper">
-        <main className="main-content">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      <Header />
+      <main className="main-content">
+        <Outlet />
+      </main>
+      <Footer />
     </div>
   );
 }

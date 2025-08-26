@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
-// 1. Nova importação da biblioteca 'react-imask'
 import { IMaskInput } from 'react-imask';
 
 function NovoCliente() {
@@ -17,6 +16,9 @@ function NovoCliente() {
   useEffect(() => {
     if (location.state?.cnpj) {
       setCnpj(location.state.cnpj);
+    }
+    if (location.state?.razaoSocial) {
+      setForm(prev => ({ ...prev, razaoSocial: location.state.razaoSocial }));
     }
   }, [location.state]);
 
@@ -36,10 +38,19 @@ function NovoCliente() {
         folha12m: parseFloat(form.folha12m)
       };
       const response = await axios.post('http://localhost:8080/api/clientes', payload);
-      toast.success('Cliente cadastrado com sucesso!');
-      navigate(`/clientes/${response.data.id}/dashboard`);
+      toast.success('Cliente cadastrado/atualizado com sucesso!');
+      
+      // ✅ MUDANÇA: Passa o objeto completo (cliente + parâmetros) recebido do backend para a página de dashboard.
+      navigate(`/clientes/${response.data.cliente.id}/dashboard`, { 
+          state: { clienteData: response.data } 
+      });
+
     } catch (error) {
-      toast.error('Não foi possível salvar o cliente. Verifique os dados.');
+      if (error.response && error.response.status === 409) {
+        toast.error('Este CNPJ já está cadastrado no sistema.');
+      } else {
+        toast.error('Não foi possível salvar o cliente. Verifique os dados.');
+      }
       setIsLoading(false);
     }
   };
@@ -50,12 +61,10 @@ function NovoCliente() {
       <form className="card" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>CNPJ</label>
-          {/* 2. Uso do novo componente IMaskInput */}
           <IMaskInput
             mask="00.000.000/0000-00"
             value={cnpj}
             disabled
-            className="form-group-input"
           />
         </div>
         <div className="form-group">

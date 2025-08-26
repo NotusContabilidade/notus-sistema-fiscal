@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom'; 
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
@@ -19,38 +19,40 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [cliente, setCliente] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); 
+  
   const [isEditingParams, setIsEditingParams] = useState(false);
   const [editedParams, setEditedParams] = useState({ rbt12: 0, folha12m: 0 });
   const [historico, setHistorico] = useState([]);
   const [historicoVisivel, setHistoricoVisivel] = useState(false);
   const [isLoadingHistorico, setIsLoadingHistorico] = useState(false);
 
-  // Usamos useCallback para evitar que a função seja recriada a cada renderização
   const fetchCliente = useCallback(async () => {
+    // Não precisa de setIsLoading(true) aqui, pois o estado inicial já cuida disso
     try {
-      // Este endpoint precisa ser criado no seu backend
       const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
       setCliente(response.data);
-      setEditedParams({
-        rbt12: response.data.parametros.rbt12Atual,
-        folha12m: response.data.parametros.folhaPagamento12mAtual
-      });
+      // Garante que o estado de edição seja populado corretamente
+      if (response.data.parametros) {
+        setEditedParams({
+          rbt12: response.data.parametros.rbt12Atual,
+          folha12m: response.data.parametros.folhaPagamento12mAtual
+        });
+      }
     } catch (error) {
       toast.error("Não foi possível carregar os dados do cliente.");
-      navigate('/');
+      navigate('/clientes/busca'); // Redireciona para a busca em caso de erro
     } finally {
       setIsLoading(false);
     }
   }, [clienteId, navigate]);
 
-  // useEffect chama a função de busca quando o componente é montado
   useEffect(() => {
     fetchCliente();
-  }, [fetchCliente]);
+  }, [fetchCliente]); // A dependência aqui é a função em si, que já tem suas próprias dependências (clienteId, navigate)
 
   const handleUpdateParams = async () => {
-    setIsLoading(true);
+    setIsLoading(true); // Usando o isLoading principal para a ação de salvar
     try {
       const payload = {
         rbt12: parseFloat(editedParams.rbt12),
@@ -84,7 +86,7 @@ function Dashboard() {
     }
   };
   
-  // Exibe o esqueleto de carregamento enquanto busca os dados iniciais
+  // Tela de carregamento inicial
   if (isLoading) {
     return (
       <div className="view-container">
@@ -98,6 +100,9 @@ function Dashboard() {
       </div>
     );
   }
+
+  // Se, após o carregamento, o cliente ainda for nulo, não renderiza nada para evitar erros
+  if (!cliente) return null;
 
   return (
     <div className="view-container">
@@ -117,10 +122,15 @@ function Dashboard() {
                 <div className="form-group"><label>Folha (12m):</label><input type="number" step="0.01" value={editedParams.folha12m} onFocus={e => e.target.select()} onChange={e => setEditedParams({...editedParams, folha12m: e.target.value})} /></div>
               </>
             ) : (
-              <>
-                <p><strong>RBT12:</strong> R$ {cliente.parametros.rbt12Atual.toFixed(2)}</p>
-                <p><strong>Folha (12m):</strong> R$ {cliente.parametros.folhaPagamento12mAtual.toFixed(2)}</p>
-              </>
+              // Garante que a aplicação não quebre se os parâmetros forem nulos
+              cliente.parametros ? (
+                <>
+                  <p><strong>RBT12:</strong> R$ {cliente.parametros.rbt12Atual.toFixed(2)}</p>
+                  <p><strong>Folha (12m):</strong> R$ {cliente.parametros.folhaPagamento12mAtual.toFixed(2)}</p>
+                </>
+              ) : (
+                <p>Parâmetros fiscais não cadastrados.</p>
+              )
             )}
             <button type="button" className="btn-edit" onClick={() => setIsEditingParams(!isEditingParams)}>
               {isEditingParams ? <X size={20}/> : <Edit size={18}/>}
@@ -128,7 +138,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="botoes-acao">
-          <Link to="/" className="btn-secundario"><Search size={16}/> Nova Consulta</Link>
+          <Link to="/clientes/busca" className="btn-secundario"><Search size={16}/> Nova Consulta</Link>
           {isEditingParams ? 
             <button type="button" className="btn-primario" onClick={handleUpdateParams} disabled={isLoading}>{isLoading ? <Spinner /> : 'Salvar'}</button> :
             <>
@@ -150,11 +160,12 @@ function Dashboard() {
                     <td>{String(calc.mesReferencia).padStart(2, '0')}/{calc.anoReferencia}</td>
                     <td>R$ {calc.dasTotal.toFixed(2)}</td>
                     <td>
+                      {/* ✅ ESTA É A LINHA QUE FOI CORRIGIDA NA ETAPA ANTERIOR */}
                       <button 
                         type="button" 
                         className="btn-primario" 
                         style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}} 
-                        onClick={() => navigate(`/clientes/${clienteId}/resultado`, { state: { resultado: calc, cliente: cliente } })}>
+                        onClick={() => navigate(`/clientes/${clienteId}/resultado/${calc.id}`)}>
                         Ver Detalhes
                       </button>
                     </td>
@@ -162,7 +173,7 @@ function Dashboard() {
                 ))}
               </tbody>
             </table>
-          ) : <p>Nenhum cálculo encontrado no histórico.</p>}
+          ) : <p>Nenhum cálculo encontrado no histórico para este cliente.</p>}
         </div>
       )}
     </div>

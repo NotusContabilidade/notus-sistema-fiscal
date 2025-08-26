@@ -1,25 +1,58 @@
-import React from 'react';
-import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
+const SkeletonReport = () => (
+    <div className="card">
+        <div className="skeleton-card" style={{ height: '2em', width: '60%', margin: '0 auto 1rem auto', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></div>
+        <div className="skeleton-card" style={{ height: '1.5em', width: '80%', margin: '0 auto 2rem auto', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></div>
+        <div className="skeleton-card" style={{ height: '5em', width: '100%', margin: '0 auto 1rem auto', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></div>
+        <div className="skeleton-card" style={{ height: '10em', width: '100%', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></div>
+    </div>
+);
 
 function Resultado() {
-  const { clienteId } = useParams();
-  const location = useLocation();
+  const { clienteId, calculoId } = useParams();
   const navigate = useNavigate();
 
-  const { resultado, cliente } = location.state || {};
+  const [resultado, setResultado] = useState(null);
+  const [cliente, setCliente] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!resultado || !cliente) {
+  const fetchData = useCallback(async () => {
+    try {
+        const [calculoResponse, clienteResponse] = await Promise.all([
+            axios.get(`http://localhost:8080/api/calculos/${calculoId}`),
+            axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`)
+        ]);
+        
+        setResultado(calculoResponse.data);
+        setCliente(clienteResponse.data);
+
+    } catch (error) {
+        toast.error("Não foi possível carregar os dados do relatório.");
+        navigate(`/clientes/${clienteId}/dashboard`);
+    } finally {
+        setIsLoading(false);
+    }
+  }, [calculoId, clienteId, navigate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (isLoading) {
     return (
-      <div className='view-container'>
-        <div className="card">
-            <h3>Dados do cálculo não encontrados.</h3>
-            <p>Por favor, volte ao dashboard e tente novamente.</p>
-            <div className="botoes-acao">
-                <Link to="/" className="btn-primario">Voltar à Busca</Link>
-            </div>
-        </div>
+      <div className="view-container">
+        <div className="page-header"><h1 className="page-title">Relatório de Apuração</h1></div>
+        <SkeletonReport />
       </div>
     );
+  }
+
+  if (!resultado || !cliente) {
+    return null; 
   }
 
   return (
@@ -29,12 +62,12 @@ function Resultado() {
         <h3>{cliente.cliente.razaoSocial}</h3>
         <div className="info-relatorio-geral">
           <span><strong>Período de Apuração:</strong> {String(resultado.mesReferencia).padStart(2, '0')}/{resultado.anoReferencia}</span>
-          <span><strong>Data do Cálculo:</strong> {resultado.dataCalculo}</span>
+          <span><strong>Data do Cálculo:</strong> {resultado.dataCalculoFormatada}</span>
         </div>
         <div className="total-das">Valor Total do DAS: R$ {resultado.dasTotal.toFixed(2)}</div>
         
         <h4>Detalhamento por Atividade</h4>
-        {resultado.detalhes.length > 0 ? (
+        {resultado.detalhes && resultado.detalhes.length > 0 ? (
           resultado.detalhes.map((detalhe, index) => (
             <div key={index} className="detalhe-anexo-card">
               <h4>{detalhe.anexoAplicado.replace('Anexo', 'Anexo ')}</h4>
@@ -58,7 +91,7 @@ function Resultado() {
 
         <div className="botoes-acao">
           <button type="button" className="btn-secundario" onClick={() => navigate(`/clientes/${clienteId}/dashboard`)}>Voltar ao Dashboard</button>
-          <button type="button" className="btn-primario" onClick={() => navigate('/')}>Nova Consulta</button>
+          <Link to="/" className="btn-primario">Nova Consulta</Link>
         </div>
       </div>
     </div>

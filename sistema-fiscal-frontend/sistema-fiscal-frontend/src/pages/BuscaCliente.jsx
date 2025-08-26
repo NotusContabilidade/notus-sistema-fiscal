@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-// 1. Nova importação da biblioteca 'react-imask'
 import { IMaskInput } from 'react-imask';
 import Spinner from '../components/Spinner';
 
@@ -23,8 +22,23 @@ function BuscaCliente() {
     setIsLoading(true);
     try {
       const response = await axios.get(`http://localhost:8080/api/clientes?cnpj=${cnpjLimpo}`);
-      toast.success(`Cliente ${response.data.cliente.razaoSocial} encontrado!`);
-      navigate(`/clientes/${response.data.cliente.id}/dashboard`);
+      
+      // ✅ LÓGICA QUE ESPERA O DTO COMPLETO
+      if (response.data && response.data.parametros) {
+        toast.success(`Cliente ${response.data.cliente.razaoSocial} encontrado!`);
+        navigate(`/clientes/${response.data.cliente.id}/dashboard`);
+      } else if (response.data && response.data.cliente) {
+        toast.info('Cliente encontrado, mas os parâmetros fiscais precisam ser cadastrados.');
+        navigate(`/clientes/novo`, { 
+            state: { 
+                cnpj: cnpj,
+                razaoSocial: response.data.cliente.razaoSocial 
+            } 
+        });
+      } else {
+        // Fallback para uma resposta inesperada
+        throw new Error("Resposta inválida da API");
+      }
     } catch (error) {
       toast.info('Cliente não encontrado. Redirecionando para cadastro...');
       navigate(`/clientes/novo`, { state: { cnpj: cnpj } });
@@ -42,17 +56,12 @@ function BuscaCliente() {
       <div className="card">
         <form onSubmit={handleBuscarCliente}>
           <div className="input-group">
-            {/* 2. Uso do novo componente IMaskInput */}
             <IMaskInput
-              mask="00.000.000/0000-00" // A máscara agora usa '0' para dígitos
+              mask="00.000.000/0000-00"
               value={cnpj}
-              // O evento correto para atualizar o estado é 'onAccept'
-              // Ele entrega o valor já sem a máscara, mas vamos usar o onComplete para pegar o valor completo
               onAccept={(value) => setCnpj(value)}
               disabled={isLoading}
               placeholder="Digite o CNPJ para buscar"
-              // As classes e outras props do input normal funcionam aqui
-              className="form-group-input" // Você pode criar essa classe no CSS se quiser
             />
             <button type="submit" className="btn-primario" disabled={isLoading}>
               {isLoading ? <Spinner /> : 'Buscar'}

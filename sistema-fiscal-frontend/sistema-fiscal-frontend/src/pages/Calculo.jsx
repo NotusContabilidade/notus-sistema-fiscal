@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
@@ -7,9 +7,11 @@ import Spinner from '../components/Spinner';
 function Calculo() {
   const { clienteId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [cliente, setCliente] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [cliente, setCliente] = useState(location.state?.clienteData || null);
+  const [isLoading, setIsLoading] = useState(!location.state?.clienteData);
+
   const [mesRef, setMesRef] = useState(new Date().getMonth() + 1);
   const [anoRef, setAnoRef] = useState(new Date().getFullYear());
   const [receitas, setReceitas] = useState({
@@ -34,8 +36,10 @@ function Calculo() {
   }, [clienteId, navigate]);
 
   useEffect(() => {
-    fetchCliente();
-  }, [fetchCliente]);
+    if (!cliente) {
+      fetchCliente();
+    }
+  }, [cliente, fetchCliente]);
 
   const handleToggleAnexo = (anexo) => {
     setAnexosSelecionados(prev => prev.includes(anexo) ? prev.filter(a => a !== anexo) : [...prev, anexo]);
@@ -59,15 +63,22 @@ function Calculo() {
     try {
       const response = await axios.post('http://localhost:8080/api/calculos', requestData);
       toast.success("Cálculo realizado com sucesso!");
-      navigate(`/clientes/${clienteId}/resultado`, { state: { resultado: response.data, cliente: cliente } });
+      
+      // ✅ CORREÇÃO AQUI: Adicionamos o ID do cálculo (response.data.id) na URL
+      navigate(`/clientes/${clienteId}/resultado/${response.data.id}`, { 
+        state: { 
+          resultado: response.data, 
+          cliente: cliente 
+        } 
+      });
     } catch (error) {
       toast.error('Ocorreu um erro ao executar o cálculo.');
       setIsLoading(false);
     }
   };
 
-  if (isLoading) {
-    return <div className="view-container"><h1>Carregando...</h1></div>;
+  if (isLoading || !cliente) {
+    return <div className="view-container"><h1>Carregando dados do cliente...</h1></div>;
   }
 
   return (
@@ -82,7 +93,7 @@ function Calculo() {
         <div className="separador-ou">PREENCHIMENTO MANUAL</div>
         <div className="selecao-anexos">
             {['anexoI', 'anexoII', 'anexoIII', 'anexoIV', 'anexoV'].map(anexo => (
-                <button key={anexo} className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`} onClick={() => handleToggleAnexo(anexo)}>
+                <button key={anexo} type="button" className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`} onClick={() => handleToggleAnexo(anexo)}>
                     {anexo.replace('anexo', 'Anexo ')}
                 </button>
             ))}
