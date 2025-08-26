@@ -15,11 +15,6 @@
 /* ==========================================================================
    1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
    ========================================================================== */
-/* App.css (Versão Final com Barra de Navegação no Topo) */
-
-/* ==========================================================================
-   1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
-   ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 :root {
@@ -64,16 +59,13 @@ body {
   left: 0;
   z-index: 1000;
   box-sizing: border-box;
-
-.navbar-brand {
-  text-decoration: none; /* Remove o sublinhado do link do logo */
-}
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: 1rem;
+  text-decoration: none;
 }
 
 .navbar-logo {
@@ -114,7 +106,6 @@ body {
   color: var(--cor-texto);
 }
 
-/* Estilo para o link da página ativa */
 .navbar-links a.active {
   color: var(--cor-primaria);
   border-bottom-color: var(--cor-primaria);
@@ -131,7 +122,6 @@ body {
 .main-content {
   flex-grow: 1;
   padding: 2rem 3rem;
-  /* Adiciona um padding no topo igual à altura da navbar para o conteúdo não ficar escondido */
   padding-top: calc(var(--altura-navbar) + 2rem);
 }
 
@@ -144,8 +134,6 @@ body {
   border-top: 1px solid var(--cor-borda);
 }
 
-/* O restante do seu CSS continua aqui... */
-/* ... .card, .input-group, etc. ... */
 /* ==========================================================================
    4. COMPONENTES GERAIS (REUTILIZÁVEIS)
    ========================================================================== */
@@ -169,14 +157,15 @@ body {
 .form-group { text-align: left; margin-bottom: 1rem; }
 .form-group input { width: 100%; box-sizing: border-box; }
 
-.input-group input, .form-group input {
+.input-group input, .form-group input, .input-com-icone input {
   padding: 0.75rem;
   border: 1px solid var(--cor-borda);
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: 'Inter', sans-serif;
 }
-.input-group input:focus, .form-group input:focus {
+.input-group input:focus, .form-group input:focus, .input-com-icone input:focus {
   outline: none;
   border-color: var(--cor-primaria);
   box-shadow: 0 0 0 3px rgba(161, 55, 81, 0.2);
@@ -220,7 +209,7 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .historico-tabela th, .historico-tabela td { padding: 0.75rem; border-bottom: 1px solid var(--cor-borda); }
 .historico-tabela th { background-color: #f1f1f1; }
 .historico-tabela tr:hover { background-color: #f5f5f5; }
-.btn-edit { position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; padding: 5px; color: #6c757d; }
+.btn-edit { background: none; border: none; cursor: pointer; padding: 5px; color: #6c757d; }
 .btn-edit:hover { color: var(--cor-primaria); }
 
 .form-row { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
@@ -241,6 +230,23 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .relatorio-tabela th:not(:first-child), .relatorio-tabela td:not(:first-child) { text-align: right; }
 .relatorio-tabela .subtotal-row { font-weight: bold; border-top: 2px solid var(--cor-texto); background-color: #f8f9fa; }
 .info-extra-relatorio { text-align: right; font-size: 0.9rem; color: #555; margin-top: 0.5rem; padding-right: 0.75rem; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+.stat-card { background-color: #fff; border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; border-left: 5px solid #ccc; box-shadow: var(--sombra-card); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer; }
+.stat-card:hover { transform: translateY(-5px); box-shadow: var(--sombra-card-hover); }
+.stat-card-link { text-decoration: none; }
+.stat-card-icon { flex-shrink: 0; }
+.stat-card-info { display: flex; flex-direction: column; }
+.stat-card-title { font-size: 0.9rem; color: #6c757d; margin-bottom: 0.25rem; }
+.stat-card-value { font-size: 1.75rem; font-weight: bold; color: var(--cor-texto); }
+
+.lista-detalhes { margin-top: 2rem; animation: fadeIn 0.5s ease-in-out; }
+.lista-detalhes-tabela { width: 100%; text-align: left; border-collapse: collapse; }
+.lista-detalhes-tabela th { padding-bottom: 0.75rem; border-bottom: 2px solid var(--cor-borda); color: #6c757d; font-size: 0.9rem; }
+.lista-detalhes-tabela td { padding: 0.75rem 0; border-bottom: 1px solid var(--cor-borda); }
+.lista-detalhes-tabela tr:last-child td { border-bottom: none; }
+.lista-detalhes-tabela a { color: var(--cor-primaria); text-decoration: none; font-weight: 500; }
+.lista-detalhes-tabela a:hover { text-decoration: underline; }
 
 /* ==========================================================================
    6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
@@ -277,97 +283,74 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* Adicione no final do seu App.css */
 
-/* TELA DE DASHBOARD GERAL */
-.stats-grid {
-  display: grid;
-  /* Cria colunas flexíveis que se ajustam ao tamanho da tela */
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
+/* ==========================================================================
+   ESTILOS PARA O CALENDÁRIO E STATUS
+   ========================================================================== */
 
-.stat-card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
+.rbc-toolbar { margin-bottom: 1.5rem; }
+.rbc-toolbar .rbc-toolbar-label { font-size: 1.5rem; font-weight: 700; color: var(--cor-texto); }
+.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; }
+.rbc-btn-group button:hover { background-color: #f1f1f1; }
+.rbc-btn-group button.rbc-active { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: white; box-shadow: none; }
+.rbc-btn-group button.rbc-active:hover { background-color: #812c41; }
+.rbc-header { padding: 0.75rem 0; font-weight: 500; border-bottom: 2px solid var(--cor-borda); }
+.rbc-today { background-color: #fef9c3; }
+.rbc-event { border: none; border-radius: 4px; padding: 4px 8px; color: white; font-size: 0.8rem; }
+.rbc-event.status-PAGO { background-color: #16a34a; }
+.rbc-event.status-ATRASADO { background-color: #ef4444; }
+.rbc-event.status-PENDENTE { background-color: #3b82f6; }
+.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; color: white; text-transform: capitalize; }
+.status-badge.status-PAGO { background-color: #16a34a; }
+.status-badge.status-ATRASADO { background-color: #ef4444; }
+.status-badge.status-PENDENTE { background-color: #3b82f6; }
+
+
+/* ==========================================================================
+   ✅ NOVOS ESTILOS E CORREÇÕES PARA O PAINEL DE CONTROLE DE VENCIMENTOS
+   ========================================================================== */
+
+.controle-vencimentos-card {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
-  border-left: 5px solid #ccc; /* Borda colorida */
-  box-shadow: var(--sombra-card);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--sombra-card-hover);
-}
-
-.stat-card-icon {
-  flex-shrink: 0;
-}
-
-.stat-card-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-card-title {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 0.25rem;
-}
-
-.stat-card-value {
-  font-size: 1.75rem;
-  font-weight: bold;
-  color: var(--cor-texto);
-}
-/* Adicione no final do seu App.css */
-
-/* Estilos para as listas detalhadas do Dashboard Geral */
-.stat-card {
-  cursor: pointer; /* Indica que os cards são clicáveis */
-}
-.stat-card-link {
-  text-decoration: none; /* Remove o sublinhado do card "Total de Clientes" */
-}
-
-.lista-detalhes {
-  margin-top: 2rem;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-.lista-detalhes-tabela {
-  width: 100%;
-  text-align: left;
-  border-collapse: collapse;
-}
-
-.lista-detalhes-tabela th {
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--cor-borda);
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.lista-detalhes-tabela td {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--cor-borda);
-}
-
-.lista-detalhes-tabela tr:last-child td {
+  flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+  gap: 1.5rem; /* Espaçamento entre os grupos */
+  padding: 1.5rem;
+  margin-bottom: -1rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   border-bottom: none;
 }
 
-.lista-detalhes-tabela a {
-  color: var(--cor-primaria);
-  text-decoration: none;
-  font-weight: 500;
+/* Novo grupo para alinhar label e input horizontalmente */
+.form-group-inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.lista-detalhes-tabela a:hover {
-  text-decoration: underline;
+.form-group-inline label {
+  font-weight: 500;
+  color: var(--cor-texto);
+  flex-shrink: 0; /* Impede que o label encolha */
+}
+
+.input-com-icone {
+  position: relative;
+}
+
+.input-com-icone .input-icone {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+/* Regra corrigida para aplicar o estilo padrão + o padding do ícone */
+.input-com-icone input {
+  padding-left: 40px !important; /* Garante o espaço para o ícone */
+  width: 350px; /* Aumenta um pouco a largura */
+  box-sizing: border-box;
 }

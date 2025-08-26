@@ -1,5 +1,5 @@
 import React from 'react';
-// 1. Importe o 'Link' do react-router-dom
+// O import de NavLink já existia, então está tudo certo
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { LayoutDashboard, Users, CalendarClock } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Header = () => (
   <header className="top-navbar">
-    {/* 2. O <div> foi trocado por um <Link> que aponta para a home "/" */}
     <Link to="/" className="navbar-brand">
       <img src="/logo-notus.jpg" alt="Logotipo Nótus Contábil" className="navbar-logo" />
       <h1>Nótus Sistema Fiscal</h1>
@@ -21,10 +20,17 @@ const Header = () => (
         <Users size={18} />
         <span>Clientes</span>
       </NavLink>
-      <a href="#vencimentos" className="disabled-link">
+      
+      {/* ✅ ALTERAÇÃO REALIZADA AQUI 👇
+        - A tag <a> com a classe "disabled-link" foi substituída.
+        - Agora é um <NavLink> que aponta para a rota "/vencimentos".
+        - Ele funcionará em conjunto com a nova rota que você adicionou no App.jsx.
+      */}
+      <NavLink to="/vencimentos">
         <CalendarClock size={18} />
         <span>Vencimentos</span>
-      </a>
+      </NavLink>
+
     </nav>
   </header>
 );

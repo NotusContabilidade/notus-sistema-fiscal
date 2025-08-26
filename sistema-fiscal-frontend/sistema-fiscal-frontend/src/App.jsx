@@ -7,7 +7,8 @@ import NovoCliente from './pages/NovoCliente.jsx';
 import Calculo from './pages/Calculo.jsx';
 import Resultado from './pages/Resultado.jsx';
 import DashboardGeral from './pages/DashboardGeral.jsx';
-import TodosClientes from './pages/TodosClientes.jsx'; // ✅ 1. IMPORT DA NOVA PÁGINA
+import TodosClientes from './pages/TodosClientes.jsx';
+import Vencimentos from './pages/Vencimentos.jsx'; 
 
 function App() {
   return (
@@ -15,10 +16,9 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<DashboardGeral />} />
         <Route path="clientes/busca" element={<BuscaCliente />} />
-        
-        {/* ✅ 2. ROTA DA NOVA PÁGINA ADICIONADA */}
+                {/* ✅ 2. ROTA DA NOVA PÁGINA ADICIONADA */}
         <Route path="clientes/todos" element={<TodosClientes />} />
-        
+          <Route path="vencimentos" element={<Vencimentos />}/>
         <Route path="clientes/novo" element={<NovoCliente />} />
         <Route path="clientes/:clienteId/dashboard" element={<Dashboard />} />
         <Route path="clientes/:clienteId/calculo" element={<Calculo />} />
