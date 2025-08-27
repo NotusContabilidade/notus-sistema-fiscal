@@ -232,3 +232,39 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .btn-anexo.selecionado { background-color: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
 .anexo-bloco { border: 1px solid var(--cor-borda); border-radius: 8px; padding: 1.5rem; margin-top: 2rem; text-align: left; background-color: #fcfcfc; }
 .anexo-bloco h4 { margin-top: 0; color: var(--cor-primaria); border-bottom: 1px dashed var(--cor-borda); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+/* ==========================================================================
+   ESTILOS PARA O BOTÃO DE EXPORTAR DROPDOWN
+   ========================================================================== */
+
+.export-container {
+  position: relative; /* Essencial para o posicionamento do dropdown */
+  display: inline-block;
+}
+
+.export-dropdown {
+  position: absolute;
+  bottom: 110%; /* Posiciona o menu acima do botão */
+  right: 0;
+  background-color: white;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  box-shadow: var(--sombra-card-hover);
+  z-index: 20; /* Garante que fique sobre outros elementos */
+  width: 200px;
+  overflow: hidden; /* Garante que os links internos respeitem a borda arredondada */
+  animation: fadeIn 0.2s ease-in-out; /* Reutiliza nossa animação de fade */
+}
+
+.export-dropdown a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--cor-texto);
+  text-decoration: none;
+  text-align: left;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.export-dropdown a:hover {
+  background-color: #f1f1f1;
+}
