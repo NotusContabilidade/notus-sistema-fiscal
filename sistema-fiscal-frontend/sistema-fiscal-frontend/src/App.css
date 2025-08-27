@@ -10,7 +10,7 @@
  * 5. ESTILOS DE TELAS ESPECÍFICAS
  * 6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
  * 7. ANIMAÇÕES
- * 8. ESTILOS DE COMPONENTES ESPECÍFICOS (Calendário, Modal, etc)
+ * 8. ESTILOS DO MODAL E FORMULÁRIOS
 */
 
 /* ==========================================================================
@@ -24,7 +24,7 @@
   --cor-texto: #333;
   --cor-borda: #e0e0e0;
   --cor-erro: #d9534f;
-  --altura-navbar: 60px; /* Variável para a altura da barra de navegação */
+  --altura-navbar: 60px;
   --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.08);
   --sombra-card-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
@@ -40,168 +40,46 @@ body {
    2. ESTRUTURA PRINCIPAL E LAYOUT COM NAVBAR
    ========================================================================== */
 
-.app-layout-vertical {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.top-navbar {
-  width: 100%;
-  height: var(--altura-navbar);
-  background-color: #ffffff;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-sizing: border-box;
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  text-decoration: none;
-}
-
-.navbar-logo {
-  height: 40px;
-  background-color: var(--cor-primaria);
-  border-radius: 6px;
-  padding: 4px;
-}
-
-.navbar-brand h1 {
-  font-size: 1.25rem;
-  color: var(--cor-primaria);
-  margin: 0;
-  font-weight: 700;
-}
-
-.navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.navbar-links a {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: #4a5568;
-  text-decoration: none;
-  font-weight: 500;
-  border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
-  border-bottom: 3px solid transparent;
-}
-
-.navbar-links a:hover {
-  background-color: #f1f1f1;
-  color: var(--cor-texto);
-}
-
-.navbar-links a.active {
-  color: var(--cor-primaria);
-  border-bottom-color: var(--cor-primaria);
-}
-
-.navbar-links a.disabled-link {
-    color: #a0aec0;
-    cursor: not-allowed;
-}
-.navbar-links a.disabled-link:hover {
-    background-color: transparent;
-}
-
-.main-content {
-  flex-grow: 1;
-  padding: 2rem 3rem;
-  padding-top: calc(var(--altura-navbar) + 2rem);
-}
-
-.app-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #fff;
-  color: #6c757d;
-  font-size: 0.9rem;
-  border-top: 1px solid var(--cor-borda);
-}
+.app-layout-vertical { display: flex; flex-direction: column; min-height: 100vh; }
+.top-navbar { width: 100%; height: var(--altura-navbar); background-color: #ffffff; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); position: fixed; top: 0; left: 0; z-index: 1000; box-sizing: border-box; }
+.navbar-brand { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+.navbar-logo { height: 40px; background-color: var(--cor-primaria); border-radius: 6px; padding: 4px; }
+.navbar-brand h1 { font-size: 1.25rem; color: var(--cor-primaria); margin: 0; font-weight: 700; }
+.navbar-links { display: flex; align-items: center; gap: 0.5rem; }
+.navbar-links a { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; color: #4a5568; text-decoration: none; font-weight: 500; border-radius: 6px; transition: background-color 0.2s, color 0.2s; border-bottom: 3px solid transparent; }
+.navbar-links a:hover { background-color: #f1f1f1; color: var(--cor-texto); }
+.navbar-links a.active { color: var(--cor-primaria); border-bottom-color: var(--cor-primaria); }
+.navbar-links a.disabled-link { color: #a0aec0; cursor: not-allowed; }
+.navbar-links a.disabled-link:hover { background-color: transparent; }
+.main-content { flex-grow: 1; padding: 2rem 3rem; padding-top: calc(var(--altura-navbar) + 2rem); }
+.app-footer { text-align: center; padding: 1rem; background-color: #fff; color: #6c757d; font-size: 0.9rem; border-top: 1px solid var(--cor-borda); }
 
 /* ==========================================================================
    4. COMPONENTES GERAIS (REUTILIZÁVEIS)
    ========================================================================== */
 
-.card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: var(--sombra-card);
-  margin-top: 2rem;
-  border: 1px solid var(--cor-borda);
-  text-align: center;
-}
-
+.card { background-color: white; border-radius: 8px; padding: 2rem; box-shadow: var(--sombra-card); margin-top: 2rem; border: 1px solid var(--cor-borda); text-align: center; }
 .page-header { margin-bottom: 2rem; }
 .page-title { font-size: 2rem; font-weight: bold; color: var(--cor-texto); margin: 0; }
-
 .input-group { display: flex; justify-content: center; gap: 1rem; }
-.input-group input { width: 300px; }
-
 .form-group { text-align: left; margin-bottom: 1.25rem; }
 .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; }
-
-.input-group input, .form-group input, .form-group select, .form-group textarea, .input-com-icone input {
-  padding: 0.75rem;
-  border: 1px solid var(--cor-borda);
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  font-family: 'Inter', sans-serif;
-  background-color: #fff;
-}
-.input-group input:focus, .form-group input:focus, .form-group select:focus, .form-group textarea:focus, .input-com-icone input:focus {
-  outline: none;
-  border-color: var(--cor-primaria);
-  box-shadow: 0 0 0 3px rgba(161, 55, 81, 0.2);
-}
-
+.input-group input, .form-group input, .form-group select, .input-com-icone input { width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--cor-borda); border-radius: 4px; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; font-family: 'Inter', sans-serif; background-color: #fff; }
+.input-group input:focus, .form-group input:focus, .form-group select:focus, .input-com-icone input:focus { outline: none; border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(161, 55, 81, 0.2); }
 button { font-family: 'Inter', sans-serif; }
-.btn-primario, .btn-secundario {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
+.btn-primario, .btn-secundario { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s, transform 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-primario { background-color: var(--cor-primaria); color: white; }
 .btn-secundario { background-color: #6c757d; color: white; }
 .btn-primario:hover, .btn-secundario:hover { transform: translateY(-2px); }
 .btn-primario:hover { background-color: #812c41; }
 .btn-secundario:hover { background-color: #5a6268; }
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: none; }
-
 .botoes-acao { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--cor-borda); padding-top: 1.5rem; }
 .erro-mensagem { color: var(--cor-erro); font-weight: bold; margin-top: 1.5rem; }
 
 /* ==========================================================================
    5. ESTILOS DE TELAS ESPECÍFICAS
    ========================================================================== */
-
-/* ... (Estilos de telas específicas continuam aqui, sem alteração) ... */
 .welcome-card { margin-bottom: 2rem; background-color: transparent; border: none; box-shadow: none; }
 .welcome-card h3 { border-bottom: none; font-size: 1.5rem; }
 .welcome-card p { color: #6c757d; max-width: 500px; margin: 0 auto; }
@@ -214,23 +92,6 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .historico-tabela tr:hover { background-color: #f5f5f5; }
 .btn-edit { background: none; border: none; cursor: pointer; padding: 5px; color: #6c757d; }
 .btn-edit:hover { color: var(--cor-primaria); }
-.form-row { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
-.separador-ou { margin: 2rem auto; font-weight: bold; color: #999; text-align: center; }
-.selecao-anexos { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 1.5rem 0; padding-bottom: 1.5rem; border-bottom: 1px solid var(--cor-borda); }
-.btn-anexo { padding: 10px 15px; font-size: 0.9rem; border: 1px solid var(--cor-borda); background-color: #fff; color: #555; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
-.btn-anexo.selecionado { background-color: var(--cor-primaria); color: white; border-color: var(--cor-primaria); font-weight: bold; }
-.anexo-bloco { border: 1px solid var(--cor-borda); border-radius: 5px; padding: 1.5rem; margin-top: 1.5rem; text-align: left; }
-.anexo-bloco h4 { margin-top: 0; color: var(--cor-primaria); }
-.info-relatorio-geral { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--cor-borda); font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
-.total-das { font-size: 1.3rem; font-weight: bold; color: var(--cor-primaria); text-align: center; background-color: #fceeee; border: 1px solid var(--cor-primaria); padding: 1rem; border-radius: 4px; margin-bottom: 2rem; }
-.detalhe-anexo-card { margin-top: 1.5rem; border: 1px solid var(--cor-borda); border-radius: 5px; padding: 1.5rem; text-align: left; }
-.detalhe-anexo-card h4 { margin-top: 0; color: var(--cor-primaria); font-size: 1.2rem; }
-.relatorio-tabela { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-.relatorio-tabela th, .relatorio-tabela td { padding: 0.75rem; border-bottom: 1px solid #eee; }
-.relatorio-tabela th:first-child, .relatorio-tabela td:first-child { text-align: left; }
-.relatorio-tabela th:not(:first-child), .relatorio-tabela td:not(:first-child) { text-align: right; }
-.relatorio-tabela .subtotal-row { font-weight: bold; border-top: 2px solid var(--cor-texto); background-color: #f8f9fa; }
-.info-extra-relatorio { text-align: right; font-size: 0.9rem; color: #555; margin-top: 0.5rem; padding-right: 0.75rem; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
 .stat-card { background-color: #fff; border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; border-left: 5px solid #ccc; box-shadow: var(--sombra-card); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer; }
 .stat-card:hover { transform: translateY(-5px); box-shadow: var(--sombra-card-hover); }
@@ -250,21 +111,23 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 /* ==========================================================================
    6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
    ========================================================================== */
-/* ... (Spinner, Skeleton, Animações continuam aqui, sem alteração) ... */
 .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; width: 16px; height: 16px; animation: spin 1s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .skeleton-card { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+/* ==========================================================================
+   7. ANIMAÇÕES
+   ========================================================================== */
 .view-container { animation: fadeIn 0.5s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ==========================================================================
-   8. ESTILOS DE COMPONENTES ESPECÍFICOS
+   ESTILOS PARA O CALENDÁRIO E CONTROLES
    ========================================================================== */
-/* --- CALENDÁRIO E STATUS --- */
-.rbc-toolbar { margin-bottom: 1.5rem; }
+.rbc-toolbar { margin-bottom: 1.5rem; display: flex; /* Garante que os elementos ficam lado a lado */ flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */ justify-content: space-between; /* Espaço entre os grupos */ align-items: center; }
 .rbc-toolbar .rbc-toolbar-label { font-size: 1.5rem; font-weight: 700; color: var(--cor-texto); }
-.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; }
+.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; padding: 0.5rem 1rem; border-radius: 4px; /* Adiciona borda arredondada */ }
 .rbc-btn-group button:hover { background-color: #f1f1f1; }
 .rbc-btn-group button.rbc-active { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: white; box-shadow: none; }
 .rbc-btn-group button.rbc-active:hover { background-color: #812c41; }
@@ -278,8 +141,6 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .status-badge.status-PAGO { background-color: #16a34a; }
 .status-badge.status-ATRASADO { background-color: #ef4444; }
 .status-badge.status-PENDENTE { background-color: #3b82f6; }
-
-/* --- PAINEL DE CONTROLE DE VENCIMENTOS --- */
 .controle-vencimentos-card { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; padding: 1.5rem; margin-bottom: -1rem; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none; }
 .form-group-inline { display: flex; align-items: center; gap: 1rem; }
 .form-group-inline label { font-weight: 500; color: var(--cor-texto); flex-shrink: 0; }
@@ -287,53 +148,94 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .input-com-icone .input-icone { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
 .input-com-icone input { padding-left: 40px !important; width: 350px; box-sizing: border-box; }
 
-/* ✅ --- NOVOS ESTILOS PARA O MODAL DE FORMULÁRIO --- */
-.form-modal-header {
+
+/* ==========================================================================
+   ESTILOS PARA O MODAL E SEUS FORMULÁRIOS
+   ========================================================================== */
+
+/* Ajusta o padding do conteúdo do modal para ter espaço */
+.ReactModal__Content {
+  padding: 0 !important; /* Sobrescreve o padding padrão do react-modal */
+}
+
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--cor-borda);
 }
 
-.form-modal-header h2 {
+.modal-header h3 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--cor-primaria);
 }
 
-.modal-close-btn {
+.btn-close-modal {
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px;
   line-height: 1;
-  color: #888;
+  color: #6c757d;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+.btn-close-modal:hover {
+  background-color: #f1f1f1;
 }
 
-.modal-close-btn:hover {
-  color: var(--cor-texto);
+.modal-body {
+  padding: 1.5rem; /* ✅ AQUI ESTÁ O PADDING QUE ESTAVA FALTANDO */
 }
 
-.form-modal-body {
-  padding: 2rem;
-  text-align: left;
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid var(--cor-borda);
 }
 
-/* Garante que os botões dentro do modal não tenham borda superior */
-.form-modal-body .botoes-acao {
-  border-top: none;
-  padding-top: 0.5rem;
-  margin-top: 1rem;
-}
-
-/* Estilo para deixar o <select> parecido com o <input> */
+/* Padroniza a aparência dos <select> para combinar com os <input> */
 .form-group select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right .7em top 50%, 0 0;
-  background-size: .65em auto, 100%;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+/* ==========================================================================
+   Arquivo de Estilos Principal - Nótus Sistema Fiscal
+   ========================================================================== */
+/* ... (todo o seu CSS existente) ... */
+.view-container { animation: fadeIn 0.5s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   ESTILOS PARA O MODAL E SEUS FORMULÁRIOS
+   ========================================================================== */
+
+/* ... (estilos do modal existentes) ... */
+.form-group select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+
+/* ✅ NOVO ESTILO PARA AS MENSAGENS DE ERRO DO FORMULÁRIO */
+.erro-mensagem-form {
+  color: var(--cor-erro);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 5px;
+  margin-bottom: 0;
 }

@@ -1,42 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react'; // Adicionado useState para a lista de clientes
 import Modal from 'react-modal';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 
-// Estilos customizados para o Modal
+// Estilos customizados (sem alteração)
 const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '500px',
-    borderRadius: '8px',
-    padding: '2rem',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    border: 'none',
-  },
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)'
-  }
+  content: { top: '50%', left: '50%', right: 'auto', bottom: 'auto', marginRight: '-50%', transform: 'translate(-50%, -50%)', width: '500px', borderRadius: '8px', padding: '0', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', border: 'none', overflow: 'hidden' },
+  overlay: { backgroundColor: 'rgba(0, 0, 0, 0.75)', zIndex: 1100 }
 };
 
-function FormularioVencimento({ isOpen, onClose, onSave }) {
+function FormularioVencimento({ isOpen, onClose, onSave, onDelete, vencimentoParaEditar }) {
   const [clientes, setClientes] = useState([]);
-  const [formData, setFormData] = useState({
-    clienteId: '',
-    descricao: '',
-    dataVencimento: '',
-    status: 'PENDENTE',
-  });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Busca a lista de todos os clientes quando o modal é aberto
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    mode: 'onBlur',
+  });
+
+  const isEditing = !!vencimentoParaEditar;
+  
+  // ✅ CORREÇÃO: A função 'format' foi adicionada de volta aqui.
+  // Ela é necessária para garantir que a data seja passada para o input no formato AAAA-MM-DD.
+  const format = (date) => {
+    const d = new Date(date);
+    // Adiciona 1 ao dia para corrigir problemas de fuso horário que fazem a data voltar um dia
+    d.setDate(d.getDate() + 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   useEffect(() => {
     if (isOpen) {
+      if (isEditing) {
+        const descricaoLimpa = vencimentoParaEditar.title.split(' - ')[0];
+        reset({
+          clienteId: vencimentoParaEditar.clienteId || '',
+          descricao: descricaoLimpa || '',
+          dataVencimento: format(vencimentoParaEditar.start), // Agora a função 'format' existe
+          status: vencimentoParaEditar.status || 'PENDENTE',
+        });
+      } else {
+        reset({
+          clienteId: '',
+          descricao: '',
+          dataVencimento: '',
+          status: 'PENDENTE',
+        });
+      }
+
       const fetchClientes = async () => {
         try {
           const response = await axios.get('http://localhost:8080/api/clientes/todos');
@@ -47,56 +62,81 @@ function FormularioVencimento({ isOpen, onClose, onSave }) {
       };
       fetchClientes();
     }
-  }, [isOpen]);
+  }, [isOpen, vencimentoParaEditar, isEditing, reset]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const onFormSubmit = (data) => {
     setIsLoading(true);
-    // Chama a função onSave que foi passada pelo componente pai (Vencimentos.jsx)
-    onSave(formData)
+    onSave(data, vencimentoParaEditar?.id)
+      .catch(() => {})
       .finally(() => setIsLoading(false));
   };
 
+  const handleDelete = () => {
+      if (window.confirm("Tem certeza que deseja excluir este vencimento?")) {
+          setIsLoading(true);
+          onDelete(vencimentoParaEditar.id)
+              .finally(() => setIsLoading(false));
+      }
+  };
+
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles} contentLabel="Formulário de Novo Vencimento">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{marginTop: 0, color: 'var(--cor-primaria)'}}>Adicionar Novo Vencimento</h2>
-        <button onClick={onClose} className="btn-edit" style={{position: 'static'}}><X/></button>
+    <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles}>
+      <div className="modal-header">
+        <h3>{isEditing ? 'Editar Vencimento' : 'Adicionar Novo Vencimento'}</h3>
+        <button onClick={onClose} className="btn-close-modal"><X size={20}/></button>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="clienteId">Cliente</label>
-          <select id="clienteId" name="clienteId" value={formData.clienteId} onChange={handleChange} required>
-            <option value="" disabled>Selecione um cliente...</option>
-            {clientes.map(cliente => (
-              <option key={cliente.id} value={cliente.id}>
-                {cliente.razaoSocial}
-              </option>
-            ))}
-          </select>
+      <form onSubmit={handleSubmit(onFormSubmit)}>
+        <div className="modal-body">
+          <div className="form-group">
+            <label htmlFor="clienteId">Cliente</label>
+            <select
+              id="clienteId"
+              {...register("clienteId", { required: "Por favor, selecione um cliente." })}
+            >
+              <option value="" disabled>Selecione um cliente...</option>
+              {clientes.map(cliente => (
+                <option key={cliente.id} value={cliente.id}>{cliente.razaoSocial}</option>
+              ))}
+            </select>
+            {errors.clienteId && <p className="erro-mensagem-form">{errors.clienteId.message}</p>}
+          </div>
+          <div className="form-group">
+            <label htmlFor="descricao">Descrição</label>
+            <input
+              type="text"
+              id="descricao"
+              {...register("descricao", { required: "A descrição é obrigatória." })}
+            />
+            {errors.descricao && <p className="erro-mensagem-form">{errors.descricao.message}</p>}
+          </div>
+          <div className="form-group">
+            <label htmlFor="dataVencimento">Data de Vencimento</label>
+            <input
+              type="date"
+              id="dataVencimento"
+              {...register("dataVencimento", { required: "A data é obrigatória." })}
+            />
+            {errors.dataVencimento && <p className="erro-mensagem-form">{errors.dataVencimento.message}</p>}
+          </div>
+          <div className="form-group">
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              {...register("status", { required: "O status é obrigatório." })}
+            >
+              <option value="PENDENTE">Pendente</option>
+              <option value="PAGO">Pago</option>
+              <option value="ATRASADO">Atrasado</option>
+            </select>
+            {errors.status && <p className="erro-mensagem-form">{errors.status.message}</p>}
+          </div>
         </div>
-        <div className="form-group">
-          <label htmlFor="descricao">Descrição</label>
-          <input type="text" id="descricao" name="descricao" value={formData.descricao} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="dataVencimento">Data de Vencimento</label>
-          <input type="date" id="dataVencimento" name="dataVencimento" value={formData.dataVencimento} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="status">Status</label>
-          <select id="status" name="status" value={formData.status} onChange={handleChange} required>
-            <option value="PENDENTE">Pendente</option>
-            <option value="PAGO">Pago</option>
-            <option value="ATRASADO">Atrasado</option>
-          </select>
-        </div>
-        <div className="botoes-acao" style={{paddingTop: '1rem', borderTop: 'none', justifyContent: 'flex-end'}}>
+        <div className="modal-actions">
+          {isEditing && (
+            <button type="button" className="btn-secundario" onClick={handleDelete} disabled={isLoading} style={{ marginRight: 'auto', backgroundColor: '#ef4444' }}>
+              <Trash2 size={16}/> Excluir
+            </button>
+          )}
           <button type="button" className="btn-secundario" onClick={onClose}>Cancelar</button>
           <button type="submit" className="btn-primario" disabled={isLoading}>{isLoading ? 'Salvando...' : 'Salvar'}</button>
         </div>
