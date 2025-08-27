@@ -1,13 +1,13 @@
 package com.notus.contabil.sistema_fiscal;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime; // ✅ 1. Importar LocalDateTime
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes; // Import correto do Hibernate
+import org.hibernate.type.SqlTypes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;          // Import correto do Hibernate
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,9 +19,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist; // ✅ 2. Importar PrePersist
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 
 @Entity
@@ -44,17 +43,24 @@ public class Calculo {
     @Column(name = "das_total", nullable = false)
     private Double dasTotal;
     
-    @Column(name = "data_calculo", insertable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp dataCalculo;
+    // ✅ 3. MUDANÇA NA COLUNA DE DATA
+    // Removemos 'insertable=false' e 'updatable=false' e trocamos Timestamp por LocalDateTime
+    @Column(name = "data_calculo", updatable = false)
+    private LocalDateTime dataCalculo;
 
-    // Anotação nativa do Hibernate para JSON
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "detalhes_json", columnDefinition = "jsonb")
     private String detalhesJson;
 
     @Transient
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // ✅ 4. MÉTODO DE "CALLBACK" DO JPA
+    // Este método será executado automaticamente ANTES de um novo cálculo ser salvo.
+    @PrePersist
+    protected void onCreate() {
+        dataCalculo = LocalDateTime.now();
+    }
 
     public List<ResultadoCalculoDetalhado> getDetalhes() throws JsonProcessingException {
         if (this.detalhesJson == null || this.detalhesJson.isBlank()) {
@@ -65,7 +71,8 @@ public class Calculo {
 
     public String getDataCalculoFormatada() {
         if (this.dataCalculo == null) return "N/D";
-        return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(this.dataCalculo);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return this.dataCalculo.format(formatter);
     }
     
     // Getters e Setters
@@ -79,8 +86,8 @@ public class Calculo {
     public void setAnoReferencia(Integer anoReferencia) { this.anoReferencia = anoReferencia; }
     public Double getDasTotal() { return dasTotal; }
     public void setDasTotal(Double dasTotal) { this.dasTotal = dasTotal; }
-    public Timestamp getDataCalculo() { return dataCalculo; }
-    public void setDataCalculo(Timestamp dataCalculo) { this.dataCalculo = dataCalculo; }
+    public LocalDateTime getDataCalculo() { return dataCalculo; } // Tipo de retorno atualizado
+    public void setDataCalculo(LocalDateTime dataCalculo) { this.dataCalculo = dataCalculo; } // Tipo do parâmetro atualizado
     public String getDetalhesJson() { return detalhesJson; }
     public void setDetalhesJson(String detalhesJson) { this.detalhesJson = detalhesJson; }
 }
