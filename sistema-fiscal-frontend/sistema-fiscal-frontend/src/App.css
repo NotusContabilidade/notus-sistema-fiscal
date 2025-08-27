@@ -11,6 +11,7 @@
  * 6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
  * 7. ANIMAÇÕES
  * 8. ESTILOS DO MODAL E FORMULÁRIOS
+ * 9. ESTILOS PARA O PDF UPLOADER E PÁGINA DE CÁLCULO
 */
 
 /* ==========================================================================
@@ -59,7 +60,7 @@ body {
    ========================================================================== */
 
 .card { background-color: white; border-radius: 8px; padding: 2rem; box-shadow: var(--sombra-card); margin-top: 2rem; border: 1px solid var(--cor-borda); text-align: center; }
-.page-header { margin-bottom: 2rem; }
+.page-header { margin-bottom: 2rem; text-align: left; }
 .page-title { font-size: 2rem; font-weight: bold; color: var(--cor-texto); margin: 0; }
 .input-group { display: flex; justify-content: center; gap: 1rem; }
 .form-group { text-align: left; margin-bottom: 1.25rem; }
@@ -107,6 +108,55 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .lista-detalhes-tabela tr:last-child td { border-bottom: none; }
 .lista-detalhes-tabela a { color: var(--cor-primaria); text-decoration: none; font-weight: 500; }
 .lista-detalhes-tabela a:hover { text-decoration: underline; }
+.info-relatorio-geral { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--cor-borda); font-size: 0.9rem; color: #555; margin-bottom: 1.5rem; }
+.total-das { font-size: 1.3rem; font-weight: bold; color: var(--cor-primaria); text-align: center; background-color: #fdf2f2; border: 1px solid var(--cor-primaria); padding: 1rem; border-radius: 4px; margin: 1rem 0 2rem 0; }
+.detalhe-anexo-card { margin-top: 1.5rem; border: 1px solid var(--cor-borda); border-radius: 8px; padding: 1.5rem; text-align: left; background-color: #fafafa; }
+.detalhe-anexo-card h4 { margin-top: 0; color: var(--cor-primaria); font-size: 1.2rem; }
+
+/* ✅ SEÇÃO DE RELATÓRIO CORRIGIDA */
+.relatorio-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.relatorio-tabela th, .relatorio-tabela td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+.relatorio-tabela th {
+  text-align: left;
+  background-color: #f1f1f1;
+  font-weight: 500;
+  color: #555;
+}
+/* Alinha os cabeçalhos da 2a e 3a coluna à direita */
+.relatorio-tabela th:nth-child(2), .relatorio-tabela th:nth-child(3) {
+  text-align: right;
+}
+/* Alinha o conteúdo da 2a e 3a coluna à direita */
+.relatorio-tabela td:nth-child(2), .relatorio-tabela td:nth-child(3) {
+  text-align: right;
+  font-family: 'Inter', sans-serif; /* Remove a fonte "Courier New" */
+}
+.relatorio-tabela .subtotal-row td {
+  font-weight: bold;
+  border-top: 2px solid var(--cor-texto);
+  background-color: #f8f9fa;
+}
+.info-extra-relatorio {
+  display: flex; /* Adicionado para alinhar os itens */
+  justify-content: flex-end; /* Alinha tudo à direita */
+  align-items: center; /* Alinha verticalmente */
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 1rem;
+  border-top: 1px dashed var(--cor-borda);
+  padding-top: 1rem;
+}
+.info-extra-relatorio span {
+  margin-left: 1.5rem;
+}
+
 
 /* ==========================================================================
    6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
@@ -125,9 +175,9 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 /* ==========================================================================
    ESTILOS PARA O CALENDÁRIO E CONTROLES
    ========================================================================== */
-.rbc-toolbar { margin-bottom: 1.5rem; display: flex; /* Garante que os elementos ficam lado a lado */ flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */ justify-content: space-between; /* Espaço entre os grupos */ align-items: center; }
+.rbc-toolbar { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
 .rbc-toolbar .rbc-toolbar-label { font-size: 1.5rem; font-weight: 700; color: var(--cor-texto); }
-.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; padding: 0.5rem 1rem; border-radius: 4px; /* Adiciona borda arredondada */ }
+.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; padding: 0.5rem 1rem; border-radius: 4px; }
 .rbc-btn-group button:hover { background-color: #f1f1f1; }
 .rbc-btn-group button.rbc-active { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: white; box-shadow: none; }
 .rbc-btn-group button.rbc-active:hover { background-color: #812c41; }
@@ -148,94 +198,37 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: non
 .input-com-icone .input-icone { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
 .input-com-icone input { padding-left: 40px !important; width: 350px; box-sizing: border-box; }
 
-
 /* ==========================================================================
    ESTILOS PARA O MODAL E SEUS FORMULÁRIOS
    ========================================================================== */
-
-/* Ajusta o padding do conteúdo do modal para ter espaço */
-.ReactModal__Content {
-  padding: 0 !important; /* Sobrescreve o padding padrão do react-modal */
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--cor-borda);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--cor-primaria);
-}
-
-.btn-close-modal {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
-  color: #6c757d;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-.btn-close-modal:hover {
-  background-color: #f1f1f1;
-}
-
-.modal-body {
-  padding: 1.5rem; /* ✅ AQUI ESTÁ O PADDING QUE ESTAVA FALTANDO */
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  background-color: #f8f9fa;
-  border-top: 1px solid var(--cor-borda);
-}
-
-/* Padroniza a aparência dos <select> para combinar com os <input> */
-.form-group select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-}
-/* ==========================================================================
-   Arquivo de Estilos Principal - Nótus Sistema Fiscal
-   ========================================================================== */
-/* ... (todo o seu CSS existente) ... */
-.view-container { animation: fadeIn 0.5s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.ReactModal__Content { padding: 0 !important; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--cor-borda); }
+.modal-header h3 { margin: 0; font-size: 1.25rem; color: var(--cor-primaria); }
+.btn-close-modal { background: none; border: none; cursor: pointer; padding: 5px; line-height: 1; color: #6c757d; border-radius: 50%; transition: background-color 0.2s; }
+.btn-close-modal:hover { background-color: #f1f1f1; }
+.modal-body { padding: 1.5rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 1rem; padding: 1rem 1.5rem; background-color: #f8f9fa; border-top: 1px solid var(--cor-borda); }
+.form-group select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 12px; }
+.erro-mensagem-form { color: var(--cor-erro); font-size: 0.8rem; font-weight: 500; margin-top: 5px; margin-bottom: 0; }
 
 /* ==========================================================================
-   ESTILOS PARA O MODAL E SEUS FORMULÁRIOS
+   ESTILOS PARA O PDF UPLOADER E PÁGINA DE CÁLCULO
    ========================================================================== */
-
-/* ... (estilos do modal existentes) ... */
-.form-group select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-}
-
-/* ✅ NOVO ESTILO PARA AS MENSAGENS DE ERRO DO FORMULÁRIO */
-.erro-mensagem-form {
-  color: var(--cor-erro);
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-top: 5px;
-  margin-bottom: 0;
-}
+.pdf-uploader-container { border: 2px dashed var(--cor-borda); border-radius: 8px; padding: 1.5rem; margin-top: 1rem; margin-bottom: 1rem; }
+.dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; border-radius: 6px; background-color: #fafafa; color: #666; outline: none; cursor: pointer; transition: border-color .2s; }
+.dropzone.active { border-color: var(--cor-primaria); }
+.file-preview { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; margin-top: 1rem; background-color: #f1f1f1; border-radius: 4px; }
+.btn-remove-file { background: none; border: none; cursor: pointer; color: var(--cor-erro); padding: 0; line-height: 1; }
+.form-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; justify-content: flex-start; }
+.form-row .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
+.form-row .form-group input { width: 100%; }
+.separador-ou { text-align: center; margin: 2.5rem 0; font-weight: 500; color: #777; position: relative; display: flex; align-items: center; }
+.separador-ou::before, .separador-ou::after { content: ''; flex-grow: 1; height: 1px; background-color: var(--cor-borda); }
+.separador-ou::before { margin-right: 1rem; }
+.separador-ou::after { margin-left: 1rem; }
+.selecao-anexos { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.btn-anexo { background-color: #f0f0f0; color: #555; border: 1px solid var(--cor-borda); padding: 0.7rem 1.2rem; border-radius: 20px; cursor: pointer; transition: all 0.2s ease-in-out; }
+.btn-anexo:hover { background-color: #e0e0e0; }
+.btn-anexo.selecionado { background-color: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
+.anexo-bloco { border: 1px solid var(--cor-borda); border-radius: 8px; padding: 1.5rem; margin-top: 2rem; text-align: left; background-color: #fcfcfc; }
+.anexo-bloco h4 { margin-top: 0; color: var(--cor-primaria); border-bottom: 1px dashed var(--cor-borda); padding-bottom: 1rem; margin-bottom: 1.5rem; }

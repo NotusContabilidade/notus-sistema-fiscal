@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import PdfUploader from '../components/PdfUploader';
 
 function Calculo() {
   const { clienteId } = useParams();
@@ -24,31 +25,40 @@ function Calculo() {
   const [anexosSelecionados, setAnexosSelecionados] = useState([]);
 
   const fetchCliente = useCallback(async () => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
-      setCliente(response.data);
-    } catch (error) {
-      toast.error("Cliente não encontrado.");
-      navigate('/');
-    } finally {
-      setIsLoading(false);
+    if (clienteId && !cliente) {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
+        setCliente(response.data);
+      } catch (error) {
+        toast.error("Não foi possível carregar os dados do cliente.");
+        navigate('/clientes/todos');
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [clienteId, navigate]);
+  }, [clienteId, cliente, navigate]);
 
   useEffect(() => {
     if (!cliente) {
-      fetchCliente();
+        fetchCliente();
     }
   }, [cliente, fetchCliente]);
 
+
   const handleToggleAnexo = (anexo) => {
-    setAnexosSelecionados(prev => prev.includes(anexo) ? prev.filter(a => a !== anexo) : [...prev, anexo]);
+    setAnexosSelecionados(prev =>
+      prev.includes(anexo) ? prev.filter(a => a !== anexo) : [...prev, anexo]
+    );
   };
 
-  const handleReceitaChange = (anexo, tipo, valor) => {
-    setReceitas(prevState => ({
-      ...prevState,
-      [anexo]: { ...prevState[anexo], [tipo]: parseFloat(valor) || 0 }
+  const handleReceitaChange = (anexoKey, tipoReceita, valor) => {
+    setReceitas(prevReceitas => ({
+      ...prevReceitas,
+      [anexoKey]: {
+        ...prevReceitas[anexoKey],
+        [tipoReceita]: parseFloat(valor) || 0
+      }
     }));
   };
 
@@ -63,22 +73,47 @@ function Calculo() {
     try {
       const response = await axios.post('http://localhost:8080/api/calculos', requestData);
       toast.success("Cálculo realizado com sucesso!");
-      
-      // ✅ CORREÇÃO AQUI: Adicionamos o ID do cálculo (response.data.id) na URL
-      navigate(`/clientes/${clienteId}/resultado/${response.data.id}`, { 
-        state: { 
-          resultado: response.data, 
-          cliente: cliente 
-        } 
-      });
+      navigate(`/clientes/${clienteId}/resultado/${response.data.id}`);
     } catch (error) {
       toast.error('Ocorreu um erro ao executar o cálculo.');
       setIsLoading(false);
     }
   };
 
+  const handlePdfData = (data) => {
+    const valorComRetencao = parseFloat(data.comRetencao || 0);
+    const valorSemRetencao = parseFloat(data.semRetencao || 0);
+
+    toast.info(`Preenchendo R$ ${valorComRetencao.toFixed(2)} (com retenção) e R$ ${valorSemRetencao.toFixed(2)} (sem retenção)`);
+    
+    // Aplicando a regra de negócio: tudo para o Anexo III (para este tipo de PDF)
+    setReceitas(prevState => ({
+      ...prevState,
+      // Garante que outros anexos sejam zerados
+      anexoI: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 }, 
+      anexoII: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
+      anexoIII: {
+          ...prevState.anexoIII,
+          rpaNormal: valorSemRetencao, // Receita SEM retenção vai para "Receita Normal"
+          rpaRetencao: valorComRetencao // Receita COM retenção vai para "Receita c/ Retenção de ISS"
+      },
+      anexoIV: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
+      anexoV: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
+    }));
+
+    // Mostra apenas o Anexo III
+    setAnexosSelecionados(['anexoIII']);
+  };
+
   if (isLoading || !cliente) {
-    return <div className="view-container"><h1>Carregando dados do cliente...</h1></div>;
+    return (
+      <div className="view-container">
+        <div className="card" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Spinner />
+          <p style={{marginLeft: '1rem'}}>Carregando dados do cliente...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -90,22 +125,28 @@ function Calculo() {
           <div className="form-group"><label>Mês de Referência:</label><input type="number" value={mesRef} onChange={e => setMesRef(e.target.value)} min="1" max="12" /></div>
           <div className="form-group"><label>Ano de Referência:</label><input type="number" value={anoRef} onChange={e => setAnoRef(e.target.value)} min="2020" /></div>
         </div>
-        <div className="separador-ou">PREENCHIMENTO MANUAL</div>
+
+        <div className="separador-ou">PREENCHIMENTO AUTOMÁTICO (VIA PDF)</div>
+        <PdfUploader onUploadSuccess={handlePdfData} />
+
+        <div className="separador-ou">OU PREENCHA MANUALMENTE</div>
+        
         <div className="selecao-anexos">
-            {['anexoI', 'anexoII', 'anexoIII', 'anexoIV', 'anexoV'].map(anexo => (
-                <button key={anexo} type="button" className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`} onClick={() => handleToggleAnexo(anexo)}>
-                    {anexo.replace('anexo', 'Anexo ')}
-                </button>
-            ))}
+        {['anexoI', 'anexoII', 'anexoIII', 'anexoIV', 'anexoV'].map(anexo => (
+            <button key={anexo} type="button" className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`} onClick={() => handleToggleAnexo(anexo)}>
+            {anexo.replace('anexo', 'Anexo ')}
+            </button>
+        ))}
         </div>
         {anexosSelecionados.map(anexoKey => (
-          <div key={anexoKey} className="anexo-bloco">
+        <div key={anexoKey} className="anexo-bloco">
             <h4>{anexoKey.replace('anexo', 'Anexo ')}</h4>
             <div className="form-group"><label>Receita Normal (R$):</label><input type="number" value={receitas[anexoKey].rpaNormal} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaNormal', e.target.value)} step="0.01"/></div>
             {(anexoKey === 'anexoI' || anexoKey === 'anexoII') && <div className="form-group"><label>Receita c/ ICMS-ST (R$):</label><input type="number" value={receitas[anexoKey].rpaSt} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaSt', e.target.value)} step="0.01"/></div>}
             {(anexoKey === 'anexoIII' || anexoKey === 'anexoIV' || anexoKey === 'anexoV') && <div className="form-group"><label>Receita c/ Retenção de ISS (R$):</label><input type="number" value={receitas[anexoKey].rpaRetencao} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaRetencao', e.target.value)} step="0.01"/></div>}
-          </div>
+        </div>
         ))}
+
         <div className="botoes-acao">
           <button type="button" className="btn-secundario" onClick={() => navigate(`/clientes/${clienteId}/dashboard`)}>Cancelar</button>
           <button type="button" className="btn-primario" onClick={handleExecutarCalculo} disabled={isLoading}>
