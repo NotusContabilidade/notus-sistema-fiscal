@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// ✅ Vamos voltar a usar nosso DTO simples, que é o que precisamos.
-// Não precisa estar em arquivo separado se for usado apenas aqui.
-record ValoresExtraidosDTO(BigDecimal comRetencao, BigDecimal semRetencao) {}
+
 
 @Service
 public class PdfParserService {
