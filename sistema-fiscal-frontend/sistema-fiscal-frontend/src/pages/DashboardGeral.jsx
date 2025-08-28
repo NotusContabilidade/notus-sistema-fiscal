@@ -31,7 +31,10 @@ function DashboardGeral() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/dashboard/stats');
+        // ✅ ADICIONADO O HEADER COM O TENANT ID
+        const response = await axios.get('http://localhost:8080/api/dashboard/stats', {
+            headers: { 'X-Tenant-ID': 'escritorio_escritorio_a_5845' } // <<-- SUBSTITUA PELO SEU SCHEMA DE TESTE
+        });
         setStats(response.data);
       } catch (error) {
         toast.error('Não foi possível carregar as estatísticas.');
@@ -52,7 +55,10 @@ function DashboardGeral() {
     setListaDados([]);
     try {
       const endpoint = tipo === 'pendentes' ? '/api/dashboard/clientes-pendentes' : '/api/dashboard/financeiro-mes';
-      const response = await axios.get(`http://localhost:8080${endpoint}`);
+      // ✅ ADICIONADO O HEADER COM O TENANT ID
+      const response = await axios.get(`http://localhost:8080${endpoint}`, {
+        headers: { 'X-Tenant-ID': 'escritorio_escritorio_a_5845' } // <<-- SUBSTITUA PELO SEU SCHEMA DE TESTE
+      });
       setListaDados(response.data);
     } catch (error) {
       toast.error(`Não foi possível carregar a lista de clientes ${tipo}.`);
@@ -78,7 +84,6 @@ function DashboardGeral() {
       </div>
 
       <div className="stats-grid">
-        {/* ✅ MUDANÇA AQUI: O card agora é um link para a nova página */}
         <Link to="/clientes/todos" className="stat-card-link">
           <StatCard icon={<Users size={32} color="#3b82f6" />} title="Total de Clientes" value={isLoading ? '...' : stats?.totalClientes} color="#3b82f6" isLoading={isLoading} />
         </Link>

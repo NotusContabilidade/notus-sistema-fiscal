@@ -3,7 +3,8 @@ package com.notus.contabil.sistema_fiscal;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "atividade_anexo_map", schema = "simples_nacional")
+// ✅ ALTERAÇÃO: A anotação de schema foi removida.
+@Table(name = "atividade_anexo_map")
 public class AtividadeAnexoMap {
 
     public enum AnexoSimples {
@@ -18,11 +19,9 @@ public class AtividadeAnexoMap {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Código do serviço, ex: "17.02", "01.07". Será nossa chave de busca.
     @Column(name = "codigo_servico", unique = true, nullable = false)
     private String codigoServico;
     
-    // Descrição para referência humana
     @Column(name = "descricao_atividade")
     private String descricaoAtividade;
 

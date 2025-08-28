@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "vencimentos", schema = "simples_nacional")
+// ✅ ALTERAÇÃO: A anotação de schema foi removida.
+@Table(name = "vencimentos")
 public class Vencimento {
 
-    // Usar um Enum para status é uma boa prática, evita erros de digitação.
     public enum StatusVencimento {
         PENDENTE,
         PAGO,
@@ -18,22 +18,21 @@ public class Vencimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Muitos vencimentos podem pertencer a um cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
     @Column(nullable = false)
-    private String descricao; // Ex: "DAS Mensal", "DEFIS Anual"
+    private String descricao;
 
     @Column(name = "data_vencimento", nullable = false)
     private LocalDate dataVencimento;
 
-    @Enumerated(EnumType.STRING) // Grava o nome do status ("PENDENTE") no banco, mais legível
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusVencimento status;
 
-    // Getters e Setters...
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Cliente getCliente() { return cliente; }

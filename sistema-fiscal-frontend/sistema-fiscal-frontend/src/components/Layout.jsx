@@ -1,7 +1,7 @@
 import React from 'react';
-// O import de NavLink já existia, então está tudo certo
 import { NavLink, Outlet, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarClock } from 'lucide-react';
+// ✅ 1. IMPORTE O NOVO ÍCONE
+import { LayoutDashboard, Users, CalendarClock, ListTodo } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -20,15 +20,15 @@ const Header = () => (
         <Users size={18} />
         <span>Clientes</span>
       </NavLink>
-      
-      {/* ✅ ALTERAÇÃO REALIZADA AQUI 👇
-        - A tag <a> com a classe "disabled-link" foi substituída.
-        - Agora é um <NavLink> que aponta para a rota "/vencimentos".
-        - Ele funcionará em conjunto com a nova rota que você adicionou no App.jsx.
-      */}
       <NavLink to="/vencimentos">
         <CalendarClock size={18} />
         <span>Vencimentos</span>
+      </NavLink>
+
+      {/* ✅ 2. ADICIONE O NOVO LINK NO MENU */}
+      <NavLink to="/tarefas-modelo">
+        <ListTodo size={18} />
+        <span>Configurar Tarefas</span>
       </NavLink>
 
     </nav>
