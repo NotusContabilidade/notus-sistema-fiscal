@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "vencimentos", schema = "simples_nacional")
+@Table(name = "vencimentos") // Schema removido
 public class Vencimento {
 
     // Usar um Enum para status é uma boa prática, evita erros de digitação.

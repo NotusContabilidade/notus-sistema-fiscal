@@ -10,14 +10,14 @@ import java.util.List;
 @Repository
 public interface VencimentoRepository extends JpaRepository<Vencimento, Long> {
 
-    // ✅ CORREÇÃO FINAL: Mudamos para uma Query Nativa (SQL puro do PostgreSQL)
-    // A diferença chave é o `c.razao_social::text`. Esta é uma sintaxe específica do
-    // PostgreSQL para FORÇAR a conversão da coluna para texto antes de usar a função LOWER().
-    // Isso resolve o erro "lower(bytea)" de forma definitiva no nível da aplicação.
-    @Query(value = "SELECT v.* FROM simples_nacional.vencimentos v JOIN public.clientes c ON v.cliente_id = c.id WHERE " +
-                   "v.data_vencimento BETWEEN :inicio AND :fim AND " +
-                   "(:filtro IS NULL OR LOWER(c.razao_social::text) LIKE LOWER(CONCAT('%', :filtro, '%')) OR c.cnpj LIKE CONCAT('%', :filtro, '%'))",
-           nativeQuery = true)
+    // ✅ REATORADO PARA JPQL - AGORA É SEGURO!
+    // A query agora opera sobre as entidades Vencimento (v) e Cliente (c).
+    // O Hibernate aplicará o filtro de tenant_id tanto em 'v' quanto em 'c'
+    // automaticamente, garantindo que a busca só retorne resultados
+    // do escritório (tenant) que fez a requisição.
+    @Query("SELECT v FROM Vencimento v JOIN v.cliente c WHERE " +
+           "v.dataVencimento BETWEEN :inicio AND :fim AND " +
+           "(:filtro IS NULL OR LOWER(c.razaoSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR c.cnpj LIKE CONCAT('%', :filtro, '%'))")
     List<Vencimento> findVencimentosComFiltro(
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim,

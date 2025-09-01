@@ -1,6 +1,6 @@
 package com.notus.contabil.sistema_fiscal;
 
-import java.time.LocalDateTime; // ✅ 1. Importar LocalDateTime
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -19,12 +19,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist; // ✅ 2. Importar PrePersist
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "calculos", schema = "simples_nacional")
+@Table(name = "calculos") // A referência ao schema foi removida daqui também
 public class Calculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +43,6 @@ public class Calculo {
     @Column(name = "das_total", nullable = false)
     private Double dasTotal;
     
-    // ✅ 3. MUDANÇA NA COLUNA DE DATA
-    // Removemos 'insertable=false' e 'updatable=false' e trocamos Timestamp por LocalDateTime
     @Column(name = "data_calculo", updatable = false)
     private LocalDateTime dataCalculo;
 
@@ -55,8 +53,6 @@ public class Calculo {
     @Transient
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // ✅ 4. MÉTODO DE "CALLBACK" DO JPA
-    // Este método será executado automaticamente ANTES de um novo cálculo ser salvo.
     @PrePersist
     protected void onCreate() {
         dataCalculo = LocalDateTime.now();
@@ -75,7 +71,7 @@ public class Calculo {
         return this.dataCalculo.format(formatter);
     }
     
-    // Getters e Setters
+    // Getters e Setters (sem os de tenantId)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Cliente getCliente() { return cliente; }
@@ -86,8 +82,8 @@ public class Calculo {
     public void setAnoReferencia(Integer anoReferencia) { this.anoReferencia = anoReferencia; }
     public Double getDasTotal() { return dasTotal; }
     public void setDasTotal(Double dasTotal) { this.dasTotal = dasTotal; }
-    public LocalDateTime getDataCalculo() { return dataCalculo; } // Tipo de retorno atualizado
-    public void setDataCalculo(LocalDateTime dataCalculo) { this.dataCalculo = dataCalculo; } // Tipo do parâmetro atualizado
+    public LocalDateTime getDataCalculo() { return dataCalculo; }
+    public void setDataCalculo(LocalDateTime dataCalculo) { this.dataCalculo = dataCalculo; }
     public String getDetalhesJson() { return detalhesJson; }
     public void setDetalhesJson(String detalhesJson) { this.detalhesJson = detalhesJson; }
 }

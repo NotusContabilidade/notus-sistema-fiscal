@@ -1,9 +1,16 @@
 package com.notus.contabil.sistema_fiscal;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "atividade_anexo_map", schema = "simples_nacional")
+@Table(name = "atividade_anexo_map")
 public class AtividadeAnexoMap {
 
     public enum AnexoSimples {

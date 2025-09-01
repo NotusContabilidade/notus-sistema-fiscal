@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired; // Import necessário para conversão
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,31 +29,22 @@ public class DashboardService {
 
         return new DashboardStatsDTO(totalClientes, totalDasNoMes, clientesPendentes);
     }
-
-    // ✅ MÉTODO ATUALIZADO com conversão manual
+    
     @Transactional(readOnly = true)
     public List<ClientePendenteDTO> getClientesPendentes() {
         LocalDate hoje = LocalDate.now();
-        List<Object[]> resultados = clienteRepository.findClientesSemCalculoNoMes(hoje.getYear(), hoje.getMonthValue());
+        List<Cliente> resultados = clienteRepository.findClientesSemCalculoNoMes(hoje.getYear(), hoje.getMonthValue());
         
-        // Mapeia a lista genérica para a lista de DTOs
-        return resultados.stream().map(resultado -> new ClientePendenteDTO(
-                ((Number) resultado[0]).longValue(), // ID
-                (String) resultado[1]  // Razão Social
+        return resultados.stream().map(cliente -> new ClientePendenteDTO(
+                cliente.getId(),
+                cliente.getRazaoSocial()
         )).collect(Collectors.toList());
     }
 
-    // ✅ MÉTODO ATUALIZADO com conversão manual
     @Transactional(readOnly = true)
     public List<ClienteFinanceiroDTO> getFinanceiroDoMes() {
         LocalDate hoje = LocalDate.now();
-        List<Object[]> resultados = calculoRepository.findClientesComCalculoNoMes(hoje.getYear(), hoje.getMonthValue());
-        
-        // Mapeia a lista genérica para a lista de DTOs
-        return resultados.stream().map(resultado -> new ClienteFinanceiroDTO(
-                ((Number) resultado[0]).longValue(), // ID
-                (String) resultado[1],  // Razão Social
-                (Double) resultado[2]   // DAS Total
-        )).collect(Collectors.toList());
+        // ✅ O CÓDIGO AGORA É CONSISTENTE COM O REPOSITÓRIO
+        return calculoRepository.findClientesComCalculoNoMes(hoje.getYear(), hoje.getMonthValue());
     }
 }
