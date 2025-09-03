@@ -1,7 +1,9 @@
 package com.notus.contabil.sistema_fiscal;
 
-import com.notus.contabil.sistema_fiscal.config.multitenancy.TenantContext;
-import com.notus.contabil.sistema_fiscal.services.TenantManagementService;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,9 +18,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.notus.contabil.sistema_fiscal.config.multitenancy.TenantContext;
+import com.notus.contabil.sistema_fiscal.entity.Cliente;
+import com.notus.contabil.sistema_fiscal.repository.ClienteRepository;
+import com.notus.contabil.sistema_fiscal.services.TenantManagementService;
 
 @SpringBootTest
 @Testcontainers
@@ -59,21 +62,21 @@ class ClienteRepositoryTest {
         tenantManagementService.createTenant(tenantB);
 
         // Transação 1: Salva cliente A
-        TenantContext.setCurrentTenant(tenantA);
+        TenantContext.setTenantId(tenantA);
         Cliente clienteA = new Cliente();
         clienteA.setRazaoSocial("Cliente A LTDA");
         clienteA.setCnpj("11111111000111");
         clienteRepository.saveAndFlush(clienteA);
 
         // Transação 2: Salva cliente B
-        TenantContext.setCurrentTenant(tenantB);
+        TenantContext.setTenantId(tenantB);
         Cliente clienteB = new Cliente();
         clienteB.setRazaoSocial("Cliente B SA");
         clienteB.setCnpj("22222222000122");
         clienteRepository.saveAndFlush(clienteB);
 
         // Transação 3: Busca no tenant A
-        TenantContext.setCurrentTenant(tenantA);
+        TenantContext.setTenantId(tenantA);
         List<Cliente> clientesEncontrados = clienteRepository.findAll();
 
         // A verificação correta, esperando 1

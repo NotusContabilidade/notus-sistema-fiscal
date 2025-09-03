@@ -27,33 +27,33 @@ public class MultiTenantConnectionProviderImpl implements MultiTenantConnectionP
 
     @Override
     public void releaseAnyConnection(Connection connection) throws SQLException {
-        try {
-            // A CORREÇÃO CRUCIAL: Reseta o schema da conexão para o padrão 'public'
-            // antes de devolvê-la ao pool, garantindo que ela esteja "limpa".
-            connection.setSchema("public");
-        } catch (SQLException e) {
-            log.error("Não foi possível resetar o schema da conexão para o padrão", e);
-            throw new HibernateException("Não foi possível resetar o schema da conexão para o padrão", e);
-        }
         connection.close();
     }
 
     @Override
     public Connection getConnection(String tenantIdentifier) throws SQLException {
+        log.info(">>> Conexão solicitada para o tenant: {}", tenantIdentifier);
         final Connection connection = getAnyConnection();
         try {
             connection.setSchema(tenantIdentifier);
+            log.info(">>> Schema definido para '{}'", tenantIdentifier);
         } catch (SQLException e) {
-            throw new HibernateException(
-                "Não foi possível alterar a conexão JDBC para o schema especificado [" + tenantIdentifier + "]", e
-            );
+            log.error("!!! Erro ao definir schema '{}'", tenantIdentifier, e);
+            throw new HibernateException("Não foi possível definir schema para: " + tenantIdentifier, e);
         }
         return connection;
     }
-    
+
     @Override
     public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
-        this.releaseAnyConnection(connection);
+        try {
+            connection.setSchema("public");
+            log.info(">>> Schema resetado para 'public'");
+        } catch (SQLException e) {
+            log.error("!!! Erro ao resetar schema para 'public'", e);
+            throw new HibernateException("Não foi possível resetar schema", e);
+        }
+        connection.close();
     }
 
     @Override

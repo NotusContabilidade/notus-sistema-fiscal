@@ -1,48 +1,69 @@
 package com.notus.contabil.sistema_fiscal.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StreamUtils;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
+import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 
 @Service
 public class TenantManagementService {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private static final Logger log = LoggerFactory.getLogger(TenantManagementService.class);
+    private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    @Value("classpath:db/migration/V1__init_tenant_schema.sql")
+    private Resource schemaSql;
+
+    public TenantManagementService(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     public void createTenant(String tenantId) {
-        // Passo 1: Cria o schema.
-        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS \"" + tenantId + "\"");
+        if (!tenantId.matches("^[a-zA-Z0-9_]+$")) {
+            throw new IllegalArgumentException("Nome de tenant inválido.");
+        }
 
+        log.info("Criando schema do tenant '{}'", tenantId);
         try {
-            // Passo 2: Carrega o script SQL.
-            Resource resource = resourceLoader.getResource("classpath:db/migration/V1__create_tenant_tables.sql");
-            String sqlScript;
-            try (Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
-                sqlScript = FileCopyUtils.copyToString(reader);
-            }
+            // Cria o schema
+            jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS \"" + tenantId + "\";");
 
-            // Passo 3: MUITO IMPORTANTE - Conecta-se e define o schema para a conexão atual.
-            jdbcTemplate.execute("SET search_path TO \"" + tenantId + "\"");
+            // Cria a tabela users no schema do tenant
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS \"" + tenantId + "\".users (" +
+                "id SERIAL PRIMARY KEY, " +
+                "nome VARCHAR(255), " +
+                "email VARCHAR(255), " +
+                "password VARCHAR(255), " +
+                "role VARCHAR(50), " +
+                "tenantId VARCHAR(50)" +
+                ");"
+            );
 
-            // Passo 4: Executa o script de criação de tabelas DENTRO do schema correto.
-            jdbcTemplate.execute(sqlScript);
-
-            // Passo 5: Reseta o search_path para o padrão para não afetar outras operações.
-            jdbcTemplate.execute("SET search_path TO public");
+            // Se quiser rodar o script SQL completo, descomente abaixo:
+             String sqlScript = StreamUtils.copyToString(schemaSql.getInputStream(), StandardCharsets.UTF_8);
+             jdbcTemplate.execute("SET search_path TO " + tenantId + ", \"$user\", public");
+             jdbcTemplate.execute(sqlScript);
 
         } catch (Exception e) {
-            throw new RuntimeException("Falha ao executar o script de criação de tabelas para o tenant: " + tenantId, e);
+            log.error("Erro ao criar tenant '{}'", tenantId, e);
+            throw new RuntimeException("Falha ao criar tenant: " + tenantId, e);
+        } finally {
+            resetSearchPath();
+        }
+    }
+
+    public void resetSearchPath() {
+        try {
+            jdbcTemplate.execute("SET search_path TO \"$user\", public");
+        } catch (Exception e) {
+            log.error("Erro ao resetar search_path", e);
         }
     }
 }
