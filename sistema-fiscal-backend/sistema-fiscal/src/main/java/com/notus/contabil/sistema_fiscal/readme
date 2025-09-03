@@ -1,193 +1,144 @@
-# Nótus Sistema Fiscal
+Nótus Sistema Fiscal
+Visão Geral
+O Nótus Sistema Fiscal é uma plataforma SaaS (Software as a Service) B2B projetada para se tornar o sistema nervoso central de gestão de workflow e automação fiscal para escritórios de contabilidade no Brasil. A plataforma evolui de uma ferramenta de cálculo fiscal para um hub completo de produtividade, com um foco estratégico em preparar os contadores para a iminente Reforma Tributária brasileira.
 
-Bem-vindo ao Nótus Sistema Fiscal, uma aplicação web completa para cálculo e gestão do imposto Simples Nacional. O sistema foi desenvolvido com uma arquitetura moderna, composta por uma API REST em Java (Backend) e uma Single-Page Application em React (Frontend).
+Arquitetura
+O sistema é construído sobre uma arquitetura moderna e desacoplada, garantindo escalabilidade, segurança e manutenibilidade.
 
-Este documento serve como um guia completo para configuração do ambiente, execução do projeto e também como um repositório central para todo o código-fonte do frontend.
+Frontend: Uma Single Page Application (SPA) desenvolvida com React.
 
----
+Backend: Uma API RESTful robusta desenvolvida com Java e Spring Boot.
 
-## Sumário
+Multi-Tenancy: A arquitetura utiliza uma estratégia de Schema-per-Tenant, onde cada cliente (escritório de contabilidade) possui seu próprio schema de banco de dados, garantindo o mais alto nível de isolamento de dados.
 
-* [Funcionalidades Principais](#funcionalidades-principais)
-* [Tech Stack (Tecnologias Utilizadas)](#tech-stack-tecnologias-utilizadas)
-* [Pré-requisitos](#pré-requisitos)
-* [Guia de Instalação e Execução](#guia-de-instalação-e-execução)
-    * [1. Clonar o Repositório](#1-clonar-o-repositório)
-    * [2. Configurar o Banco de Dados (PostgreSQL)](#2-configurar-o-banco-de-dados-postgresql)
-    * [3. Configurar e Rodar o Backend (API Java)](#3-configurar-e-rodar-o-backend-api-java)
-    * [4. Configurar e Rodar o Frontend (React)](#4-configurar-e-rodar-o-frontend-react)
-* [Estrutura do Projeto](#estrutura-do-projeto)
-* [Endpoints da API](#endpoints-da-api)
-* [Código-Fonte Completo do Frontend](#código-fonte-completo-do-frontend)
-    * [`src/main.jsx`](#srcmainjsx)
-    * [`src/App.jsx`](#srcappjsx)
-    * [`src/App.css`](#srcappcss)
-    * [`src/components/Layout.jsx`](#srccomponentslayoutjsx)
-    * [`src/components/Spinner.jsx`](#srccomponentsspinnerjsx)
-    * [`src/pages/BuscaCliente.jsx`](#srcpagesbuscaclientejsx)
-    * [`src/pages/NovoCliente.jsx`](#srcpagesnovoclientejsx)
-    * [`src/pages/Dashboard.jsx`](#srcpagesdashboardjsx)
-    * [`src/pages/Calculo.jsx`](#srcpagescalculojsx)
-    * [`src/pages/Resultado.jsx`](#srcpagesresultadojsx)
+Fluxo de Multi-Tenancy
+O isolamento de dados é garantido por uma cadeia de componentes do Hibernate e do Spring que trabalham em conjunto:
 
----
+Orquestração de Contexto:
 
-## Funcionalidades Principais
+Requisições de Onboarding/Login (/api/auth/setup, /api/auth/login): O AuthController extrai o tenantId do corpo da requisição e o armazena em um TenantContext (ThreadLocal).
 
-* **Gestão de Clientes:** Cadastro, busca e atualização de clientes.
-* **Cálculo do Simples Nacional:** Lógica completa para cálculo com atividades concomitantes (múltiplos anexos).
-* **Fator R:** Cálculo automático do Fator R para enquadramento correto nos Anexos III e V.
-* **Histórico de Cálculos:** Consulta detalhada de todos os cálculos já realizados para um cliente.
-* **Interface Moderna:** Experiência de usuário fluida e reativa, com notificações, máscaras de input e design profissional.
+Requisições Autenticadas: Um JwtAuthenticationFilter extrai o tenantId de um claim do token JWT e armazena no TenantContext.
 
----
+Resolução de Tenant (Hibernate):
 
-## Tech Stack (Tecnologias Utilizadas)
+Um TenantIdentifierResolver customizado lê o tenantId do TenantContext no início de cada transação.
 
-### Backend (API REST)
+Seleção de Conexão (Hibernate):
 
-* **Linguagem:** Java 21
-* **Framework:** Spring Boot 3
-* **Build Tool:** Apache Maven
-* **Banco de Dados:** PostgreSQL
-* **Acesso a Dados:** JDBC com pool de conexões HikariCP
-* **Serialização:** Jackson (para dados JSON)
+Um MultiTenantConnectionProvider customizado recebe o tenantId e executa connection.setSchema(tenantId) na conexão JDBC antes de entregá-la para a transação, garantindo que todas as operações de banco de dados ocorram no schema correto.
 
-### Frontend (SPA - Single-Page Application)
+Stack Tecnológica
+Categoria	Tecnologia	Justificativa
+Backend	Java 21, Spring Boot 3	Robustez, ecossistema maduro e performance para aplicações de nível empresarial.
+Spring Security / JWT	Padrão de mercado para segurança de APIs RESTful stateless.
+Spring Data JPA / Hibernate 6	Camada de persistência moderna e produtiva, com suporte nativo a Multi-Tenancy.
+Frontend	React 18, Vite	UI reativa e componentizada com uma experiência de desenvolvimento moderna e veloz.
+Axios	Cliente HTTP robusto para comunicação com a API.
+Banco de Dados	PostgreSQL	Confiabilidade e suporte nativo e performático a múltiplos schemas.
+Build & Testes	Maven, JUnit 5, Testcontainers	Gerenciamento de dependências padrão e testes de integração de alta fidelidade.
 
-* **Framework:** React 18 com Vite
-* **Linguagem:** JavaScript (JSX)
-* **Roteamento:** React Router DOM
-* **Requisições HTTP:** Axios
-* **UI/UX:**
-    * **Notificações:** React Toastify
-    * **Máscaras de Input:** React Input Mask
-    * **Ícones:** Lucide Icons
+Exportar para as Planilhas
+Pré-requisitos
+Java (JDK) 21 ou superior
 
----
+Apache Maven 3.8+
 
-## Pré-requisitos
+Node.js 18+ e npm
 
-Antes de começar, garanta que você tem as seguintes ferramentas instaladas em seu sistema:
+Docker (para rodar o banco de dados PostgreSQL)
 
-* **Java JDK 21** ou superior
-* **Apache Maven 3.8+**
-* **Node.js v18+** (que inclui o npm)
-* **PostgreSQL 14+** (ou um servidor PostgreSQL rodando)
-* **Git** para clonar o repositório.
+Um cliente de API (Insomnia, Postman, etc.)
 
----
-
-## Guia de Instalação e Execução
-
-Siga estes passos para ter o ambiente completo rodando localmente.
-
-### 1. Clonar o Repositório
-
-```bash
-git clone [https://url-do-seu-repositorio.git](https://url-do-seu-repositorio.git)
-cd nome-da-pasta-do-projeto
-2. Configurar o Banco de Dados (PostgreSQL)
-a. Crie o banco de dados e o usuário:
-Use um cliente SQL (como DBeaver, pgAdmin ou o psql no terminal) para executar os seguintes comandos:
-
-SQL
-
--- Crie um usuário para a aplicação (substitua 'senhaforte' por uma senha segura)
-CREATE USER notus_user WITH PASSWORD 'senhaforte';
-
--- Crie o banco de dados
-CREATE DATABASE notus_fiscal OWNER notus_user;
-b. Crie os Schemas e as Tabelas:
-Conecte-se ao banco de dados notus_fiscal recém-criado e execute os comandos abaixo:
-
-SQL
-
--- Garante que o usuário da aplicação seja o dono do schema public
-GRANT ALL ON SCHEMA public TO notus_user;
-
--- Cria o schema para as tabelas do Simples Nacional
-CREATE SCHEMA IF NOT EXISTS simples_nacional;
-GRANT ALL ON SCHEMA simples_nacional TO notus_user;
-
--- Tabela de Clientes
-CREATE TABLE public.clientes (
-    id BIGSERIAL PRIMARY KEY,
-    cnpj VARCHAR(14) NOT NULL UNIQUE,
-    razao_social VARCHAR(255) NOT NULL
-);
-
--- Tabela de Parâmetros Fiscais
-CREATE TABLE simples_nacional.parametros_sn (
-    id BIGSERIAL PRIMARY KEY,
-    cliente_id BIGINT NOT NULL REFERENCES public.clientes(id),
-    rbt12_atual NUMERIC(15, 2) NOT NULL,
-    folha_pagamento_12m_atual NUMERIC(15, 2) NOT NULL
-);
-
--- Tabela de Histórico de Cálculos
-CREATE TABLE simples_nacional.calculos (
-    id BIGSERIAL PRIMARY KEY,
-    cliente_id BIGINT NOT NULL REFERENCES public.clientes(id),
-    mes_referencia INT NOT NULL,
-    ano_referencia INT NOT NULL,
-    das_total NUMERIC(15, 2) NOT NULL,
-    data_calculo TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    detalhes_json JSONB,
-    CONSTRAINT unique_calculo_periodo UNIQUE (cliente_id, mes_referencia, ano_referencia)
-);
-3. Configurar e Rodar o Backend (API Java)
-a. Navegue até a pasta do backend:
+Como Executar o Projeto
+1. Banco de Dados
+Inicie uma instância do PostgreSQL usando Docker.
 
 Bash
 
-cd backend
-b. Configure a Conexão com o Banco:
-Abra o arquivo src/main/resources/application.properties e edite as informações de conexão:
+docker run --name notus_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=sua_senha_aqui -p 5432:5432 -d postgres
+2. Backend
+Navegue até a pasta sistema-fiscal-backend.
+
+Configure o arquivo src/main/resources/application.properties com suas credenciais do banco de dados:
 
 Properties
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/notus_fiscal
-spring.datasource.username=notus_user
-spring.datasource.password=senhaforte
-spring.datasource.hikari.connection-timeout=20000
-spring.datasource.hikari.maximum-pool-size=5
-c. Instale as dependências e rode a aplicação:
+spring.datasource.url=jdbc:postgresql://localhost:5432/notus_db
+spring.datasource.username=postgres
+spring.datasource.password=sua_senha_aqui
+Compile o projeto para garantir que todas as dependências sejam baixadas:
 
 Bash
 
-# Baixa as dependências e compila o projeto
 mvn clean install
-
-# Inicia a aplicação
-mvn spring-boot:run
-O backend estará rodando na porta 8080.
-
-4. Configurar e Rodar o Frontend (React)
-a. Abra um novo terminal e navegue até a pasta do frontend:
+Execute a aplicação:
 
 Bash
 
-cd frontend
-b. Instale as dependências:
+mvn spring-boot:run
+O backend estará rodando em http://localhost:8080.
+
+3. Frontend
+Abra um novo terminal e navegue até a pasta sistema-fiscal-frontend.
+
+Instale as dependências:
 
 Bash
 
 npm install
-c. Rode o servidor de desenvolvimento:
+Inicie o servidor de desenvolvimento:
 
 Bash
 
 npm run dev
-O frontend estará rodando, geralmente, em http://localhost:5173.
+O frontend estará acessível em http://localhost:5173 (ou outra porta indicada pelo Vite).
 
-Estrutura do Projeto
-O projeto é um monorepo com duas pastas principais:
+Fluxo de Onboarding (Primeiros Passos)
+O sistema foi projetado com um fluxo de onboarding unificado. Para cadastrar um novo escritório e seu primeiro usuário, utilize o endpoint a seguir.
 
-/backend: Contém a API REST em Java/Spring.
+POST /api/auth/setup
+Este endpoint realiza as seguintes ações em uma única transação:
 
-/frontend: Contém a aplicação React/Vite.
+Cria um novo schema no banco de dados para o novo tenant (ex: escritorio_alpha).
 
-src/components/: Componentes reutilizáveis (Layout, Sidebar, Spinner).
+Executa o script de migração para criar as tabelas (users, clientes, etc.) dentro do novo schema.
 
-src/pages/: Componentes que representam as telas/páginas da aplicação.
+Cria um registro na tabela global public.offices para identificar o novo tenant.
+
+Cria o primeiro usuário (administrador) dentro do novo schema.
+
+Gera e retorna um token JWT, logando este usuário imediatamente.
+
+Exemplo de Corpo da Requisição (JSON):
+
+JSON
+
+{
+    "nome": "Admin do Escritório Alpha",
+    "email": "contato@alpha.com",
+    "password": "umaSenhaBemForte123!",
+    "tenantId": "escritorio_alpha",
+    "role": "ADMIN"
+}
+Resposta de Sucesso:
+
+JSON
+
+{
+    "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
+Roadmap de Melhorias e Funcionalidades Futuras
+Formalizar Migrações de DB: Implementar Flyway ou Liquibase para gerenciar a evolução dos schemas de forma versionada e automática.
+
+Motor de Gestão de Tarefas: Desenvolver o núcleo da plataforma para automação de obrigações fiscais recorrentes.
+
+Parser de PDF Avançado: Criar um módulo para extração automática de dados de documentos fiscais.
+
+Simulador da Reforma Tributária: Uma ferramenta estratégica para planejamento e consultoria.
+
+Módulo de Protocolos (Portal do Cliente): Interface segura para troca de documentos.
+
+Dashboards e Business Intelligence.
+
+Inteligência Artificial: Para automação avançada de classificação de documentos.
