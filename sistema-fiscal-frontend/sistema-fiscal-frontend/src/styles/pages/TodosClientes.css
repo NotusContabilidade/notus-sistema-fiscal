@@ -1,0 +1,23 @@
+.view-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.lista-detalhes-tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lista-detalhes-tabela th,
+.lista-detalhes-tabela td {
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.lista-detalhes-tabela th {
+  background: #faf7fa;
+  color: #a13751;
+  font-weight: 600;
+}

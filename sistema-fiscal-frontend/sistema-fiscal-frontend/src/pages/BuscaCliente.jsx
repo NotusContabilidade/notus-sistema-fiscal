@@ -4,6 +4,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { IMaskInput } from 'react-imask';
 import Spinner from '../components/Spinner';
+import { UserPlus, Search } from 'lucide-react';
+import '../styles/pages/BuscaCliente.css';
 
 function BuscaCliente() {
   const [cnpj, setCnpj] = useState('');
@@ -22,8 +24,6 @@ function BuscaCliente() {
     setIsLoading(true);
     try {
       const response = await axios.get(`http://localhost:8080/api/clientes?cnpj=${cnpjLimpo}`);
-      
-      // ✅ LÓGICA QUE ESPERA O DTO COMPLETO
       if (response.data && response.data.parametros) {
         toast.success(`Cliente ${response.data.cliente.razaoSocial} encontrado!`);
         navigate(`/clientes/${response.data.cliente.id}/dashboard`);
@@ -36,7 +36,6 @@ function BuscaCliente() {
             } 
         });
       } else {
-        // Fallback para uma resposta inesperada
         throw new Error("Resposta inválida da API");
       }
     } catch (error) {
@@ -47,27 +46,35 @@ function BuscaCliente() {
     }
   };
 
+  const handleNovoCliente = () => {
+    navigate('/clientes/novo');
+  };
+
   return (
-    <div className="view-container">
-      <div className="card welcome-card">
-        <h3>Bem-vindo ao Nótus Sistema Fiscal</h3>
-        <p>Sua plataforma para gestão contábil. Use a busca para encontrar um cliente ou cadastrar um novo.</p>
-      </div>
-      <div className="card">
-        <form onSubmit={handleBuscarCliente}>
-          <div className="input-group">
+    <div className="busca-cliente-saas">
+      <h1 className="busca-titulo-saas">Buscar Cliente</h1>
+      <div className="busca-card-saas">
+        <form onSubmit={handleBuscarCliente} className="busca-form-saas">
+          <label htmlFor="cnpj-busca" className="label-cnpj-saas">CNPJ do cliente</label>
+          <div className="input-group-saas">
             <IMaskInput
+              id="cnpj-busca"
               mask="00.000.000/0000-00"
               value={cnpj}
               onAccept={(value) => setCnpj(value)}
               disabled={isLoading}
-              placeholder="Digite o CNPJ para buscar"
+              placeholder="Digite o CNPJ"
+              autoFocus
             />
-            <button type="submit" className="btn-primario" disabled={isLoading}>
-              {isLoading ? <Spinner /> : 'Buscar'}
+            <button type="submit" className="btn-primario-saas" disabled={isLoading}>
+              {isLoading ? <Spinner /> : (<><Search size={18} /> Buscar</>)}
             </button>
           </div>
         </form>
+        <div className="separador-ou-saas"><span>ou</span></div>
+        <button className="btn-secundario-saas" type="button" onClick={handleNovoCliente}>
+          <UserPlus size={18} /> Cadastrar novo cliente
+        </button>
       </div>
     </div>
   );

@@ -1,0 +1,57 @@
+/* Exemplo: src/styles/global/BigCalendarDark.css */
+
+/* Aplica só no dark mode */
+body.dark .rbc-calendar,
+body.dark .rbc-month-view,
+body.dark .rbc-header,
+body.dark .rbc-toolbar,
+body.dark .rbc-time-view,
+body.dark .rbc-agenda-view,
+body.dark .rbc-agenda-table,
+body.dark .rbc-agenda-content,
+body.dark .rbc-row-content,
+body.dark .rbc-row,
+body.dark .rbc-date-cell,
+body.dark .rbc-day-bg,
+body.dark .rbc-timeslot-group,
+body.dark .rbc-time-content,
+body.dark .rbc-time-header,
+body.dark .rbc-time-gutter,
+body.dark .rbc-time-slot,
+body.dark .rbc-agenda-time-cell,
+body.dark .rbc-agenda-date-cell {
+  background: #1a131e !important;
+  color: #eee !important;
+  border-color: #32203a !important;
+}
+
+body.dark .rbc-off-range,
+body.dark .rbc-off-range-bg {
+  background: #23162a !important;
+  color: #888 !important;
+}
+
+body.dark .rbc-today {
+  background: #2d1b2f !important;
+}
+
+body.dark .rbc-event,
+body.dark .rbc-agenda-event-cell {
+  background: #a13751 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+body.dark .rbc-toolbar button {
+  background: #2d1b2f !important;
+  color: #fff !important;
+  border: 1px solid #a13751 !important;
+}
+body.dark .rbc-toolbar button.rbc-active {
+  background: #a13751 !important;
+  color: #fff !important;
+}
+
+body.dark .rbc-toolbar-label {
+  color: #fff !important;
+}

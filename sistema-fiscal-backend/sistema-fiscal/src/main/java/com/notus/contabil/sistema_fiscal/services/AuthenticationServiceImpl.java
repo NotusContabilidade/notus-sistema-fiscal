@@ -1,7 +1,11 @@
 package com.notus.contabil.sistema_fiscal.services;
 
-import java.util.Collections;
-
+import com.notus.contabil.sistema_fiscal.config.multitenancy.TenantContext;
+import com.notus.contabil.sistema_fiscal.dto.auth.AuthenticationRequest;
+import com.notus.contabil.sistema_fiscal.dto.auth.AuthenticationResponse;
+import com.notus.contabil.sistema_fiscal.dto.auth.RegisterRequest;
+import com.notus.contabil.sistema_fiscal.entity.User;
+import com.notus.contabil.sistema_fiscal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,14 +13,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.notus.contabil.sistema_fiscal.dto.auth.AuthenticationRequest;
-import com.notus.contabil.sistema_fiscal.dto.auth.AuthenticationResponse;
-import com.notus.contabil.sistema_fiscal.dto.auth.RegisterRequest;
-import com.notus.contabil.sistema_fiscal.entity.User;
-import com.notus.contabil.sistema_fiscal.repository.UserRepository;
+import java.util.Collections;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+
+    @Autowired
+    private TenantManagementService tenantManagementService;
 
     @Autowired
     private UserRepository userRepository;
@@ -24,32 +27,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private TenantManagementService tenantManagementService;
-
     @Override
     public AuthenticationResponse setupTenantAndFirstUser(RegisterRequest request) {
-        // Cria o schema e as tabelas do tenant
-        tenantManagementService.createTenant(request.getTenantId());
+        String tenantId = request.getTenantId().toLowerCase();
 
-        // Cria o usuário no schema do tenant
-        User user = new User();
-        user.setNome(request.getNome());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole().toString());
-        user.setTenantId(request.getTenantId());
+        try {
+            // Cria o schema e as tabelas do tenant
+            tenantManagementService.criarTenant(tenantId);
 
-        userRepository.save(user);
+            // Ativa o contexto do tenant antes de salvar o usuário
+            TenantContext.setTenantId(tenantId);
 
-        // Aqui você pode gerar o token JWT e retornar na resposta
-        AuthenticationResponse response = new AuthenticationResponse();
-        response.setToken("token_exemplo"); // Substitua pela lógica real de geração de token
-        return response;
+            // Cria o usuário no schema do tenant
+            User user = new User();
+            user.setNome(request.getNome());
+            user.setEmail(request.getEmail());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(request.getRole().toString());
+            user.setTenantId(tenantId);
+
+            userRepository.save(user);
+
+            // Retorna resposta (ajuste conforme seu fluxo)
+            AuthenticationResponse response = new AuthenticationResponse();
+            response.setToken("token_exemplo");
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao criar tenant: " + e.getMessage(), e);
+        } finally {
+            TenantContext.clear();
+        }
     }
 
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
+        String tenantId = request.getTenantId().toLowerCase();
         // Lógica para registrar usuário em tenant já existente
         User user = new User();
         user.setNome(request.getNome());

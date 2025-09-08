@@ -4,14 +4,15 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { Edit, X, PlusCircle, Search } from 'lucide-react';
+import '../styles/pages/Dashboard.css';
 
 // Componente para exibir um "esqueleto" enquanto os dados carregam
 const SkeletonCard = () => (
-    <div className="dashboard-info-card skeleton-card">
-        <h4>&nbsp;</h4>
-        <p style={{ height: '1.2em', width: '80%', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></p>
-        <p style={{ height: '1.2em', width: '60%', backgroundColor: '#e0e0e0', borderRadius: '4px' }}></p>
-    </div>
+  <div className="dashboard-indicador-card skeleton-card">
+    <div className="dashboard-indicador-icone" style={{ background: "#e0e0e0", borderRadius: "50%", width: 48, height: 48 }}></div>
+    <div className="dashboard-indicador-titulo" style={{ background: "#e0e0e0", height: 18, width: 120, borderRadius: 4, margin: "12px 0" }}></div>
+    <div className="dashboard-indicador-valor" style={{ background: "#e0e0e0", height: 22, width: 60, borderRadius: 4 }}></div>
+  </div>
 );
 
 function Dashboard() {
@@ -20,7 +21,6 @@ function Dashboard() {
 
   const [cliente, setCliente] = useState(null);
   const [isLoading, setIsLoading] = useState(true); 
-  
   const [isEditingParams, setIsEditingParams] = useState(false);
   const [editedParams, setEditedParams] = useState({ rbt12: 0, folha12m: 0 });
   const [historico, setHistorico] = useState([]);
@@ -28,11 +28,9 @@ function Dashboard() {
   const [isLoadingHistorico, setIsLoadingHistorico] = useState(false);
 
   const fetchCliente = useCallback(async () => {
-    // Não precisa de setIsLoading(true) aqui, pois o estado inicial já cuida disso
     try {
       const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
       setCliente(response.data);
-      // Garante que o estado de edição seja populado corretamente
       if (response.data.parametros) {
         setEditedParams({
           rbt12: response.data.parametros.rbt12Atual,
@@ -41,7 +39,7 @@ function Dashboard() {
       }
     } catch (error) {
       toast.error("Não foi possível carregar os dados do cliente.");
-      navigate('/clientes/busca'); // Redireciona para a busca em caso de erro
+      navigate('/clientes/busca');
     } finally {
       setIsLoading(false);
     }
@@ -49,10 +47,10 @@ function Dashboard() {
 
   useEffect(() => {
     fetchCliente();
-  }, [fetchCliente]); // A dependência aqui é a função em si, que já tem suas próprias dependências (clienteId, navigate)
+  }, [fetchCliente]);
 
   const handleUpdateParams = async () => {
-    setIsLoading(true); // Usando o isLoading principal para a ação de salvar
+    setIsLoading(true);
     try {
       const payload = {
         rbt12: parseFloat(editedParams.rbt12),
@@ -61,7 +59,7 @@ function Dashboard() {
       await axios.put(`http://localhost:8080/api/clientes/${cliente.cliente.id}/parametros`, payload);
       toast.success("Parâmetros atualizados com sucesso!");
       setIsEditingParams(false);
-      await fetchCliente(); // Recarrega os dados para garantir consistência
+      await fetchCliente();
     } catch (error) {
       toast.error('Falha ao atualizar os parâmetros.');
     } finally {
@@ -86,27 +84,50 @@ function Dashboard() {
     }
   };
   
-  // Tela de carregamento inicial
   if (isLoading) {
     return (
       <div className="view-container">
         <div className="page-header"><h1 className="page-title">Dashboard do Cliente</h1></div>
-        <div className="card">
-          <div className="dashboard-grid">
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
+        <div className="dashboard-indicadores">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       </div>
     );
   }
 
-  // Se, após o carregamento, o cliente ainda for nulo, não renderiza nada para evitar erros
   if (!cliente) return null;
+
+  // Indicadores do dashboard (ajuste conforme seus dados reais)
+  const totalClientes = cliente.totalClientes ?? 0;
+  const dasMes = cliente.dasMes ?? 0;
+  const clientesPendentes = cliente.clientesPendentes ?? 0;
 
   return (
     <div className="view-container">
       <div className="page-header"><h1 className="page-title">Dashboard do Cliente</h1></div>
+      
+      {/* Indicadores do dashboard */}
+      <div className="dashboard-indicadores">
+        <div className="dashboard-indicador-card">
+          <div className="dashboard-indicador-icone" style={{ color: "#2563eb" }}>👥</div>
+          <div className="dashboard-indicador-titulo">Total de Clientes</div>
+          <div className="dashboard-indicador-valor">{totalClientes}</div>
+        </div>
+        <div className="dashboard-indicador-card">
+          <div className="dashboard-indicador-icone" style={{ color: "#22c55e" }}>💲</div>
+          <div className="dashboard-indicador-titulo">DAS Calculado no Mês</div>
+          <div className="dashboard-indicador-valor">R$ {dasMes.toFixed(2)}</div>
+        </div>
+        <div className="dashboard-indicador-card">
+          <div className="dashboard-indicador-icone" style={{ color: "#ef4444" }}>❗</div>
+          <div className="dashboard-indicador-titulo">Clientes com Cálculo Pendente</div>
+          <div className="dashboard-indicador-valor">{clientesPendentes}</div>
+        </div>
+      </div>
+
+      {/* Informações detalhadas do cliente */}
       <div className="card">
         <div className="dashboard-grid">
           <div className="dashboard-info-card">
@@ -122,7 +143,6 @@ function Dashboard() {
                 <div className="form-group"><label>Folha (12m):</label><input type="number" step="0.01" value={editedParams.folha12m} onFocus={e => e.target.select()} onChange={e => setEditedParams({...editedParams, folha12m: e.target.value})} /></div>
               </>
             ) : (
-              // Garante que a aplicação não quebre se os parâmetros forem nulos
               cliente.parametros ? (
                 <>
                   <p><strong>RBT12:</strong> R$ {cliente.parametros.rbt12Atual.toFixed(2)}</p>
@@ -160,7 +180,6 @@ function Dashboard() {
                     <td>{String(calc.mesReferencia).padStart(2, '0')}/{calc.anoReferencia}</td>
                     <td>R$ {calc.dasTotal.toFixed(2)}</td>
                     <td>
-                      {/* ✅ ESTA É A LINHA QUE FOI CORRIGIDA NA ETAPA ANTERIOR */}
                       <button 
                         type="button" 
                         className="btn-primario" 

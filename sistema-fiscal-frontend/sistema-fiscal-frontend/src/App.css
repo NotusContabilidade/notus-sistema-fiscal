@@ -1,270 +1,31 @@
-/* ==========================================================================
-   Arquivo de Estilos Principal - Nótus Sistema Fiscal
-   ========================================================================== */
-
-/* * ESTRUTURA DO ARQUIVO:
- * 1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
- * 2. ESTRUTURA PRINCIPAL E LAYOUT
- * 3. SIDEBAR E NAVEGAÇÃO
- * 4. COMPONENTES GERAIS (REUTILIZÁVEIS)
- * 5. ESTILOS DE TELAS ESPECÍFICAS
- * 6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
- * 7. ANIMAÇÕES
- * 8. ESTILOS DO MODAL E FORMULÁRIOS
- * 9. ESTILOS PARA O PDF UPLOADER E PÁGINA DE CÁLCULO
-*/
-
-/* ==========================================================================
-   1. FONTES EXTERNAS E CONFIGURAÇÕES GLOBAIS
-   ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-:root {
-  --cor-primaria: #a13751;
-  --cor-fundo: #f8f8f8;
-  --cor-texto: #333;
-  --cor-borda: #e0e0e0;
-  --cor-erro: #d9534f;
-  --altura-navbar: 60px;
-  --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --sombra-card-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--cor-fundo);
-  color: var(--cor-texto);
-}
-
-/* ==========================================================================
-   2. ESTRUTURA PRINCIPAL E LAYOUT COM NAVBAR
-   ========================================================================== */
-
-.app-layout-vertical { display: flex; flex-direction: column; min-height: 100vh; }
-.top-navbar { width: 100%; height: var(--altura-navbar); background-color: #ffffff; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); position: fixed; top: 0; left: 0; z-index: 1000; box-sizing: border-box; }
-.navbar-brand { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
-.navbar-logo { height: 40px; background-color: var(--cor-primaria); border-radius: 6px; padding: 4px; }
-.navbar-brand h1 { font-size: 1.25rem; color: var(--cor-primaria); margin: 0; font-weight: 700; }
-.navbar-links { display: flex; align-items: center; gap: 0.5rem; }
-.navbar-links a { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; color: #4a5568; text-decoration: none; font-weight: 500; border-radius: 6px; transition: background-color 0.2s, color 0.2s; border-bottom: 3px solid transparent; }
-.navbar-links a:hover { background-color: #f1f1f1; color: var(--cor-texto); }
-.navbar-links a.active { color: var(--cor-primaria); border-bottom-color: var(--cor-primaria); }
-.navbar-links a.disabled-link { color: #a0aec0; cursor: not-allowed; }
-.navbar-links a.disabled-link:hover { background-color: transparent; }
-.main-content { flex-grow: 1; padding: 2rem 3rem; padding-top: calc(var(--altura-navbar) + 2rem); }
-.app-footer { text-align: center; padding: 1rem; background-color: #fff; color: #6c757d; font-size: 0.9rem; border-top: 1px solid var(--cor-borda); }
-
-/* ==========================================================================
-   4. COMPONENTES GERAIS (REUTILIZÁVEIS)
-   ========================================================================== */
-
-.card { background-color: white; border-radius: 8px; padding: 2rem; box-shadow: var(--sombra-card); margin-top: 2rem; border: 1px solid var(--cor-borda); text-align: center; }
-.page-header { margin-bottom: 2rem; text-align: left; }
-.page-title { font-size: 2rem; font-weight: bold; color: var(--cor-texto); margin: 0; }
-.input-group { display: flex; justify-content: center; gap: 1rem; }
-.form-group { text-align: left; margin-bottom: 1.25rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-.input-group input, .form-group input, .form-group select, .input-com-icone input { width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--cor-borda); border-radius: 4px; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; font-family: 'Inter', sans-serif; background-color: #fff; }
-.input-group input:focus, .form-group input:focus, .form-group select:focus, .input-com-icone input:focus { outline: none; border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(161, 55, 81, 0.2); }
-button { font-family: 'Inter', sans-serif; }
-.btn-primario, .btn-secundario { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s, transform 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-primario { background-color: var(--cor-primaria); color: white; }
-.btn-secundario { background-color: #6c757d; color: white; }
-.btn-primario:hover, .btn-secundario:hover { transform: translateY(-2px); }
-.btn-primario:hover { background-color: #812c41; }
-.btn-secundario:hover { background-color: #5a6268; }
-button:disabled { background-color: #a0a0a0; cursor: not-allowed; transform: none; }
-.botoes-acao { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--cor-borda); padding-top: 1.5rem; }
-.erro-mensagem { color: var(--cor-erro); font-weight: bold; margin-top: 1.5rem; }
-
-/* ==========================================================================
-   5. ESTILOS DE TELAS ESPECÍFICAS
-   ========================================================================== */
-.welcome-card { margin-bottom: 2rem; background-color: transparent; border: none; box-shadow: none; }
-.welcome-card h3 { border-bottom: none; font-size: 1.5rem; }
-.welcome-card p { color: #6c757d; max-width: 500px; margin: 0 auto; }
-.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; }
-.dashboard-info-card { background-color: #f8f9fa; padding: 1rem; border-radius: 5px; position: relative; }
-.dashboard-info-card h4 { margin-top: 0; color: var(--cor-primaria); }
-.historico-tabela { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left; }
-.historico-tabela th, .historico-tabela td { padding: 0.75rem; border-bottom: 1px solid var(--cor-borda); }
-.historico-tabela th { background-color: #f1f1f1; }
-.historico-tabela tr:hover { background-color: #f5f5f5; }
-.btn-edit { background: none; border: none; cursor: pointer; padding: 5px; color: #6c757d; }
-.btn-edit:hover { color: var(--cor-primaria); }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-.stat-card { background-color: #fff; border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; border-left: 5px solid #ccc; box-shadow: var(--sombra-card); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer; }
-.stat-card:hover { transform: translateY(-5px); box-shadow: var(--sombra-card-hover); }
-.stat-card-link { text-decoration: none; }
-.stat-card-icon { flex-shrink: 0; }
-.stat-card-info { display: flex; flex-direction: column; }
-.stat-card-title { font-size: 0.9rem; color: #6c757d; margin-bottom: 0.25rem; }
-.stat-card-value { font-size: 1.75rem; font-weight: bold; color: var(--cor-texto); }
-.lista-detalhes { margin-top: 2rem; animation: fadeIn 0.5s ease-in-out; }
-.lista-detalhes-tabela { width: 100%; text-align: left; border-collapse: collapse; }
-.lista-detalhes-tabela th { padding-bottom: 0.75rem; border-bottom: 2px solid var(--cor-borda); color: #6c757d; font-size: 0.9rem; }
-.lista-detalhes-tabela td { padding: 0.75rem 0; border-bottom: 1px solid var(--cor-borda); }
-.lista-detalhes-tabela tr:last-child td { border-bottom: none; }
-.lista-detalhes-tabela a { color: var(--cor-primaria); text-decoration: none; font-weight: 500; }
-.lista-detalhes-tabela a:hover { text-decoration: underline; }
-.info-relatorio-geral { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--cor-borda); font-size: 0.9rem; color: #555; margin-bottom: 1.5rem; }
-.total-das { font-size: 1.3rem; font-weight: bold; color: var(--cor-primaria); text-align: center; background-color: #fdf2f2; border: 1px solid var(--cor-primaria); padding: 1rem; border-radius: 4px; margin: 1rem 0 2rem 0; }
-.detalhe-anexo-card { margin-top: 1.5rem; border: 1px solid var(--cor-borda); border-radius: 8px; padding: 1.5rem; text-align: left; background-color: #fafafa; }
-.detalhe-anexo-card h4 { margin-top: 0; color: var(--cor-primaria); font-size: 1.2rem; }
-
-/* ✅ SEÇÃO DE RELATÓRIO CORRIGIDA */
-.relatorio-tabela {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-.relatorio-tabela th, .relatorio-tabela td {
-  padding: 0.8rem;
-  border-bottom: 1px solid var(--cor-borda);
-}
-.relatorio-tabela th {
-  text-align: left;
-  background-color: #f1f1f1;
-  font-weight: 500;
-  color: #555;
-}
-/* Alinha os cabeçalhos da 2a e 3a coluna à direita */
-.relatorio-tabela th:nth-child(2), .relatorio-tabela th:nth-child(3) {
-  text-align: right;
-}
-/* Alinha o conteúdo da 2a e 3a coluna à direita */
-.relatorio-tabela td:nth-child(2), .relatorio-tabela td:nth-child(3) {
-  text-align: right;
-  font-family: 'Inter', sans-serif; /* Remove a fonte "Courier New" */
-}
-.relatorio-tabela .subtotal-row td {
-  font-weight: bold;
-  border-top: 2px solid var(--cor-texto);
-  background-color: #f8f9fa;
-}
-.info-extra-relatorio {
-  display: flex; /* Adicionado para alinhar os itens */
-  justify-content: flex-end; /* Alinha tudo à direita */
-  align-items: center; /* Alinha verticalmente */
-  font-size: 0.9rem;
-  color: #555;
-  margin-top: 1rem;
-  border-top: 1px dashed var(--cor-borda);
-  padding-top: 1rem;
-}
-.info-extra-relatorio span {
-  margin-left: 1.5rem;
+.app-layout-vertical {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 
-/* ==========================================================================
-   6. COMPONENTES DE FEEDBACK (SPINNER, TOAST)
-   ========================================================================== */
-.spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; width: 16px; height: 16px; animation: spin 1s ease-in-out infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.skeleton-card { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+/* ===================== ANIMAÇÕES GLOBAIS ===================== */
 
-/* ==========================================================================
-   7. ANIMAÇÕES
-   ========================================================================== */
-.view-container { animation: fadeIn 0.5s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ==========================================================================
-   ESTILOS PARA O CALENDÁRIO E CONTROLES
-   ========================================================================== */
-.rbc-toolbar { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-.rbc-toolbar .rbc-toolbar-label { font-size: 1.5rem; font-weight: 700; color: var(--cor-texto); }
-.rbc-btn-group button { border: 1px solid var(--cor-borda); color: var(--cor-texto); transition: all 0.2s ease-in-out; padding: 0.5rem 1rem; border-radius: 4px; }
-.rbc-btn-group button:hover { background-color: #f1f1f1; }
-.rbc-btn-group button.rbc-active { background-color: var(--cor-primaria); border-color: var(--cor-primaria); color: white; box-shadow: none; }
-.rbc-btn-group button.rbc-active:hover { background-color: #812c41; }
-.rbc-header { padding: 0.75rem 0; font-weight: 500; border-bottom: 2px solid var(--cor-borda); }
-.rbc-today { background-color: #fef9c3; }
-.rbc-event { border: none; border-radius: 4px; padding: 4px 8px; color: white; font-size: 0.8rem; }
-.rbc-event.status-PAGO { background-color: #16a34a; }
-.rbc-event.status-ATRASADO { background-color: #ef4444; }
-.rbc-event.status-PENDENTE { background-color: #3b82f6; }
-.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; color: white; text-transform: capitalize; }
-.status-badge.status-PAGO { background-color: #16a34a; }
-.status-badge.status-ATRASADO { background-color: #ef4444; }
-.status-badge.status-PENDENTE { background-color: #3b82f6; }
-.controle-vencimentos-card { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; padding: 1.5rem; margin-bottom: -1rem; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none; }
-.form-group-inline { display: flex; align-items: center; gap: 1rem; }
-.form-group-inline label { font-weight: 500; color: var(--cor-texto); flex-shrink: 0; }
-.input-com-icone { position: relative; }
-.input-com-icone .input-icone { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
-.input-com-icone input { padding-left: 40px !important; width: 350px; box-sizing: border-box; }
-
-/* ==========================================================================
-   ESTILOS PARA O MODAL E SEUS FORMULÁRIOS
-   ========================================================================== */
-.ReactModal__Content { padding: 0 !important; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--cor-borda); }
-.modal-header h3 { margin: 0; font-size: 1.25rem; color: var(--cor-primaria); }
-.btn-close-modal { background: none; border: none; cursor: pointer; padding: 5px; line-height: 1; color: #6c757d; border-radius: 50%; transition: background-color 0.2s; }
-.btn-close-modal:hover { background-color: #f1f1f1; }
-.modal-body { padding: 1.5rem; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 1rem; padding: 1rem 1.5rem; background-color: #f8f9fa; border-top: 1px solid var(--cor-borda); }
-.form-group select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 12px; }
-.erro-mensagem-form { color: var(--cor-erro); font-size: 0.8rem; font-weight: 500; margin-top: 5px; margin-bottom: 0; }
-
-/* ==========================================================================
-   ESTILOS PARA O PDF UPLOADER E PÁGINA DE CÁLCULO
-   ========================================================================== */
-.pdf-uploader-container { border: 2px dashed var(--cor-borda); border-radius: 8px; padding: 1.5rem; margin-top: 1rem; margin-bottom: 1rem; }
-.dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; border-radius: 6px; background-color: #fafafa; color: #666; outline: none; cursor: pointer; transition: border-color .2s; }
-.dropzone.active { border-color: var(--cor-primaria); }
-.file-preview { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; margin-top: 1rem; background-color: #f1f1f1; border-radius: 4px; }
-.btn-remove-file { background: none; border: none; cursor: pointer; color: var(--cor-erro); padding: 0; line-height: 1; }
-.form-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; justify-content: flex-start; }
-.form-row .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
-.form-row .form-group input { width: 100%; }
-.separador-ou { text-align: center; margin: 2.5rem 0; font-weight: 500; color: #777; position: relative; display: flex; align-items: center; }
-.separador-ou::before, .separador-ou::after { content: ''; flex-grow: 1; height: 1px; background-color: var(--cor-borda); }
-.separador-ou::before { margin-right: 1rem; }
-.separador-ou::after { margin-left: 1rem; }
-.selecao-anexos { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
-.btn-anexo { background-color: #f0f0f0; color: #555; border: 1px solid var(--cor-borda); padding: 0.7rem 1.2rem; border-radius: 20px; cursor: pointer; transition: all 0.2s ease-in-out; }
-.btn-anexo:hover { background-color: #e0e0e0; }
-.btn-anexo.selecionado { background-color: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
-.anexo-bloco { border: 1px solid var(--cor-borda); border-radius: 8px; padding: 1.5rem; margin-top: 2rem; text-align: left; background-color: #fcfcfc; }
-.anexo-bloco h4 { margin-top: 0; color: var(--cor-primaria); border-bottom: 1px dashed var(--cor-borda); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-/* ==========================================================================
-   ESTILOS PARA O BOTÃO DE EXPORTAR DROPDOWN
-   ========================================================================== */
-
-.export-container {
-  position: relative; /* Essencial para o posicionamento do dropdown */
-  display: inline-block;
+/* Exemplo de animação global, se não estiver em outro arquivo */
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.export-dropdown {
-  position: absolute;
-  bottom: 110%; /* Posiciona o menu acima do botão */
-  right: 0;
-  background-color: white;
-  border: 1px solid var(--cor-borda);
-  border-radius: 6px;
-  box-shadow: var(--sombra-card-hover);
-  z-index: 20; /* Garante que fique sobre outros elementos */
-  width: 200px;
-  overflow: hidden; /* Garante que os links internos respeitem a borda arredondada */
-  animation: fadeIn 0.2s ease-in-out; /* Reutiliza nossa animação de fade */
+/* ===================== RESPONSIVIDADE GLOBAL ===================== */
+
+/* Exemplo de media query global, se necessário */
+@media (max-width: 600px) {
+  .app-layout-vertical {
+    padding: 0;
+  }
 }
 
-.export-dropdown a {
-  display: block;
-  padding: 0.75rem 1rem;
-  color: var(--cor-texto);
-  text-decoration: none;
-  text-align: left;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
+/* Espaço para a navbar fixa */
+.main-content {
+  flex: 1;
+  padding-bottom: 2rem;
+  padding-top: var(--altura-navbar, 60px);
 }
-
-.export-dropdown a:hover {
-  background-color: #f1f1f1;
-}
+/* ===================== FIM ===================== */

@@ -1,47 +1,54 @@
-import React from 'react';
-// O import de NavLink já existia, então está tudo certo
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, CalendarClock } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Header = () => (
+const Header = ({ isAuthenticated, showMenu }) => (
   <header className="top-navbar">
     <Link to="/" className="navbar-brand">
       <img src="/logo-notus.jpg" alt="Logotipo Nótus Contábil" className="navbar-logo" />
       <h1>Nótus Sistema Fiscal</h1>
     </Link>
-    <nav className="navbar-links">
-      <NavLink to="/" end>
-        <LayoutDashboard size={18} />
-        <span>Dashboard Gerencial</span>
-      </NavLink>
-      <NavLink to="/clientes/busca">
-        <Users size={18} />
-        <span>Clientes</span>
-      </NavLink>
-      
-      {/* ✅ ALTERAÇÃO REALIZADA AQUI 👇
-        - A tag <a> com a classe "disabled-link" foi substituída.
-        - Agora é um <NavLink> que aponta para a rota "/vencimentos".
-        - Ele funcionará em conjunto com a nova rota que você adicionou no App.jsx.
-      */}
-      <NavLink to="/vencimentos">
-        <CalendarClock size={18} />
-        <span>Vencimentos</span>
-      </NavLink>
-
+    <nav className={`navbar-links${showMenu ? " navbar-links-fadein" : ""}`}>
+      {isAuthenticated && (
+        <>
+          <NavLink to="/" end>
+            <LayoutDashboard size={18} />
+            <span>Dashboard Gerencial</span>
+          </NavLink>
+          <NavLink to="/clientes/busca">
+            <Users size={18} />
+            <span>Clientes</span>
+          </NavLink>
+          <NavLink to="/vencimentos">
+            <CalendarClock size={18} />
+            <span>Vencimentos</span>
+          </NavLink>
+        </>
+      )}
     </nav>
   </header>
 );
 
-const Footer = () => (
-  <footer className="app-footer">
-    © {new Date().getFullYear()} Nótus Contábil. Todos os direitos reservados.
-  </footer>
-);
+function Layout({ dark, setDark, children }) {
+  const location = useLocation();
+  const [showMenu, setShowMenu] = useState(false);
 
-function Layout() {
+  // Considere autenticado se houver token no localStorage
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
+
+  // Fade nos links do menu após login
+  useEffect(() => {
+    if (isAuthenticated && location.pathname !== "/login") {
+      setShowMenu(false);
+      const timer = setTimeout(() => setShowMenu(true), 400); // delay para fade
+      return () => clearTimeout(timer);
+    } else {
+      setShowMenu(false);
+    }
+  }, [isAuthenticated, location.pathname]);
+
   return (
     <div className="app-layout-vertical">
       <ToastContainer
@@ -56,11 +63,20 @@ function Layout() {
         pauseOnHover
         theme="colored"
       />
-      <Header />
+      <Header isAuthenticated={isAuthenticated && location.pathname !== "/login"} showMenu={showMenu} />
       <main className="main-content">
-        <Outlet />
+        {children || <Outlet />}
       </main>
-      <Footer />
+      <footer className="app-footer">
+        © {new Date().getFullYear()} Nótus Contábil. Todos os direitos reservados.
+        <button
+          className="btn-darkmode"
+          onClick={() => setDark((d) => !d)}
+          type="button"
+        >
+          {dark ? "Modo Claro" : "Modo Escuro"}
+        </button>
+      </footer>
     </div>
   );
 }

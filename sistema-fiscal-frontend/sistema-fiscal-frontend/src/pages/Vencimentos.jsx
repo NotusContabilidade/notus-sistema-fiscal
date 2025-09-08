@@ -12,6 +12,7 @@ import Spinner from '../components/Spinner';
 import ControleVencimentos from '../components/ControleVencimentos';
 import { useDebounce } from '../hooks/useDebounce';
 import FormularioVencimento from '../components/FormularioVencimento';
+import '../styles/pages/Vencimentos.css';
 
 // Configurações de tradução (corretas e completas)
 const locales = { 'pt-BR': ptBR };

@@ -1,8 +1,7 @@
 -- Script para criar a estrutura de tabelas para um novo tenant (escritório).
-CREATE SCHEMA IF NOT EXISTS "escritorio_A";
 
--- Tabela de Usuários (NOVA ADIÇÃO)
-CREATE TABLE IF NOT EXISTS "escritorio_A".users (
+-- Tabela de Usuários
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255),
     email VARCHAR(255) UNIQUE,

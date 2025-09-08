@@ -1,0 +1,103 @@
+/* DARK MODE */
+body.dark {
+  background: #18121b !important;
+  color: #fff !important;
+}
+
+/* Não aplique fundo escuro em tudo! Só nas áreas principais */
+body.dark .main-content,
+body.dark .login-bg-vinho,
+body.dark .app-footer {
+  background: #18121b !important;
+  color: #fff !important;
+}
+
+/* Cards e containers devem ter contraste */
+/* Cards e containers devem ter contraste */
+body.dark .card,
+body.dark .stat-card,
+body.dark .stat-card-link {
+  background: #24192b !important;   /* Cinza escuro arroxeado */
+  color: #fff !important;
+  border-color: #a13751 !important;
+  box-shadow: 0 2px 16px 0 #a1375133 !important;
+}
+
+/* Títulos e textos importantes */
+body.dark .page-title,
+body.dark h1, body.dark h2, body.dark h3, body.dark h4, body.dark h5 {
+  color: #fff !important;
+}
+
+/* Inputs */
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background: #2d1b2f !important;
+  color: #fff !important;
+  border: 1.5px solid #3e2a4d !important;
+}
+body.dark input:focus,
+body.dark select:focus,
+body.dark textarea:focus {
+  border: 1.5px solid #a13751 !important;
+  background: #23162a !important;
+}
+
+/* Botões principais */
+body.dark .btn-primario,
+body.dark .button,
+body.dark .btn {
+  background: #a13751 !important;
+  color: #fff !important;
+  border: none !important;
+}
+body.dark .btn-primario:hover,
+body.dark .button:hover,
+body.dark .btn:hover {
+  background: #812c41 !important;
+}
+
+/* Navbar */
+body.dark .top-navbar {
+  background: #18121b !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px 0 #a13751cc;
+}
+body.dark .navbar-brand h1 {
+  color: #fff !important;
+}
+body.dark .navbar-links a {
+  color: #bbb !important;
+}
+body.dark .navbar-links a.active {
+  color: #a13751 !important;
+  border-bottom-color: #a13751 !important;
+}
+body.dark .navbar-links a:hover {
+  background-color: #2d1b2f !important;
+  color: #fff !important;
+}
+
+/* Footer */
+body.dark .app-footer {
+  color: #bbb !important;
+  border-top: 1px solid #3e2a4d !important;
+}
+.btn-darkmode {
+  background: #fff;
+  color: #a13751;
+  border: 1px solid #a13751;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-darkmode:hover {
+  background: #a13751;
+  color: #fff;
+}

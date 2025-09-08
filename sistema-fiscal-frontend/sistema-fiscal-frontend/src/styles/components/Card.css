@@ -1,0 +1,16 @@
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px 0 rgba(161,55,81,0.07);
+  padding: 2rem;
+  margin: 1.5rem auto;
+  max-width: 700px;
+  animation: fadein 0.8s;
+}
+
+.page-title {
+  color: #a13751;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}

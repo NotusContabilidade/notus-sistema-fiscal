@@ -1,0 +1,240 @@
+.busca-cliente-saas {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.busca-titulo-saas {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #a13751;
+  margin-bottom: 2.2rem;
+  letter-spacing: 0.2px;
+  text-align: center;
+  animation: fadeInDown 0.7s cubic-bezier(.23,1.02,.32,1) both;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+
+.busca-card-saas {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px 0 #a1375115;
+  padding: 2.5rem 2.5rem 2.2rem 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: cardFadeIn 0.8s cubic-bezier(.23,1.02,.32,1) both;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.98);}
+  60%  { opacity: 1; transform: translateY(-6px) scale(1.03);}
+  to   { opacity: 1; transform: translateY(0) scale(1);}
+}
+
+.busca-form-saas {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.label-cnpj-saas {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a13751;
+  margin-bottom: 0.2rem;
+  margin-left: 2px;
+}
+
+/* REFINADO: input e botão lado a lado, botão nunca sai do card */
+.input-group-saas {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group-saas input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 7px 0 0 7px;
+  font-size: 1.08rem;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px #a137510a;
+  border-right: none;
+}
+
+.input-group-saas input:focus {
+  border-color: #a13751;
+  outline: none;
+  box-shadow: 0 0 0 2px #a1375122;
+}
+
+.btn-primario-saas {
+  border-radius: 0 7px 7px 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  background: #a13751;
+  color: #fff;
+  border: 1.5px solid #a13751;
+  border-left: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: background 0.2s, color 0.2s, transform 0.18s, filter 0.18s;
+  cursor: pointer;
+}
+.btn-primario-saas:hover, .btn-primario-saas:focus {
+  background: #812c41;
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.08);
+}
+.btn-primario-saas:active {
+  background: #a13751;
+  transform: scale(0.98);
+}
+
+.separador-ou-saas {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 2rem 0 1.2rem 0;
+  color: #a13751;
+  font-weight: 600;
+  font-size: 1rem;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+  width: 100%;
+  user-select: none;
+}
+.separador-ou-saas span {
+  padding: 0 1.2em;
+}
+.separador-ou-saas::before,
+.separador-ou-saas::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1.5px dashed #e0e0e0;
+}
+
+.btn-secundario-saas {
+  background: #fff;
+  color: #a13751;
+  border: 2px solid #a13751;
+  border-radius: 7px;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: center;
+  box-shadow: 0 2px 8px 0 #a1375112;
+  transition: background 0.18s, color 0.18s, border 0.18s, transform 0.18s;
+  will-change: transform;
+  width: 100%;
+}
+.btn-secundario-saas:hover, .btn-secundario-saas:focus {
+  background: #a13751;
+  color: #fff;
+  border-color: #a13751;
+  transform: translateY(-2px) scale(1.04);
+}
+.btn-secundario-saas:active {
+  background: #a13751;
+  color: #fff;
+  border-color: #a13751;
+  transform: scale(0.98);
+}
+
+@media (max-width: 600px) {
+  .busca-card-saas {
+    padding: 1.2rem;
+    max-width: 100%;
+  }
+  .input-group-saas {
+    grid-template-columns: 1fr;
+  }
+  .input-group-saas input {
+    border-radius: 7px 7px 0 0;
+    border-right: 1.5px solid #e0e0e0;
+    border-bottom: none;
+  }
+  .btn-primario-saas {
+    border-radius: 0 0 7px 7px;
+    width: 100%;
+    border-left: 1.5px solid #a13751;
+    border-top: none;
+    margin-top: 0;
+  }
+}
+
+/* DARK MODE */
+body.dark .busca-card-saas {
+  background: #24192b !important;
+  color: #fff !important;
+  box-shadow: 0 2px 16px 0 #a1375133 !important;
+}
+body.dark .busca-titulo-saas {
+  color: #e07ea1 !important;
+}
+body.dark .label-cnpj-saas {
+  color: #e07ea1 !important;
+}
+body.dark .input-group-saas input {
+  background: #2d1b2f !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+body.dark .input-group-saas input:focus {
+  border-color: #e07ea1 !important;
+  box-shadow: 0 0 0 2px #a1375180 !important;
+}
+body.dark .btn-primario-saas {
+  background: #a13751 !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+body.dark .btn-primario-saas:hover, body.dark .btn-primario-saas:focus {
+  background: #e07ea1 !important;
+  color: #fff !important;
+}
+body.dark .btn-primario-saas:active {
+  background: #a13751 !important;
+  transform: scale(0.98) !important;
+}
+body.dark .btn-secundario-saas {
+  background: #2d1b2f !important;
+  color: #e07ea1 !important;
+  border: 2px solid #e07ea1 !important;
+}
+body.dark .btn-secundario-saas:hover, body.dark .btn-secundario-saas:focus {
+  background: #e07ea1 !important;
+  color: #2d1b2f !important;
+  border-color: #e07ea1 !important;
+  transform: translateY(-2px) scale(1.04);
+}
+body.dark .btn-secundario-saas:active {
+  background: #e07ea1 !important;
+  color: #2d1b2f !important;
+  border-color: #e07ea1 !important;
+  transform: scale(0.98);
+}

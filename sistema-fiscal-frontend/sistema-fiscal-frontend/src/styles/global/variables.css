@@ -1,0 +1,10 @@
+:root {
+  --cor-primaria: #a13751;
+  --cor-fundo: #f8f8f8;
+  --cor-texto: #333;
+  --cor-borda: #e0e0e0;
+  --cor-erro: #d9534f;
+  --altura-navbar: 60px;
+  --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sombra-card-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
+}

@@ -1,0 +1,82 @@
+.info-relatorio-geral {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  color: #6c3bbf;
+}
+
+.total-das {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #a13751;
+  margin-bottom: 1.5rem;
+}
+
+.detalhe-anexo-card {
+  background: #faf7fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+.relatorio-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+
+.relatorio-tabela th,
+.relatorio-tabela td {
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.subtotal-row {
+  font-weight: 700;
+  background: #f8f8f8;
+}
+
+.info-extra-relatorio {
+  color: #6c3bbf;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.botoes-acao {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.export-container {
+  position: relative;
+  display: inline-block;
+}
+
+.export-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px 0 #a1375115;
+  z-index: 10;
+  min-width: 160px;
+  padding: 0.5rem 0;
+}
+
+.export-dropdown a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: #a13751;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.export-dropdown a:hover {
+  background: #f8f8f8;
+}

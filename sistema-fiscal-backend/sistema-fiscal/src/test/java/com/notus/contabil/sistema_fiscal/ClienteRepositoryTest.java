@@ -31,7 +31,7 @@ class ClienteRepositoryTest {
     private TenantManagementService tenantManagementService;
 
     @Container
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine");
+    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -57,9 +57,13 @@ class ClienteRepositoryTest {
     void deve_isolar_clientes_por_tenant() {
         String tenantA = "escritorio_a";
         String tenantB = "escritorio_b";
-        
-        tenantManagementService.createTenant(tenantA);
-        tenantManagementService.createTenant(tenantB);
+
+        try {
+            tenantManagementService.criarTenant(tenantA);
+            tenantManagementService.criarTenant(tenantB);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao criar tenant: " + e.getMessage(), e);
+        }
 
         // Transação 1: Salva cliente A
         TenantContext.setTenantId(tenantA);

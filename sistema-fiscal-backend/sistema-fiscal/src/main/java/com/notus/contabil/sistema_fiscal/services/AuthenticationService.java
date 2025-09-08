@@ -12,6 +12,7 @@ public interface AuthenticationService {
      * @return A resposta com o token JWT.
      */
     AuthenticationResponse setupTenantAndFirstUser(RegisterRequest request);
+    
 
     /**
      * Registra um novo usuário para um tenant que já existe.

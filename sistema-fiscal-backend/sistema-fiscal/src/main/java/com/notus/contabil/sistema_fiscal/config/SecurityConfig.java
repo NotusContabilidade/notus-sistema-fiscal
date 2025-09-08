@@ -32,6 +32,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/tasks/**").permitAll() // Libera acesso aos endpoints de tarefas
                     .requestMatchers(HttpMethod.GET, "/health").permitAll()
                     .anyRequest().authenticated()
             )

@@ -1,6 +1,11 @@
 package com.notus.contabil.sistema_fiscal.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users") // nome da tabela no schema do tenant
@@ -10,33 +15,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private String role;
 
-    @Column(nullable = false)
+    @Column(name = "tenant_id", nullable = false)
     private String tenantId;
 
-    // Construtores
-    public User() {}
-
-    public User(String nome, String email, String password, String role, String tenantId) {
-        this.nome = nome;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.tenantId = tenantId;
-    }
-
-    // Getters e Setters
+    // Getters e setters
     public Long getId() {
         return id;
     }

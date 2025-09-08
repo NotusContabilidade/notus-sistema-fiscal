@@ -25,8 +25,12 @@ public class TenantController {
      * Útil para testes ou administração manual.
      */
     @PostMapping("/{tenantId}")
-    public ResponseEntity<String> createTenant(@PathVariable String tenantId) {
-        tenantManagementService.createTenant(tenantId);
-        return ResponseEntity.ok("Schema do tenant '" + tenantId + "' criado com sucesso.");
+    public ResponseEntity<String> criarTenant(@PathVariable String tenantId) {
+        try {
+            tenantManagementService.criarTenant(tenantId);
+            return ResponseEntity.ok("Schema do tenant '" + tenantId + "' criado com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao criar tenant: " + e.getMessage());
+        }
     }
 }
