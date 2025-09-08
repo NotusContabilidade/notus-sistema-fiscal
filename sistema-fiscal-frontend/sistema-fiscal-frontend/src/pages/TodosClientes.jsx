@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import '../styles/pages/TodosClientes.css';
 
 function TodosClientes() {
   const [clientes, setClientes] = useState([]);

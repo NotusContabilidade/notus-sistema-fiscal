@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TaskList from "../components/TaskList";
 import TaskForm from "../components/TaskForm";
+import '../styles/pages/Tasks.css';
 
 export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);

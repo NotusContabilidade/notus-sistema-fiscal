@@ -1,0 +1,18 @@
+.portal-cliente-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 2rem;
+}
+.task-card-cliente {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fafafa;
+}
+.task-card-cliente h4 {
+  margin: 0 0 0.5rem 0;
+}

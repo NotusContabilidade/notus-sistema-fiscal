@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import '../styles/pages/Login.css';
+import "../styles/pages/Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -36,10 +36,9 @@ export default function Login() {
   };
 
   return (
-    <div className="login-bg-vinho">
-      <div className="login-center">
+    <div className="login-bg-animated">
+      <div className="login-center login-fadein">
         <div className="login-header">
-          <img src="/logo-notus.jpg" alt="Notus Logo" className="login-logo-big shadow-pop" />
           <h1 className="login-title">Nótus Sistema Fiscal</h1>
           <p className="login-institutional">
             Soluções inteligentes para a contabilidade do seu negócio.
@@ -77,18 +76,11 @@ export default function Login() {
             {error && <div className="login-error">{error}</div>}
           </form>
           <div className="login-footer">
-            <span>
-              Esqueceu a senha? <a href="mailto:suporte@notuscontabil.com.br">Contate o suporte</a>
+            Esqueceu a senha?{" "}
+            <span className="login-suporte">
+              Contate o suporte: suporte@notuscontabil.com.br
             </span>
           </div>
-        </div>
-        <div className="login-powered">
-          <span>
-            © {new Date().getFullYear()} Nótus Contábil &nbsp;|&nbsp; 
-            <a href="https://www.notuscontabil.com.br" target="_blank" rel="noopener noreferrer">
-              www.notuscontabil.com.br
-            </a>
-          </span>
         </div>
       </div>
     </div>

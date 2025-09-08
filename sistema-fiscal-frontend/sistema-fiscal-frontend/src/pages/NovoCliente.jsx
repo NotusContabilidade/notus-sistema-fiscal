@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { IMaskInput } from 'react-imask';
+import '../styles/pages/NovoCliente.css';
 
 function NovoCliente() {
   const navigate = useNavigate();

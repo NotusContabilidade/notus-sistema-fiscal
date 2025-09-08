@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/global/BigCalendarDark.css';
+import PortalCliente from "./pages/PortalCliente/PortalCliente";
 
 function App() {
   const [dark, setDark] = useState(() => {
@@ -118,6 +119,7 @@ function App() {
             </div>
           }
         />
+        <Route path="/portal-cliente" element={<PortalCliente />} />
       </Routes>
     </Layout>
   );

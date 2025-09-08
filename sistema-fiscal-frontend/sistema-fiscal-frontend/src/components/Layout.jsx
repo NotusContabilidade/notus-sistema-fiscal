@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarClock } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarClock, KeyRound } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -27,6 +27,11 @@ const Header = ({ isAuthenticated, showMenu }) => (
           </NavLink>
         </>
       )}
+      {/* Portal do Cliente - sempre visível no menu */}
+      <NavLink to="/portal-cliente">
+        <KeyRound size={18} />
+        <span>Portal do Cliente</span>
+      </NavLink>
     </nav>
   </header>
 );

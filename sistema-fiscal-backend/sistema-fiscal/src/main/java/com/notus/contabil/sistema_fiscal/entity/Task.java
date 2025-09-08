@@ -3,6 +3,7 @@ package com.notus.contabil.sistema_fiscal.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -13,39 +14,117 @@ public class Task {
 
     private String titulo;
     private String descricao;
-    private String status;
+
+    private String status; // pendente, em_andamento, enviado, concluido
+
     private LocalDate prazo;
 
+    private String responsavel;
+
+    private LocalDateTime dataCriacao;
+    private LocalDateTime dataConclusao;
+
+    @ElementCollection
+    @CollectionTable(name = "task_anexos", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "anexo")
+    private List<String> anexos;
+
+    @ElementCollection
+    @CollectionTable(name = "task_historico", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "historico")
+    private List<String> historico;
+
     @ManyToOne
-    @JoinColumn(name = "responsavel_id")
-    private User responsavel;
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
 
-    private LocalDateTime criadoEm;
-    private LocalDateTime atualizadoEm;
+    // Getters e Setters
 
-    public Task() {}
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getDescricao() {
+        return descricao;
+    }
 
-    public LocalDate getPrazo() { return prazo; }
-    public void setPrazo(LocalDate prazo) { this.prazo = prazo; }
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 
-    public User getResponsavel() { return responsavel; }
-    public void setResponsavel(User responsavel) { this.responsavel = responsavel; }
+    public String getStatus() {
+        return status;
+    }
 
-    public LocalDateTime getCriadoEm() { return criadoEm; }
-    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-    public LocalDateTime getAtualizadoEm() { return atualizadoEm; }
-    public void setAtualizadoEm(LocalDateTime atualizadoEm) { this.atualizadoEm = atualizadoEm; }
+    public LocalDate getPrazo() {
+        return prazo;
+    }
+
+    public void setPrazo(LocalDate prazo) {
+        this.prazo = prazo;
+    }
+
+    public String getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(String responsavel) {
+        this.responsavel = responsavel;
+    }
+
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public LocalDateTime getDataConclusao() {
+        return dataConclusao;
+    }
+
+    public void setDataConclusao(LocalDateTime dataConclusao) {
+        this.dataConclusao = dataConclusao;
+    }
+
+    public List<String> getAnexos() {
+        return anexos;
+    }
+
+    public void setAnexos(List<String> anexos) {
+        this.anexos = anexos;
+    }
+
+    public List<String> getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(List<String> historico) {
+        this.historico = historico;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 }

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import PdfUploader from '../components/PdfUploader';
+import '../styles/pages/Calculo.css';
 
 function Calculo() {
   const { clienteId } = useParams();
