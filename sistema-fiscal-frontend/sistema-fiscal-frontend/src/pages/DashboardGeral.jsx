@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import { Users, FileWarning, DollarSign, Search } from 'lucide-react';
 import Spinner from '../components/Spinner';
@@ -33,7 +33,7 @@ function DashboardGeral() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/dashboard/stats');
+        const response = await api.get('http://localhost:8080/api/dashboard/stats');
         setStats(response.data);
       } catch (error) {
         toast.error('Não foi possível carregar as estatísticas.');
@@ -54,7 +54,7 @@ function DashboardGeral() {
     setListaDados([]);
     try {
       const endpoint = tipo === 'pendentes' ? '/api/dashboard/clientes-pendentes' : '/api/dashboard/financeiro-mes';
-      const response = await axios.get(`http://localhost:8080${endpoint}`);
+      const response = await api.get(`http://localhost:8080${endpoint}`);
       setListaDados(response.data);
     } catch (error) {
       toast.error(`Não foi possível carregar a lista de clientes ${tipo}.`);

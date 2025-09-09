@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, XCircle, CheckCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import Spinner from './Spinner';
 
@@ -29,7 +29,7 @@ function PdfUploader({ onUploadSuccess }) {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/pdf/upload/livro-fiscal-bauru', formData, {
+      const response = await api.post('http://localhost:8080/api/pdf/upload/livro-fiscal-bauru', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

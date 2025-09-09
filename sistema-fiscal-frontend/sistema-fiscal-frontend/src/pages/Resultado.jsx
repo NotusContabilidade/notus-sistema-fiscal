@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import { Download, ChevronsUp } from 'lucide-react';
 import '../styles/pages/Resultado.css';
@@ -27,8 +27,8 @@ function Resultado() {
   const fetchData = useCallback(async () => {
     try {
         const [calculoResponse, clienteResponse] = await Promise.all([
-            axios.get(`http://localhost:8080/api/calculos/${calculoId}`),
-            axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`)
+            api.get(`http://localhost:8080/api/calculos/${calculoId}`),
+            api.get(`http://localhost:8080/api/clientes/id/${clienteId}`)
         ]);
         
         setResultado(calculoResponse.data);

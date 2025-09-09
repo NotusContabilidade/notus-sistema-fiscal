@@ -1,0 +1,1 @@
+ALTER TABLE clientes ALTER COLUMN razao_social TYPE VARCHAR(255);

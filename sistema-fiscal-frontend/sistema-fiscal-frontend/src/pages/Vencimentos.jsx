@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api'
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
@@ -47,7 +47,7 @@ function Vencimentos() {
         }
         
         try {
-            const response = await axios.get(apiUrl);
+            const response = await api.get(apiUrl);
             const eventosFormatados = response.data.map(evento => ({ ...evento, start: new Date(evento.start), end: new Date(evento.end) }));
             setEventos(eventosFormatados);
 
@@ -73,7 +73,7 @@ function Vencimentos() {
         const method = isEditing ? 'put' : 'post';
 
         try {
-            await axios[method](url, formData);
+            await api[method](url, formData);
             toast.success(`Vencimento ${isEditing ? 'atualizado' : 'salvo'} com sucesso!`);
             handleCloseModal();
             fetchEventos();
@@ -85,7 +85,7 @@ function Vencimentos() {
 
     const handleDeleteVencimento = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/vencimentos/${id}`);
+            await api.delete(`http://localhost:8080/api/vencimentos/${id}`);
             toast.success('Vencimento excluído com sucesso!');
             handleCloseModal();
             fetchEventos();

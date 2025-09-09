@@ -1,99 +1,151 @@
+/* ========================================================= */
+/* ====== NÓTUS SISTEMA FISCAL - LOGIN CSS (V. FIX) ====== */
+/* ========================================================= */
+
+/* ====== MODO CLARO ====== */
 .login-bg-animated {
-  background: linear-gradient(120deg, #a13751 0%, #f8f8f8 100%);
+  background: linear-gradient(120deg, #a13751, #f8f8f8, #f5c4cf, #a13751);
+  background-size: 400% 400%;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadein 1s;
+  position: relative;
+  overflow: hidden;
+  animation: 
+    animateGradient 25s ease infinite,
+    fadein 1.5s;
 }
 
-.login-fadein {
-  animation: fadein 1s;
+@keyframes animateGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
+
+.login-bg-animated::before,
+.login-bg-animated::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  z-index: 0;
+}
+
+.login-bg-animated::before {
+  width: 350px;
+  height: 350px;
+  background-color: rgba(161, 55, 81, 0.4);
+  animation: floatOrb1 20s infinite alternate ease-in-out;
+}
+
+.login-bg-animated::after {
+  width: 300px;
+  height: 300px;
+  background-color: rgba(245, 196, 207, 0.5);
+  animation: floatOrb2 28s infinite alternate ease-in-out;
+}
+
+@keyframes floatOrb1 {
+  from { transform: translate(5vw, -20vh) scale(1); }
+  to { transform: translate(-10vw, 20vh) scale(1.2); }
+}
+
+@keyframes floatOrb2 {
+  from { transform: translate(-15vw, 10vh) scale(1.2); }
+  to { transform: translate(10vw, -10vh) scale(1); }
+}
+
+.login-fadein { animation: fadeInDown 0.8s 0.2s cubic-bezier(.23,1.02,.32,1) both; }
+.login-header { animation: titlePop 1s 0.3s cubic-bezier(.23,1.02,.32,1) both; }
+.login-card-glass { animation: cardFadeIn 0.8s 0.5s cubic-bezier(.23,1.02,.32,1) both; }
+.login-card-glass input:nth-of-type(1) { animation: fadeInUp 0.6s 0.8s cubic-bezier(.23,1.02,.32,1) both; }
+.login-card-glass input:nth-of-type(2) { animation: fadeInUp 0.6s 0.9s cubic-bezier(.23,1.02,.32,1) both; }
+.login-card-glass input:nth-of-type(3) { animation: fadeInUp 0.6s 1.0s cubic-bezier(.23,1.02,.32,1) both; }
+.btn-glow { animation: fadeInRight 0.8s 1.1s cubic-bezier(.23,1.02,.32,1) both; }
+.login-footer { animation: fadeInUp 1.3s 1.2s cubic-bezier(.23,1.02,.32,1) both; }
 
 @keyframes fadein {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
-.login-header {
-  text-align: center;
-  margin-bottom: 2rem;
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-40px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+@keyframes titlePop {
+  from { opacity: 0; transform: scale(0.95);}
+  to   { opacity: 1; transform: scale(1);}
 }
 
 .login-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: #a13751;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 8px #fff8, 0 1px 0 #fff;
 }
-
 .login-institutional {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #a13751;
   margin-bottom: 2rem;
-  text-shadow: 0 2px 8px #fff8, 0 1px 0 #fff;
+  font-weight: 500;
 }
-
 .login-card-glass {
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.97);
   border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(161,55,81,0.15);
+  box-shadow: 0 8px 32px rgba(161,55,81,0.12);
   padding: 2.5rem 2rem 2rem 2rem;
   max-width: 400px;
   margin: 0 auto;
   position: relative;
-  animation: cardpop 0.8s;
+  z-index: 1;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 }
-
-@keyframes cardpop {
-  0% { transform: scale(0.95) translateY(30px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
+.login-card-glass:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(161,55,81,0.18);
 }
-
-.login-card-glass:before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: linear-gradient(120deg, #a1375115 0%, #6c3bbf15 100%);
-  z-index: -1;
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.97);}
+  to   { opacity: 1; transform: translateY(0) scale(1);}
 }
-
 .login-card-glass h2 {
   color: #a13751;
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
 }
-
 .login-subtitle {
   color: #a13751;
   font-size: 1rem;
   margin-bottom: 1.5rem;
-  font-weight: 500;
-  text-shadow: 0 2px 8px #fff8, 0 1px 0 #fff;
+  font-weight: 600;
 }
-
 .login-card-glass input {
   width: 100%;
   padding: 0.8rem;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
-  margin-bottom: 1.2rem;
   font-size: 1rem;
   background: #fff;
   transition: border-color 0.2s;
+  position: relative;
+  z-index: 1;
+}
+.login-card-glass input:focus {
+  outline: none;
+  border-color: #a13751;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px);}
+  to   { opacity: 1; transform: translateY(0);}
 }
 
-.login-card-glass input:focus {
-  border-color: #a13751;
-  outline: none;
-}
+/* ===================================================== */
+/* ====== CORREÇÃO E ANIMAÇÃO ROBUSTA DO BOTÃO ====== */
+/* ===================================================== */
 
 .btn-glow {
-  background: #a13751;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -101,56 +153,62 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px 0 #a1375133;
+  width: 100%;
+  box-shadow: 0 4px 12px #a1375133;
   position: relative;
-  transition: background 0.2s, box-shadow 0.2s;
   overflow: hidden;
+  
+  /* --- A MÁGICA ESTÁ AQUI --- */
+  background-size: 200% 100%; /* Fundo 2x mais largo que o botão */
+  transition: 
+    background-position 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.2s ease-out, 
+    box-shadow 0.2s ease-out;
+
+  /* Gradiente para o Light Mode: Vinho -> Roxo Original */
+  background-image: linear-gradient(to right, #812c41, #812c41 50%, #a13751 50%);
+  background-position: 100% 0; /* Começa mostrando a cor da direita (Roxo Original) */
 }
 
-.btn-glow:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255,255,255,0.3);
-  border-radius: 100%;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s;
-  z-index: 1;
-}
-
-.btn-glow:hover:after {
-  width: 200%;
-  height: 200%;
+.btn-glow:hover {
+  background-position: 0 0; /* No hover, move o fundo para a esquerda, revelando a cor "Vinho" */
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px #a1375155;
 }
 
 .btn-glow:active {
-  background: #812c41;
+  transform: translateY(0px);
 }
 
 .btn-glow:disabled {
-  background: #e0e0e0;
+  background-image: none; /* Remove o gradiente */
+  background-color: #e0e0e0;
   color: #bbb;
   cursor: not-allowed;
+  box-shadow: none;
 }
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(40px);}
+  to   { opacity: 1; transform: translateX(0);}
+}
+
+/* ===================================================== */
+/* ====== FIM DA ANIMAÇÃO DO BOTÃO ====== */
+/* ===================================================== */
 
 .login-error {
   color: #d9534f;
   font-size: 0.95rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0 0 0;
   text-align: center;
-  animation: shake 0.3s;
+  animation: shake 0.4s;
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
-  100% { transform: translateX(0); }
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
 .login-footer {
@@ -166,20 +224,9 @@
   text-decoration: none !important;
 }
 
-.login-powered {
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
-  color: #bbb;
-}
-
-.login-powered a {
-  color: #a13751;
-  text-decoration: none;
-}
-
 .btn-glow .loader {
-  border: 3px solid #fff;
-  border-top: 3px solid #a13751;
+  border: 3px solid rgba(255,255,255,0.5);
+  border-top: 3px solid #fff;
   border-radius: 50%;
   width: 18px;
   height: 18px;
@@ -189,72 +236,57 @@
   margin: 0 auto;
 }
 @keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+  to { transform: rotate(360deg);}
 }
 
-/* Dark mode para login */
+/* ====== DARK MODE ====== */
 body.dark .login-bg-animated {
-  background: linear-gradient(120deg, #1a1017 0%, #2d1b2f 100%);
-  animation: fadein-dark 1s;
+  background: linear-gradient(120deg, #1a1017, #2d1b2f, #412a4c, #1a1017);
+  background-size: 400% 400%;
 }
-
-@keyframes fadein-dark {
-  from { opacity: 0; background: #000; }
-  to { opacity: 1; background: linear-gradient(120deg, #1a1017 0%, #2d1b2f 100%);}
+body.dark .login-bg-animated::before {
+  background-color: rgba(108, 59, 191, 0.25);
 }
-
-body.dark .login-header .login-title {
-  color: #e07ea1;
-  text-shadow: 0 2px 8px #000a, 0 1px 0 #000;
+body.dark .login-bg-animated::after {
+  background-color: rgba(224, 126, 161, 0.2);
 }
-
-body.dark .login-header .login-institutional {
-  color: #e07ea1;
-  text-shadow: 0 2px 8px #000a, 0 1px 0 #000;
-}
-
+body.dark .login-title,
+body.dark .login-institutional { color: #e07ea1; }
 body.dark .login-card-glass {
   background: rgba(36,25,43,0.97);
   color: #fff;
-  box-shadow: 0 8px 32px 0 #0008;
+  box-shadow: 0 8px 32px #0008;
 }
-
-body.dark .login-card-glass h2 {
-  color: #e07ea1;
+body.dark .login-card-glass:hover {
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7);
 }
-
-body.dark .login-subtitle {
-  color: #e07ea1;
-  text-shadow: 0 2px 8px #000a, 0 1px 0 #000;
-}
-
+body.dark .login-card-glass h2,
+body.dark .login-subtitle { color: #e07ea1; }
 body.dark .login-card-glass input {
-  background: #2d1b2f;
+  background: rgba(255,255,255,0.1);
   color: #fff;
-  border-color: #3a223a;
+  border: 1px solid #444;
 }
-
-body.dark .login-card-glass input:focus {
-  border-color: #e07ea1;
-}
+body.dark .login-card-glass input:focus { border-color: #e07ea1; }
 
 body.dark .btn-glow {
-  background: #e07ea1;
-  color: #24192b;
+  box-shadow: 0 4px 12px rgba(108, 59, 191, 0.3);
+  /* Gradiente para o Dark Mode: Vinho -> Azul Original */
+  background-image: linear-gradient(to right, #812c41, #812c41 50%, #6c3bbf 50%);
+  background-position: 100% 0; /* Começa mostrando a cor da direita (Azul Original) */
 }
 
-body.dark .btn-glow:active {
-  background: #a13751;
-  color: #fff;
+body.dark .btn-glow:hover {
+  background-position: 0 0; /* Revela a cor "Vinho" */
+  box-shadow: 0 8px 20px rgba(108, 59, 191, 0.5);
 }
 
-body.dark .login-footer,
-body.dark .login-footer .login-suporte {
-  color: #e07ea1 !important;
+body.dark .btn-glow:disabled {
+  background-image: none;
+  background-color: #333;
+  color: #777;
 }
 
-body.dark .login-powered,
-body.dark .login-powered a {
-  color: #e07ea1 !important;
-}
+body.dark .login-error { color: #f44336; }
+body.dark .login-footer .login-suporte,
+body.dark .login-powered a { color: #e07ea1; }

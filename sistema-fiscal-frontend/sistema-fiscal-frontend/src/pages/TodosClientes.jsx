@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import '../styles/pages/TodosClientes.css';
@@ -12,7 +12,7 @@ function TodosClientes() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/clientes/todos');
+        const response = await api.get('http://localhost:8080/api/clientes/todos');
         setClientes(response.data);
       } catch (error) {
         toast.error('Não foi possível carregar a lista de clientes.');

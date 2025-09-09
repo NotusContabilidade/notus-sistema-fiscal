@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom'; 
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { Edit, X, PlusCircle, Search } from 'lucide-react';
@@ -29,7 +29,7 @@ function Dashboard() {
 
   const fetchCliente = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
+      const response = await api.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
       setCliente(response.data);
       if (response.data.parametros) {
         setEditedParams({
@@ -56,7 +56,7 @@ function Dashboard() {
         rbt12: parseFloat(editedParams.rbt12),
         folha12m: parseFloat(editedParams.folha12m)
       };
-      await axios.put(`http://localhost:8080/api/clientes/${cliente.cliente.id}/parametros`, payload);
+      await api.put(`http://localhost:8080/api/clientes/${cliente.cliente.id}/parametros`, payload);
       toast.success("Parâmetros atualizados com sucesso!");
       setIsEditingParams(false);
       await fetchCliente();
@@ -74,7 +74,7 @@ function Dashboard() {
     }
     setIsLoadingHistorico(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/calculos/historico/${cliente.cliente.id}`);
+      const response = await api.get(`http://localhost:8080/api/calculos/historico/${cliente.cliente.id}`);
       setHistorico(response.data);
       setHistoricoVisivel(true);
     } catch (error) {

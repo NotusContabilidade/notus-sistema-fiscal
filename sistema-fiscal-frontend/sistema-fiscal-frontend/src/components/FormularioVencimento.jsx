@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'; // Adicionado useState para a lista de clientes
 import Modal from 'react-modal';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import { X, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -54,7 +54,7 @@ function FormularioVencimento({ isOpen, onClose, onSave, onDelete, vencimentoPar
 
       const fetchClientes = async () => {
         try {
-          const response = await axios.get('http://localhost:8080/api/clientes/todos');
+          const response = await api.get('http://localhost:8080/api/clientes/todos');
           setClientes(response.data);
         } catch (error) {
           toast.error('Não foi possível carregar a lista de clientes.');

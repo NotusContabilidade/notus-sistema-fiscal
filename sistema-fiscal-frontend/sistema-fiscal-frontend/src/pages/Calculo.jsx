@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import PdfUploader from '../components/PdfUploader';
@@ -29,7 +29,7 @@ function Calculo() {
     if (clienteId && !cliente) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
+        const response = await api.get(`http://localhost:8080/api/clientes/id/${clienteId}`);
         setCliente(response.data);
       } catch (error) {
         toast.error("Não foi possível carregar os dados do cliente.");
@@ -72,7 +72,7 @@ function Calculo() {
       receitas: receitas
     };
     try {
-      const response = await axios.post('http://localhost:8080/api/calculos', requestData);
+      const response = await api.post('http://localhost:8080/api/calculos', requestData);
       toast.success("Cálculo realizado com sucesso!");
       navigate(`/clientes/${clienteId}/resultado/${response.data.id}`);
     } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import { IMaskInput } from 'react-imask';
 import Spinner from '../components/Spinner';
@@ -23,7 +23,7 @@ function BuscaCliente() {
 
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/clientes?cnpj=${cnpjLimpo}`);
+      const response = await api.get(`http://localhost:8080/api/clientes?cnpj=${cnpjLimpo}`);
       if (response.data && response.data.parametros) {
         toast.success(`Cliente ${response.data.cliente.razaoSocial} encontrado!`);
         navigate(`/clientes/${response.data.cliente.id}/dashboard`);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api'
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { IMaskInput } from 'react-imask';
@@ -38,7 +38,7 @@ function NovoCliente() {
         rbt12: parseFloat(form.rbt12),
         folha12m: parseFloat(form.folha12m)
       };
-      const response = await axios.post('http://localhost:8080/api/clientes', payload);
+      const response = await api.post('http://localhost:8080/api/clientes', payload);
       toast.success('Cliente cadastrado/atualizado com sucesso!');
       
       // ✅ MUDANÇA: Passa o objeto completo (cliente + parâmetros) recebido do backend para a página de dashboard.
