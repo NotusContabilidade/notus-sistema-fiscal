@@ -21,3 +21,11 @@
   color: #a13751;
   font-weight: 600;
 }
+body.dark ul[style] {
+  background: #23162a !important;
+  color: #fff !important;
+}
+body.dark ul[style] li {
+  background: #23162a !important;
+  color: #fff !important;
+}

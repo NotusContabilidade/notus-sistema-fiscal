@@ -33,7 +33,7 @@ function Calculo() {
         setCliente(response.data);
       } catch (error) {
         toast.error("Não foi possível carregar os dados do cliente.");
-        navigate('/clientes/todos');
+        navigate('/clientes');
       } finally {
         setIsLoading(false);
       }
@@ -42,10 +42,9 @@ function Calculo() {
 
   useEffect(() => {
     if (!cliente) {
-        fetchCliente();
+      fetchCliente();
     }
   }, [cliente, fetchCliente]);
-
 
   const handleToggleAnexo = (anexo) => {
     setAnexosSelecionados(prev =>
@@ -94,9 +93,9 @@ function Calculo() {
       anexoI: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 }, 
       anexoII: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
       anexoIII: {
-          ...prevState.anexoIII,
-          rpaNormal: valorSemRetencao, // Receita SEM retenção vai para "Receita Normal"
-          rpaRetencao: valorComRetencao // Receita COM retenção vai para "Receita c/ Retenção de ISS"
+        ...prevState.anexoIII,
+        rpaNormal: valorSemRetencao, // Receita SEM retenção vai para "Receita Normal"
+        rpaRetencao: valorComRetencao // Receita COM retenção vai para "Receita c/ Retenção de ISS"
       },
       anexoIV: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
       anexoV: { rpaNormal: 0, rpaSt: 0, rpaRetencao: 0 },
@@ -123,8 +122,14 @@ function Calculo() {
       <div className='card'>
         <h3>Lançamento de Receitas para {cliente.cliente.razaoSocial}</h3>
         <div className='form-row'>
-          <div className="form-group"><label>Mês de Referência:</label><input type="number" value={mesRef} onChange={e => setMesRef(e.target.value)} min="1" max="12" /></div>
-          <div className="form-group"><label>Ano de Referência:</label><input type="number" value={anoRef} onChange={e => setAnoRef(e.target.value)} min="2020" /></div>
+          <div className="form-group">
+            <label>Mês de Referência:</label>
+            <input type="number" value={mesRef} onChange={e => setMesRef(e.target.value)} min="1" max="12" />
+          </div>
+          <div className="form-group">
+            <label>Ano de Referência:</label>
+            <input type="number" value={anoRef} onChange={e => setAnoRef(e.target.value)} min="2020" />
+          </div>
         </div>
 
         <div className="separador-ou">PREENCHIMENTO AUTOMÁTICO (VIA PDF)</div>
@@ -133,19 +138,60 @@ function Calculo() {
         <div className="separador-ou">OU PREENCHA MANUALMENTE</div>
         
         <div className="selecao-anexos">
-        {['anexoI', 'anexoII', 'anexoIII', 'anexoIV', 'anexoV'].map(anexo => (
-            <button key={anexo} type="button" className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`} onClick={() => handleToggleAnexo(anexo)}>
-            {anexo.replace('anexo', 'Anexo ')}
+          {['anexoI', 'anexoII', 'anexoIII', 'anexoIV', 'anexoV'].map(anexo => (
+            <button
+              key={anexo}
+              type="button"
+              className={`btn-anexo ${anexosSelecionados.includes(anexo) ? 'selecionado' : ''}`}
+              onClick={() => handleToggleAnexo(anexo)}
+            >
+              {anexo.replace('anexo', 'Anexo ')}
             </button>
-        ))}
+          ))}
         </div>
+
         {anexosSelecionados.map(anexoKey => (
-        <div key={anexoKey} className="anexo-bloco">
+          <div key={anexoKey} className="anexo-bloco">
             <h4>{anexoKey.replace('anexo', 'Anexo ')}</h4>
-            <div className="form-group"><label>Receita Normal (R$):</label><input type="number" value={receitas[anexoKey].rpaNormal} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaNormal', e.target.value)} step="0.01"/></div>
-            {(anexoKey === 'anexoI' || anexoKey === 'anexoII') && <div className="form-group"><label>Receita c/ ICMS-ST (R$):</label><input type="number" value={receitas[anexoKey].rpaSt} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaSt', e.target.value)} step="0.01"/></div>}
-            {(anexoKey === 'anexoIII' || anexoKey === 'anexoIV' || anexoKey === 'anexoV') && <div className="form-group"><label>Receita c/ Retenção de ISS (R$):</label><input type="number" value={receitas[anexoKey].rpaRetencao} onFocus={e => e.target.select()} onChange={e => handleReceitaChange(anexoKey, 'rpaRetencao', e.target.value)} step="0.01"/></div>}
-        </div>
+            <div className="form-group">
+              <label>Receita Normal (R$):</label>
+              <input
+                type="number"
+                value={receitas[anexoKey].rpaNormal}
+                onFocus={e => e.target.select()}
+                onChange={e => handleReceitaChange(anexoKey, 'rpaNormal', e.target.value)}
+                step="0.01"
+                placeholder="Sem retenção"
+              />
+              <span style={{ fontSize: '0.95em', color: '#a13751', marginLeft: 2 }}>Sem retenção</span>
+            </div>
+            {(anexoKey === 'anexoI' || anexoKey === 'anexoII') && (
+              <div className="form-group">
+                <label>Receita c/ ICMS-ST (R$):</label>
+                <input
+                  type="number"
+                  value={receitas[anexoKey].rpaSt}
+                  onFocus={e => e.target.select()}
+                  onChange={e => handleReceitaChange(anexoKey, 'rpaSt', e.target.value)}
+                  step="0.01"
+                />
+              </div>
+            )}
+            {(anexoKey === 'anexoIII' || anexoKey === 'anexoIV' || anexoKey === 'anexoV') && (
+              <div className="form-group">
+                <label>Receita c/ Retenção de ISS (R$):</label>
+                <input
+                  type="number"
+                  value={receitas[anexoKey].rpaRetencao}
+                  onFocus={e => e.target.select()}
+                  onChange={e => handleReceitaChange(anexoKey, 'rpaRetencao', e.target.value)}
+                  step="0.01"
+                  placeholder="Com retenção"
+                />
+                <span style={{ fontSize: '0.95em', color: '#a13751', marginLeft: 2 }}>Com retenção</span>
+              </div>
+            )}
+          </div>
         ))}
 
         <div className="botoes-acao">

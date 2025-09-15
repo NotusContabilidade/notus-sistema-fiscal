@@ -101,3 +101,112 @@ body.dark .app-footer {
   background: #a13751;
   color: #fff;
 }
+body.dark, body.dark .view-container {
+  background: #18101a !important;
+  color: #fff !important;
+}
+
+body.dark .card,
+body.dark .card.lista-detalhes,
+body.dark .dashboard-info-card,
+body.dark .anexo-bloco,
+body.dark .pdf-uploader-container,
+body.dark .busca-card-saas,
+body.dark .controle-vencimentos-card {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+  box-shadow: 0 2px 16px 0 #a1375133 !important;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background: #2d1b2f !important;
+  color: #fff !important;
+  border: 1.5px solid #a13751 !important;
+}
+
+body.dark input:focus,
+body.dark select:focus,
+body.dark textarea:focus {
+  border-color: #e07ea1 !important;
+  outline: none !important;
+}
+
+body.dark .btn-primario,
+body.dark .btn-primario-saas {
+  background: #a13751 !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+
+body.dark .btn-primario:hover,
+body.dark .btn-primario-saas:hover {
+  background: #e07ea1 !important;
+  color: #23162a !important;
+}
+
+body.dark .btn-secundario,
+body.dark .btn-secundario-saas {
+  background: #23162a !important;
+  color: #e07ea1 !important;
+  border: 2px solid #e07ea1 !important;
+}
+
+body.dark .btn-secundario:hover,
+body.dark .btn-secundario-saas:hover {
+  background: #e07ea1 !important;
+  color: #23162a !important;
+}
+
+body.dark table,
+body.dark .lista-detalhes-tabela,
+body.dark .relatorio-tabela,
+body.dark .historico-tabela {
+  background: #23162a !important;
+  color: #fff !important;
+}
+
+body.dark th,
+body.dark .lista-detalhes-tabela th,
+body.dark .relatorio-tabela th,
+body.dark .historico-tabela th {
+  background: #2d1b2f !important;
+  color: #e07ea1 !important;
+}
+
+body.dark td,
+body.dark .lista-detalhes-tabela td,
+body.dark .relatorio-tabela td,
+body.dark .historico-tabela td {
+  background: #23162a !important;
+  color: #fff !important;
+}
+
+body.dark .dropzone {
+  background: #2d1b2f !important;
+  border: 2px dashed #e07ea1 !important;
+  color: #e07ea1 !important;
+}
+
+body.dark .file-preview {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #e07ea1 !important;
+}
+
+body.dark .export-dropdown {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #e07ea1 !important;
+}
+
+body.dark .export-dropdown a {
+  color: #e07ea1 !important;
+}
+
+body.dark .export-dropdown a:hover {
+  background: #e07ea1 !important;
+  color: #23162a !important;
+}

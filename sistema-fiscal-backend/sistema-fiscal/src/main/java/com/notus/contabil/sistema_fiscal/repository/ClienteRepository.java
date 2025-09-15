@@ -28,4 +28,10 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     @Query("SELECT c FROM Cliente c WHERE NOT EXISTS " +
            "(SELECT 1 FROM Calculo ca WHERE ca.cliente.id = c.id AND ca.anoReferencia = :ano AND ca.mesReferencia = :mes)")
     List<Cliente> findClientesSemCalculoNoMes(@Param("ano") int ano, @Param("mes") int mes);
+
+    // --- ADICIONE ESTA LINHA ABAIXO ---
+    List<Cliente> findByRazaoSocialContainingIgnoreCase(String razaoSocial);
+
+    // Busca por e-mail (para autenticação do cliente)
+    Optional<Cliente> findByEmail(String email);
 }

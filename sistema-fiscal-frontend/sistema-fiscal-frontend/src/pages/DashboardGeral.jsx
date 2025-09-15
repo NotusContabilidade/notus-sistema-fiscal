@@ -81,7 +81,7 @@ function DashboardGeral() {
 
       <div className="stats-grid">
         <StatCard
-          to="/clientes/todos"
+          to="/clientes"
           icon={<Users size={38} color="#3b82f6" />}
           title="Total de Clientes"
           value={isLoading ? '...' : stats?.totalClientes}

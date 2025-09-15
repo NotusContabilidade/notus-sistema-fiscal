@@ -77,6 +77,18 @@ public class TaskService {
         // Lógica para enviar a task ao cliente pelo canal especificado
     }
 
+    // NOVO MÉTODO: Buscar tarefas do cliente autenticado
+    public List<TaskDTO> listarMinhasTarefas(String email) {
+        Cliente cliente = clienteRepository.findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+        List<Task> tasks = taskRepository.findByClienteId(cliente.getId());
+        List<TaskDTO> dtos = new ArrayList<>();
+        for (Task t : tasks) {
+            dtos.add(toDTO(t));
+        }
+        return dtos;
+    }
+
     private TaskDTO toDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
@@ -86,7 +98,9 @@ public class TaskService {
         dto.setPrazo(task.getPrazo());
         dto.setResponsavel(task.getResponsavel());
         dto.setDataCriacao(task.getDataCriacao());
+        dto.setDataConclusao(task.getDataConclusao());
         dto.setAnexos(task.getAnexos());
+        dto.setHistorico(task.getHistorico());
         if (task.getCliente() != null) {
             dto.setClienteId(task.getCliente().getId());
         }

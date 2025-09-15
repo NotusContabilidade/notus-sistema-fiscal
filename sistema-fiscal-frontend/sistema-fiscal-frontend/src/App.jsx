@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import BuscaCliente from './pages/BuscaCliente';
 import Dashboard from './pages/Dashboard';
@@ -8,7 +8,6 @@ import Calculo from './pages/Calculo';
 import Resultado from './pages/Resultado';
 import DashboardGeral from './pages/DashboardGeral';
 import TodosClientes from './pages/TodosClientes';
-import Vencimentos from './pages/Vencimentos';
 import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -28,7 +27,10 @@ function App() {
   return (
     <Layout dark={dark} setDark={setDark}>
       <Routes>
+        {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        {/* Dashboard Geral */}
         <Route
           path="/"
           element={
@@ -41,26 +43,22 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard-geral"
-          element={
-            <ProtectedRoute>
               <DashboardGeral />
             </ProtectedRoute>
           }
         />
+
+        {/* Dashboard do Cliente */}
         <Route
-          path="/tasks"
+          path="/clientes/:clienteId/dashboard"
           element={
             <ProtectedRoute>
-              <Tasks />
+              <Dashboard />
             </ProtectedRoute>
           }
         />
+
+        {/* Listagem de todos os clientes */}
         <Route
           path="/clientes"
           element={
@@ -69,14 +67,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/clientes/novo"
-          element={
-            <ProtectedRoute>
-              <NovoCliente />
-            </ProtectedRoute>
-          }
-        />
+        {/* Busca de clientes */}
         <Route
           path="/clientes/busca"
           element={
@@ -85,30 +76,50 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Cadastro de novo cliente */}
         <Route
-          path="/calculo"
+          path="/clientes/novo"
+          element={
+            <ProtectedRoute>
+              <NovoCliente />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Calculo para cliente específico */}
+        <Route
+          path="/clientes/:clienteId/calculo"
           element={
             <ProtectedRoute>
               <Calculo />
             </ProtectedRoute>
           }
         />
+
+        {/* Resultado do cálculo para cliente específico */}
         <Route
-          path="/resultado"
+          path="/clientes/:clienteId/resultado/:calculoId"
           element={
             <ProtectedRoute>
               <Resultado />
             </ProtectedRoute>
           }
         />
+
+        {/* Tasks */}
         <Route
-          path="/vencimentos"
+          path="/tasks"
           element={
             <ProtectedRoute>
-              <Vencimentos />
+              <Tasks />
             </ProtectedRoute>
           }
         />
+
+        {/* Portal do Cliente */}
+        <Route path="/portal-cliente" element={<PortalCliente />} />
+
+        {/* 404 */}
         <Route
           path="*"
           element={
@@ -119,7 +130,6 @@ function App() {
             </div>
           }
         />
-        <Route path="/portal-cliente" element={<PortalCliente />} />
       </Routes>
     </Layout>
   );

@@ -6,15 +6,6 @@ import Spinner from '../components/Spinner';
 import { Edit, X, PlusCircle, Search } from 'lucide-react';
 import '../styles/pages/Dashboard.css';
 
-// Componente para exibir um "esqueleto" enquanto os dados carregam
-const SkeletonCard = () => (
-  <div className="dashboard-indicador-card skeleton-card">
-    <div className="dashboard-indicador-icone" style={{ background: "#e0e0e0", borderRadius: "50%", width: 48, height: 48 }}></div>
-    <div className="dashboard-indicador-titulo" style={{ background: "#e0e0e0", height: 18, width: 120, borderRadius: 4, margin: "12px 0" }}></div>
-    <div className="dashboard-indicador-valor" style={{ background: "#e0e0e0", height: 22, width: 60, borderRadius: 4 }}></div>
-  </div>
-);
-
 function Dashboard() {
   const { clienteId } = useParams();
   const navigate = useNavigate();
@@ -88,45 +79,16 @@ function Dashboard() {
     return (
       <div className="view-container">
         <div className="page-header"><h1 className="page-title">Dashboard do Cliente</h1></div>
-        <div className="dashboard-indicadores">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
+        <div className="card"><Spinner /></div>
       </div>
     );
   }
 
   if (!cliente) return null;
 
-  // Indicadores do dashboard (ajuste conforme seus dados reais)
-  const totalClientes = cliente.totalClientes ?? 0;
-  const dasMes = cliente.dasMes ?? 0;
-  const clientesPendentes = cliente.clientesPendentes ?? 0;
-
   return (
     <div className="view-container">
       <div className="page-header"><h1 className="page-title">Dashboard do Cliente</h1></div>
-      
-      {/* Indicadores do dashboard */}
-      <div className="dashboard-indicadores">
-        <div className="dashboard-indicador-card">
-          <div className="dashboard-indicador-icone" style={{ color: "#2563eb" }}>👥</div>
-          <div className="dashboard-indicador-titulo">Total de Clientes</div>
-          <div className="dashboard-indicador-valor">{totalClientes}</div>
-        </div>
-        <div className="dashboard-indicador-card">
-          <div className="dashboard-indicador-icone" style={{ color: "#22c55e" }}>💲</div>
-          <div className="dashboard-indicador-titulo">DAS Calculado no Mês</div>
-          <div className="dashboard-indicador-valor">R$ {dasMes.toFixed(2)}</div>
-        </div>
-        <div className="dashboard-indicador-card">
-          <div className="dashboard-indicador-icone" style={{ color: "#ef4444" }}>❗</div>
-          <div className="dashboard-indicador-titulo">Clientes com Cálculo Pendente</div>
-          <div className="dashboard-indicador-valor">{clientesPendentes}</div>
-        </div>
-      </div>
-
       {/* Informações detalhadas do cliente */}
       <div className="card">
         <div className="dashboard-grid">
@@ -134,6 +96,7 @@ function Dashboard() {
             <h4>Dados da Empresa</h4>
             <p><strong>Razão Social:</strong> {cliente.cliente.razaoSocial}</p>
             <p><strong>CNPJ:</strong> {cliente.cliente.cnpj}</p>
+             <p><strong>E-mail:</strong> {cliente.cliente.email}</p>
           </div>
           <div className="dashboard-info-card">
             <h4>Parâmetros Fiscais</h4>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import TaskCardCliente from "../../components/TaskCardCliente";
+import TaskList from "../../components/TaskList";
 
 export default function PortalCliente() {
   const [tasks, setTasks] = useState([]);
@@ -20,9 +20,7 @@ export default function PortalCliente() {
     <div className="portal-cliente-container">
       <h2>Minhas Tarefas Fiscais</h2>
       {tasks.length === 0 && <div>Nenhuma tarefa encontrada.</div>}
-      {tasks.map(task => (
-        <TaskCardCliente key={task.id} task={task} />
-      ))}
+      <TaskList tasks={tasks} />
     </div>
   );
 }

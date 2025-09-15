@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarClock, KeyRound } from 'lucide-react';
+import { LayoutDashboard, Users, KeyRound } from 'lucide-react'; // Removido CalendarClock
 import { ToastContainer } from 'react-toastify';
+import SettingsMenu from "./SettingsMenu";
 import 'react-toastify/dist/ReactToastify.css';
 
 const Header = ({ isAuthenticated, showMenu }) => (
@@ -20,10 +21,6 @@ const Header = ({ isAuthenticated, showMenu }) => (
           <NavLink to="/clientes/busca">
             <Users size={18} />
             <span>Clientes</span>
-          </NavLink>
-          <NavLink to="/vencimentos">
-            <CalendarClock size={18} />
-            <span>Vencimentos</span>
           </NavLink>
         </>
       )}
@@ -54,6 +51,23 @@ function Layout({ dark, setDark, children }) {
     }
   }, [isAuthenticated, location.pathname]);
 
+  // Dados do usuário
+  const user = isAuthenticated
+    ? {
+        nome: localStorage.getItem("user_nome") || "Usuário",
+        escritorio: localStorage.getItem("user_escritorio") || localStorage.getItem("tenant") || "Escritório"
+      }
+    : null;
+
+  // Função de logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_nome");
+    localStorage.removeItem("user_escritorio");
+    localStorage.removeItem("tenant");
+    window.location.href = "/login";
+  };
+
   return (
     <div className="app-layout-vertical">
       <ToastContainer
@@ -74,14 +88,10 @@ function Layout({ dark, setDark, children }) {
       </main>
       <footer className="app-footer">
         © {new Date().getFullYear()} Nótus Contábil. Todos os direitos reservados.
-        <button
-          className="btn-darkmode"
-          onClick={() => setDark((d) => !d)}
-          type="button"
-        >
-          {dark ? "Modo Claro" : "Modo Escuro"}
-        </button>
       </footer>
+      {isAuthenticated && location.pathname !== "/login" && (
+        <SettingsMenu dark={dark} setDark={setDark} onLogout={handleLogout} user={user} />
+      )}
     </div>
   );
 }

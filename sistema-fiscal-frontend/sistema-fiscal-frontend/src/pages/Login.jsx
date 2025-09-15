@@ -27,6 +27,15 @@ export default function Login() {
       );
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("tenant", tenant.toLowerCase());
+      // Salva nome e escritório se vierem na resposta
+      if (response.data.nome) {
+        localStorage.setItem("user_nome", response.data.nome);
+      } else {
+        // Usa a primeira parte do e-mail como nome
+        const nomeEmail = email.split("@")[0];
+        localStorage.setItem("user_nome", nomeEmail);
+      }
+      if (response.data.escritorio) localStorage.setItem("user_escritorio", response.data.escritorio);
       navigate("/");
     } catch (err) {
       setError("Login inválido! Verifique os dados.");

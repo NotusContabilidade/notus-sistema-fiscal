@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api'
 import { toast } from 'react-toastify';
-import { Download, ChevronsUp } from 'lucide-react';
+import { ChevronsUp } from 'lucide-react';
 import '../styles/pages/Resultado.css';
 
 const SkeletonReport = () => (
@@ -14,6 +14,13 @@ const SkeletonReport = () => (
     </div>
 );
 
+function formatFileName(tipo, razaoSocial, dataCalculo, ext) {
+  // Exemplo: Guia Das, CR TEMPO EDITORACAO GRAFICA LTDA, 10-09-2025.pdf
+  const data = dataCalculo?.split(' ')[0]?.split('-').reverse().join('-') || '';
+  const razao = razaoSocial?.replace(/[\\/:*?"<>|]/g, '').trim() || '';
+  return `Guia Das, ${razao}, ${data}.${ext}`;
+}
+
 function Resultado() {
   const { clienteId, calculoId } = useParams();
   const navigate = useNavigate();
@@ -22,18 +29,17 @@ function Resultado() {
   const [cliente, setCliente] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [exportando, setExportando] = useState({ pdf: false, excel: false });
   const exportMenuRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     try {
         const [calculoResponse, clienteResponse] = await Promise.all([
-            api.get(`http://localhost:8080/api/calculos/${calculoId}`),
-            api.get(`http://localhost:8080/api/clientes/id/${clienteId}`)
+            api.get(`/calculos/${calculoId}`),
+            api.get(`/clientes/id/${clienteId}`)
         ]);
-        
         setResultado(calculoResponse.data);
         setCliente(clienteResponse.data);
-
     } catch (error) {
         toast.error("Não foi possível carregar os dados do relatório.");
         navigate(`/clientes/${clienteId}/dashboard`);
@@ -60,6 +66,66 @@ function Resultado() {
     };
   }, [isExportMenuOpen]);
 
+  // Exporta PDF via Axios, apenas o botão clicado mostra "Exportando..."
+  const handleExportPdf = async () => {
+    setExportando(e => ({ ...e, pdf: true }));
+    try {
+      const response = await api.get(
+        `/relatorios/calculo/${calculoId}/exportar/pdf`,
+        { responseType: 'blob' }
+      );
+      const fileName = formatFileName(
+        'pdf',
+        cliente?.cliente?.razaoSocial,
+        resultado?.dataCalculoFormatada,
+        'pdf'
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('Erro ao exportar PDF');
+    } finally {
+      setExportando(e => ({ ...e, pdf: false }));
+      setIsExportMenuOpen(false);
+    }
+  };
+
+  // Exporta Excel via Axios, apenas o botão clicado mostra "Exportando..."
+  const handleExportExcel = async () => {
+    setExportando(e => ({ ...e, excel: true }));
+    try {
+      const response = await api.get(
+        `/relatorios/calculo/${calculoId}/exportar/excel`,
+        { responseType: 'blob' }
+      );
+      const fileName = formatFileName(
+        'excel',
+        cliente?.cliente?.razaoSocial,
+        resultado?.dataCalculoFormatada,
+        'xlsx'
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('Erro ao exportar Excel');
+    } finally {
+      setExportando(e => ({ ...e, excel: false }));
+      setIsExportMenuOpen(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="view-container">
@@ -73,14 +139,10 @@ function Resultado() {
     return null; 
   }
 
-  const urlExcel = `http://localhost:8080/api/relatorios/calculo/${calculoId}/exportar/excel`;
-  const urlPdf = `http://localhost:8080/api/relatorios/calculo/${calculoId}/exportar/pdf`;
-
   return (
     <div className="view-container">
       <div className="page-header"><h1 className="page-title">Relatório de Apuração</h1></div>
       <div className="card">
-        {/* ✅ ESTA PARTE FOI RESTAURADA */}
         <h3>{cliente.cliente.razaoSocial}</h3>
         <div className="info-relatorio-geral">
           <span><strong>Período de Apuração:</strong> {String(resultado.mesReferencia).padStart(2, '0')}/{resultado.anoReferencia}</span>
@@ -112,25 +174,67 @@ function Resultado() {
             </div>
           ))
         ) : <p>Não foram encontrados detalhes para este cálculo.</p>}
-        {/* FIM DA PARTE RESTAURADA */}
         
         <div className="botoes-acao">
           <button type="button" className="btn-secundario" onClick={() => navigate(`/clientes/${clienteId}/dashboard`)}>Voltar ao Dashboard</button>
           
-          <div className="export-container" ref={exportMenuRef}>
-            {isExportMenuOpen && (
-              <div className="export-dropdown">
-                <a href={urlPdf} download>Exportar como PDF</a>
-                <a href={urlExcel} download>Exportar como Planilha</a>
-              </div>
-            )}
+          <div className="export-container" ref={exportMenuRef} style={{ position: 'relative' }}>
             <button 
               type="button" 
-              className="btn-primario" 
+              className="btn-primario"
+              style={{ minWidth: 160 }}
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
             >
               <ChevronsUp size={16}/> Exportar
             </button>
+            {isExportMenuOpen && (
+              <div
+                className="export-dropdown"
+                style={{
+                  position: 'absolute',
+                  left: '100%',
+                  top: 0,
+                  marginLeft: 12,
+                  minWidth: 180,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  zIndex: 20,
+                  boxShadow: '0 2px 8px 0 #a1375133'
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn-primario"
+                  style={{
+                    width: '100%',
+                    marginBottom: 8,
+                    minWidth: 180,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    whiteSpace: 'normal',
+                  }}
+                  onClick={handleExportPdf}
+                  disabled={exportando.pdf}
+                >
+                  {exportando.pdf ? 'Exportando...' : 'Exportar como PDF'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-primario"
+                  style={{
+                    width: '100%',
+                    minWidth: 180,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    whiteSpace: 'normal',
+                  }}
+                  onClick={handleExportExcel}
+                  disabled={exportando.excel}
+                >
+                  {exportando.excel ? 'Exportando...' : 'Exportar como Planilha'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

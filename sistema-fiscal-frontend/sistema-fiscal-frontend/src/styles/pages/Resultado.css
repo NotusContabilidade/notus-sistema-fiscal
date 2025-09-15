@@ -24,6 +24,9 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 0.5rem;
+  background: #faf7fa;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .relatorio-tabela th,
@@ -31,6 +34,16 @@
   border: 1px solid #e0e0e0;
   padding: 0.5rem 0.75rem;
   text-align: left;
+}
+
+.relatorio-tabela th {
+  background: #a13751;
+  color: #fff;
+  font-weight: 700;
+}
+
+.relatorio-tabela tr:nth-child(even) {
+  background: #f3e6ee;
 }
 
 .subtotal-row {
@@ -79,4 +92,50 @@
 
 .export-dropdown a:hover {
   background: #f8f8f8;
+}
+
+/* DARK MODE AJUSTES */
+body.dark .detalhe-anexo-card {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+
+body.dark .relatorio-tabela {
+  background: #23162a !important;
+  color: #fff !important;
+}
+
+body.dark .relatorio-tabela th {
+  background: #a13751 !important;
+  color: #fff !important;
+}
+
+body.dark .relatorio-tabela td {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+
+body.dark .relatorio-tabela tr:nth-child(even) {
+  background: #2d1b2f !important;
+}
+
+body.dark .subtotal-row {
+  background: #2d1b2f !important;
+}
+
+body.dark .export-dropdown {
+  background: #23162a !important;
+  color: #fff !important;
+  border-color: #a13751 !important;
+}
+
+body.dark .export-dropdown a {
+  color: #e07ea1 !important;
+}
+
+body.dark .export-dropdown a:hover {
+  background: #a13751 !important;
+  color: #fff !important;
 }

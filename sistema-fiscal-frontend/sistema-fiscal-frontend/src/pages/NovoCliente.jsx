@@ -11,7 +11,7 @@ function NovoCliente() {
   const location = useLocation();
   
   const [cnpj, setCnpj] = useState('');
-  const [form, setForm] = useState({ razaoSocial: '', rbt12: '', folha12m: '' });
+  const [form, setForm] = useState({ razaoSocial: '', rbt12: '', folha12m: '', email: '' });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -36,16 +36,14 @@ function NovoCliente() {
         cnpj: cnpj.replace(/\D/g, ''),
         razaoSocial: form.razaoSocial,
         rbt12: parseFloat(form.rbt12),
-        folha12m: parseFloat(form.folha12m)
+        folha12m: parseFloat(form.folha12m),
+        email: form.email
       };
       const response = await api.post('http://localhost:8080/api/clientes', payload);
       toast.success('Cliente cadastrado/atualizado com sucesso!');
-      
-      // ✅ MUDANÇA: Passa o objeto completo (cliente + parâmetros) recebido do backend para a página de dashboard.
-      navigate(`/clientes/${response.data.cliente.id}/dashboard`, { 
+      navigate(`/clientes/${response.data.id}/dashboard`, { 
           state: { clienteData: response.data } 
       });
-
     } catch (error) {
       if (error.response && error.response.status === 409) {
         toast.error('Este CNPJ já está cadastrado no sistema.');
@@ -65,7 +63,8 @@ function NovoCliente() {
           <IMaskInput
             mask="00.000.000/0000-00"
             value={cnpj}
-            disabled
+            onAccept={setCnpj}
+            required
           />
         </div>
         <div className="form-group">
@@ -80,8 +79,18 @@ function NovoCliente() {
           <label>Folha de Pagamento (12m)</label>
           <input type="number" step="0.01" name="folha12m" value={form.folha12m} onFocus={e => e.target.select()} onChange={handleChange} required />
         </div>
+        <div className="form-group">
+          <label>E-mail</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="botoes-acao">
-          <button type="button" className="btn-secundario" onClick={() => navigate('/')}>Cancelar</button>
+          <button type="button" className="btn-secundario" onClick={() => navigate(-1)}>Cancelar</button>
           <button type="submit" className="btn-primario" disabled={isLoading}>
             {isLoading ? <Spinner /> : 'Salvar Cliente'}
           </button>
