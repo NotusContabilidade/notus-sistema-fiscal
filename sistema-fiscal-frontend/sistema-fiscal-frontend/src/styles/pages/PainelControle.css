@@ -192,3 +192,25 @@ body.dark .card-titulo {
   font-size: 1rem;
   padding: 0.7rem 1.2rem;
 }
+.card-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.status-select {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+body.dark .status-select {
+  background-color: #3e2a4d;
+  border-color: #6c757d;
+  color: #eee;
+}

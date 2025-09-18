@@ -39,7 +39,7 @@ public class TaskService {
         task.setResponsavel(dto.getResponsavel());
         task.setDataCriacao(LocalDateTime.now());
         task.setAnexos(dto.getAnexos());
-        task.setCategoria(dto.getCategoria()); // <-- LÓGICA ADICIONADA
+        task.setCategoria(dto.getCategoria());
 
         if (dto.getClienteId() != null) {
             Cliente cliente = clienteRepository.findById(dto.getClienteId())
@@ -61,7 +61,7 @@ public class TaskService {
         task.setPrazo(dto.getPrazo());
         task.setResponsavel(dto.getResponsavel());
         task.setAnexos(dto.getAnexos());
-        task.setCategoria(dto.getCategoria()); // <-- LÓGICA ADICIONADA
+        task.setCategoria(dto.getCategoria());
 
         if (dto.getClienteId() != null) {
             Cliente cliente = clienteRepository.findById(dto.getClienteId())
@@ -76,12 +76,6 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public void enviarTaskAoCliente(Long taskId, String canal) {
-        Task task = taskRepository.findById(taskId)
-            .orElseThrow(() -> new EntityNotFoundException("Task não encontrada"));
-        // Lógica para enviar a task ao cliente pelo canal especificado (a ser implementada)
-    }
-
     public List<TaskDTO> listarMinhasTarefas(String email) {
         Cliente cliente = clienteRepository.findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
@@ -91,7 +85,8 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
-    private TaskDTO toDTO(Task task) {
+    // --- MÉTODO CORRIGIDO DE 'private' PARA 'public' ---
+    public TaskDTO toDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
         dto.setTitulo(task.getTitulo());
@@ -99,7 +94,7 @@ public class TaskService {
         dto.setStatus(task.getStatus());
         dto.setPrazo(task.getPrazo());
         dto.setResponsavel(task.getResponsavel());
-        dto.setCategoria(task.getCategoria()); // <-- LÓGICA ADICIONADA
+        dto.setCategoria(task.getCategoria());
         dto.setDataCriacao(task.getDataCriacao());
         dto.setDataConclusao(task.getDataConclusao());
         dto.setAnexos(task.getAnexos());
