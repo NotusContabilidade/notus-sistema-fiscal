@@ -10,6 +10,7 @@ import DashboardGeral from './pages/DashboardGeral';
 import TodosClientes from './pages/TodosClientes';
 import Login from './pages/Login';
 import Tasks from './pages/Tasks';
+import PainelControle from './pages/PainelControle';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/global/BigCalendarDark.css';
 import PortalCliente from "./pages/PortalCliente/PortalCliente";
@@ -112,6 +113,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Tasks />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Painel de Controle */}
+        <Route
+          path="/painel-controle"
+          element={
+            <ProtectedRoute>
+              <PainelControle />
             </ProtectedRoute>
           }
         />

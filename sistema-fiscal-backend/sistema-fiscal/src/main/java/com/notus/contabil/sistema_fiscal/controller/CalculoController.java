@@ -57,7 +57,6 @@ public class CalculoController {
         );
     }
 
-    // ✅ MÉTODO CORRIGIDO PARA USAR UM DTO E EVITAR O ERRO DE LAZY LOADING
     @Transactional(readOnly = true)
     @GetMapping("/{calculoId}")
     public ResponseEntity<?> getCalculoById(@PathVariable Long calculoId) {
@@ -69,7 +68,6 @@ public class CalculoController {
 
         Calculo calculo = calculoOpt.get();
         try {
-            // Constrói o DTO com todos os dados necessários já resolvidos dentro da transação
             CalculoCompletoDTO dto = new CalculoCompletoDTO(
                 calculo.getId(),
                 calculo.getMesReferencia(),
@@ -101,6 +99,19 @@ public class CalculoController {
         }
         
         ParametrosSN params = paramsOpt.get();
+
+        // <-- INÍCIO DA CORREÇÃO: Validação da regra de negócio
+        final double LIMITE_SIMPLES_NACIONAL = 4_800_000.00;
+        if (params.getRbt12Atual() > LIMITE_SIMPLES_NACIONAL) {
+            String mensagemErro = String.format(
+                "O RBT12 do cliente (R$ %.2f) excede o teto do Simples Nacional (R$ %.2f). O cálculo não pode ser realizado.",
+                params.getRbt12Atual(),
+                LIMITE_SIMPLES_NACIONAL
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", mensagemErro));
+        }
+        // <-- FIM DA CORREÇÃO
+        
         CalculadoraSimplesNacional.ResultadoGeralCalculo resultadoGeral = 
             CalculadoraSimplesNacional.calcularAtividadesConcomitantes(params.getRbt12Atual(), params.getFolhaPagamento12mAtual(), request.receitas());
 

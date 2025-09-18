@@ -21,7 +21,7 @@ export default function Login() {
         { tenantId: tenant.toLowerCase(), email, password },
         {
           headers: {
-            "X-Tenant-ID": tenant.toLowerCase(),
+            "X-Tenant-Id": tenant.toLowerCase(), // <-- CORRIGIDO!
           },
         }
       );

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,11 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException; // <-- CORREÇÃO #1: IMPORT ADICIONADO
 import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
-import com.lowagie.text.HeaderFooter;
+import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
@@ -41,10 +44,257 @@ public class RelatorioService {
     @Autowired
     private CalculoRepository calculoRepository;
     
+    // Objeto para transportar os dados do arquivo gerado
     public record ArquivoExportado(String nomeArquivo, ByteArrayInputStream stream) {}
+    
+    // Definição de Cores e Fontes para o padrão Nótus
+    private static final Color COR_PRIMARIA = new Color(0xA1, 0x37, 0x51);
+    private static final Color COR_CABECALHO_TABELA = new Color(0x34, 0x3A, 0x40); // Um cinza escuro
+    private static final Color COR_LINHA_ZEBRA = new Color(0xF8, 0xF9, 0xFA); // Um cinza bem claro
+    private static final Font FONT_TITULO = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, COR_PRIMARIA);
+    private static final Font FONT_SUBTITULO = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+    private static final Font FONT_HEADER_TABELA = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE);
+    private static final Font FONT_CORPO = FontFactory.getFont(FontFactory.HELVETICA, 9);
+    private static final Font FONT_CORPO_BOLD = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
+    private static final Font FONT_FOOTER = FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY);
+
 
     @Transactional(readOnly = true)
-    public ArquivoExportado gerarCalculoExcel(Long calculoId) throws IOException {
+    public ArquivoExportado gerarCalculoPdf(Long calculoId) throws Exception {
+         Calculo calculo = calculoRepository.findById(calculoId)
+                .orElseThrow(() -> new RuntimeException("Cálculo não encontrado"));
+
+        String nomeArquivo = criarNomeArquivo(calculo, "pdf");
+        
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, out);
+
+            document.open();
+
+            // Adiciona Cabeçalho com Logo
+            adicionarCabecalho(document);
+
+            // Adiciona Informações do Cliente
+            adicionarInfosCliente(document, calculo);
+            
+            // Adiciona Bloco de Resumo Geral
+            adicionarResumoGeral(document, calculo);
+
+            // Adiciona Detalhamento por Anexo
+            adicionarDetalhesPorAnexo(document, calculo.getDetalhes());
+            
+            // Adiciona Rodapé
+            adicionarRodape(document);
+
+            document.close();
+            
+            return new ArquivoExportado(nomeArquivo, new ByteArrayInputStream(out.toByteArray()));
+        }
+    }
+
+    private void adicionarCabecalho(Document document) throws DocumentException, IOException {
+        PdfPTable headerTable = new PdfPTable(2);
+        headerTable.setWidthPercentage(100);
+        headerTable.setWidths(new float[]{1f, 3f});
+        headerTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
+        try {
+            Image logo = Image.getInstance(getClass().getClassLoader().getResource("images/logo.png"));
+            logo.scaleToFit(100, 40);
+            PdfPCell logoCell = new PdfPCell(logo);
+            logoCell.setBorder(Rectangle.NO_BORDER);
+            logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            headerTable.addCell(logoCell);
+        } catch (Exception e) {
+             headerTable.addCell(new Phrase("Nótus Fiscal", FONT_TITULO));
+        }
+
+        PdfPCell titleCell = createCell("Relatório de Apuração do Simples Nacional", FONT_TITULO, Element.ALIGN_RIGHT);
+        headerTable.addCell(titleCell);
+        
+        document.add(headerTable);
+        adicionarEspaco(document, 20);
+    }
+    
+    private void adicionarInfosCliente(Document document, Calculo calculo) throws DocumentException {
+        PdfPTable infoTable = new PdfPTable(2);
+        infoTable.setWidthPercentage(100);
+        infoTable.setWidths(new float[]{1f, 4f});
+        infoTable.getDefaultCell().setBorder(Rectangle.BOTTOM);
+        infoTable.getDefaultCell().setBorderColor(Color.LIGHT_GRAY);
+        infoTable.getDefaultCell().setPadding(5);
+
+        infoTable.addCell(createCell("Cliente:", FONT_CORPO_BOLD));
+        infoTable.addCell(createCell(calculo.getCliente().getRazaoSocial(), FONT_CORPO));
+        infoTable.addCell(createCell("CNPJ:", FONT_CORPO_BOLD));
+        infoTable.addCell(createCell(formatCnpj(calculo.getCliente().getCnpj()), FONT_CORPO));
+        infoTable.addCell(createCell("Período:", FONT_CORPO_BOLD));
+        infoTable.addCell(createCell(String.format("%02d/%d", calculo.getMesReferencia(), calculo.getAnoReferencia()), FONT_CORPO));
+
+        document.add(infoTable);
+    }
+
+    private void adicionarResumoGeral(Document document, Calculo calculo) throws DocumentException, JsonProcessingException {
+        adicionarEspaco(document, 25);
+        document.add(new Paragraph("Resumo Geral da Apuração", FONT_SUBTITULO));
+        adicionarEspaco(document, 10);
+        
+        PdfPTable resumoTable = new PdfPTable(3);
+        resumoTable.setWidthPercentage(100);
+        resumoTable.setWidths(new float[]{1f, 1f, 1f});
+
+        double receitaTotal = calculo.getDetalhes().stream().mapToDouble(ResultadoCalculoDetalhado::rpaTotal).sum();
+        double aliquotaMedia = receitaTotal > 0 ? (calculo.getDasTotal() / receitaTotal) * 100 : 0;
+        
+        resumoTable.addCell(criarBlocoResumo("Receita Bruta Total no Mês", formatCurrency(receitaTotal)));
+        resumoTable.addCell(criarBlocoResumo("Alíquota Efetiva Média", String.format(Locale.forLanguageTag("pt-BR"), "%.4f%%", aliquotaMedia)));
+        resumoTable.addCell(criarBlocoResumo("Valor Total do DAS a Pagar", formatCurrency(calculo.getDasTotal()), true));
+        
+        document.add(resumoTable);
+    }
+    
+    private void adicionarDetalhesPorAnexo(Document document, List<ResultadoCalculoDetalhado> detalhes) throws DocumentException {
+         adicionarEspaco(document, 25);
+        document.add(new Paragraph("Detalhamento por Atividade", FONT_SUBTITULO));
+       
+        for (ResultadoCalculoDetalhado detalhe : detalhes) {
+             adicionarEspaco(document, 10);
+            
+            String infoAdicional = String.format("Anexo %s | RBT12: %s | Alíquota Efetiva: %.4f%%", 
+                detalhe.anexoAplicado(), formatCurrency(detalhe.rbt12()), detalhe.aliquotaEfetivaTotal() * 100);
+            
+            if(detalhe.fatorR() != null){
+                infoAdicional += String.format(" | Fator R: %.2f%%", detalhe.fatorR());
+            }
+
+            document.add(new Paragraph(infoAdicional, FONT_CORPO_BOLD));
+            adicionarEspaco(document, 8);
+
+            PdfPTable table = new PdfPTable(3);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{3f, 1.5f, 1.5f});
+            
+            addTableHeader(table, "Descrição da Receita", "Valor (R$)", "DAS (R$)");
+            
+            int rowIndex = 0;
+            // <-- CORREÇÃO #2: As chamadas agora passam o rowIndex primeiro
+            addTableRow(table, rowIndex++, "Receita (Tributação Normal)", formatCurrency(detalhe.rpaNormal()), formatCurrency(detalhe.dasNormal()));
+            if (detalhe.rpaComRetencao() > 0) {
+                addTableRow(table, rowIndex++, "Receita c/ Retenção de ISS", formatCurrency(detalhe.rpaComRetencao()), formatCurrency(detalhe.dasComRetencaoLiquido()));
+                addTableRow(table, rowIndex++, "  └ Valor do ISS Retido na Fonte", "-", "(" + formatCurrency(detalhe.issRetido()) + ")");
+            }
+            if (detalhe.rpaStICMS() > 0) {
+                 addTableRow(table, rowIndex++, "Receita c/ Substituição Tributária (ICMS)", formatCurrency(detalhe.rpaStICMS()), formatCurrency(detalhe.dasStICMS()));
+            }
+            addTableFooter(table, "Subtotal do Anexo", formatCurrency(detalhe.rpaTotal()), formatCurrency(detalhe.dasTotal()));
+            document.add(table);
+        }
+    }
+    
+    private void adicionarRodape(Document document) throws DocumentException {
+        adicionarEspaco(document, 30);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'Gerado em' dd/MM/yyyy 'às' HH:mm:ss");
+        Paragraph footer = new Paragraph("Gerado por Nótus Sistema Fiscal | " + LocalDateTime.now().format(formatter), FONT_FOOTER);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+    }
+    
+    // MÉTODOS AUXILIARES
+    
+    private PdfPCell createCell(String content, Font font, int horizontalAlignment) {
+        PdfPCell cell = new PdfPCell(new Phrase(content, font));
+        cell.setHorizontalAlignment(horizontalAlignment);
+        cell.setBorder(Rectangle.NO_BORDER);
+        return cell;
+    }
+
+    private PdfPCell createCell(String content, Font font) {
+        return createCell(content, font, Element.ALIGN_LEFT);
+    }
+    
+    private PdfPCell criarBlocoResumo(String titulo, String valor, boolean isDestaque) {
+        Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY);
+        Font fontValor = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, isDestaque ? Color.WHITE : COR_PRIMARIA);
+
+        PdfPCell cell = new PdfPCell();
+        cell.setPadding(10);
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setBackgroundColor(isDestaque ? COR_PRIMARIA : COR_LINHA_ZEBRA);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        
+        cell.addElement(new Paragraph(titulo, fontTitulo));
+        cell.addElement(new Paragraph(valor, fontValor));
+
+        return cell;
+    }
+    
+    private PdfPCell criarBlocoResumo(String titulo, String valor) {
+        return criarBlocoResumo(titulo, valor, false);
+    }
+
+    private void addTableHeader(PdfPTable table, String... headers) {
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, FONT_HEADER_TABELA));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setBackgroundColor(COR_CABECALHO_TABELA);
+            cell.setPadding(5);
+            table.addCell(cell);
+        }
+    }
+
+    // <-- CORREÇÃO #2: A assinatura do método foi corrigida. O varargs (String...) agora é o último parâmetro.
+    private void addTableRow(PdfPTable table, int rowIndex, String... cells) {
+        int i = 0;
+        for (String content : cells) {
+            PdfPCell cell = new PdfPCell(new Phrase(content, FONT_CORPO));
+            cell.setHorizontalAlignment(i == 0 ? Element.ALIGN_LEFT : Element.ALIGN_RIGHT);
+            cell.setPadding(5);
+            cell.setBackgroundColor(rowIndex % 2 == 0 ? Color.WHITE : COR_LINHA_ZEBRA);
+            cell.setBorder(Rectangle.NO_BORDER);
+            table.addCell(cell);
+            i++;
+        }
+    }
+    
+    private void addTableFooter(PdfPTable table, String... cells) {
+        int i = 0;
+        for (String content : cells) {
+            PdfPCell cell = new PdfPCell(new Phrase(content, FONT_CORPO_BOLD));
+            cell.setHorizontalAlignment(i == 0 ? Element.ALIGN_LEFT : Element.ALIGN_RIGHT);
+            cell.setBackgroundColor(Color.LIGHT_GRAY);
+            cell.setPadding(5);
+            cell.setBorder(Rectangle.TOP);
+            table.addCell(cell);
+            i++;
+        }
+    }
+
+    private void adicionarEspaco(Document document, float size) throws DocumentException {
+        Paragraph space = new Paragraph(" ");
+        space.setSpacingBefore(size);
+        document.add(space);
+    }
+    
+    private String criarNomeArquivo(Calculo calculo, String extensao) {
+        String razaoSocial = calculo.getCliente().getRazaoSocial()
+                .replaceAll("[^a-zA-Z0-9\\s-]", "")
+                .replace(" ", "_");
+        return String.format("Apuracao_Simples_Nacional_%s_%02d-%d.%s", 
+            razaoSocial, calculo.getMesReferencia(), calculo.getAnoReferencia(), extensao);
+    }
+    
+    private String formatCurrency(double value) {
+        return NumberFormat.getCurrencyInstance(new Locale("pt", "BR")).format(value);
+    }
+    
+    private String formatCnpj(String cnpj) {
+        if (cnpj == null || cnpj.length() != 14) return cnpj;
+        return cnpj.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
+    }
+
+    @Transactional(readOnly = true)
+    public ArquivoExportado gerarCalculoExcel(Long calculoId) throws IOException, JsonProcessingException {
         Calculo calculo = calculoRepository.findById(calculoId)
                 .orElseThrow(() -> new RuntimeException("Cálculo não encontrado"));
         
@@ -111,150 +361,5 @@ public class RelatorioService {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(out.toByteArray());
             return new ArquivoExportado(nomeArquivo, inputStream);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public ArquivoExportado gerarCalculoPdf(Long calculoId) throws Exception {
-         Calculo calculo = calculoRepository.findById(calculoId)
-                .orElseThrow(() -> new RuntimeException("Cálculo não encontrado"));
-
-        String nomeArquivo = criarNomeArquivo(calculo, "pdf");
-        
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4);
-        PdfWriter.getInstance(document, out);
-
-        Font fontFooter = FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY);
-        HeaderFooter footer = new HeaderFooter(new Phrase("© " + LocalDateTime.now().getYear() + " Nótus Sistema Fiscal | Página: ", fontFooter), true);
-        footer.setAlignment(Element.ALIGN_CENTER);
-        footer.setBorder(Rectangle.TOP);
-        document.setFooter(footer);
-
-        document.open();
-
-        Font fontBrand = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, new Color(0xA1, 0x37, 0x51));
-        Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
-        Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
-        Font fontBody = FontFactory.getFont(FontFactory.HELVETICA, 10);
-        Font fontSmall = FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY);
-        Color primaryColor = new Color(0xA1, 0x37, 0x51);
-
-        document.add(new Paragraph("Nótus Contábil", fontBrand));
-        document.add(new Paragraph("Relatório de Apuração do Simples Nacional", fontTitle));
-        document.add(new Paragraph(" ")); 
-
-        PdfPTable infoTable = new PdfPTable(2);
-        infoTable.setWidthPercentage(100);
-        infoTable.setWidths(new float[]{1f, 4f});
-        infoTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-        infoTable.addCell(new Phrase("Cliente:", fontHeader));
-        infoTable.addCell(new Phrase(calculo.getCliente().getRazaoSocial(), fontBody));
-        infoTable.addCell(new Phrase("CNPJ:", fontHeader));
-        infoTable.addCell(new Phrase(formatCnpj(calculo.getCliente().getCnpj()), fontBody));
-        infoTable.addCell(new Phrase("Período:", fontHeader));
-        infoTable.addCell(new Phrase(String.format("%02d/%d", calculo.getMesReferencia(), calculo.getAnoReferencia()), fontBody));
-        document.add(infoTable);
-        
-        document.add(new Paragraph(" "));
-        PdfPTable totalDasTable = new PdfPTable(1);
-        totalDasTable.setWidthPercentage(100);
-        PdfPCell totalCell = new PdfPCell(new Phrase("Valor Total do DAS: " + formatCurrency(calculo.getDasTotal()), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
-        totalCell.setBackgroundColor(primaryColor);
-        totalCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        totalCell.setPadding(8);
-        totalCell.setBorder(Rectangle.NO_BORDER);
-        totalDasTable.addCell(totalCell);
-        document.add(totalDasTable);
-        document.add(new Paragraph(" "));
-
-        for (ResultadoCalculoDetalhado detalhe : calculo.getDetalhes()) {
-            document.add(new Paragraph("Detalhamento por Atividade - Anexo " + detalhe.anexoAplicado(), fontTitle));
-            
-            String infoAdicional = String.format("Cálculo com base no RBT12 de %s e Alíquota Efetiva de %.4f%%", formatCurrency(detalhe.rbt12()), detalhe.aliquotaEfetivaTotal() * 100);
-            document.add(new Paragraph(infoAdicional, fontSmall));
-
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
-            table.setWidths(new float[]{3f, 1.5f, 1.5f});
-            table.setSpacingBefore(10);
-            
-            addTableHeader(table, "Descrição", "Receita (R$)", "Valor do DAS (R$)");
-            
-            addTableRow(table, "Receita Normal", formatCurrency(detalhe.rpaNormal()), formatCurrency(detalhe.dasNormal()));
-            if (detalhe.rpaComRetencao() > 0) {
-                addTableRow(table, "Receita c/ Retenção ISS", formatCurrency(detalhe.rpaComRetencao()), formatCurrency(detalhe.dasComRetencaoLiquido()));
-                addTableRow(table, "(ISS Retido na Fonte)", "-", "(" + formatCurrency(detalhe.issRetido()) + ")");
-            }
-            if (detalhe.rpaStICMS() > 0) {
-                 addTableRow(table, "Receita c/ ICMS-ST", formatCurrency(detalhe.rpaStICMS()), formatCurrency(detalhe.dasStICMS()));
-            }
-
-            addTableFooter(table, "Subtotal do Anexo", formatCurrency(detalhe.rpaTotal()), formatCurrency(detalhe.dasTotal()));
-
-            document.add(table);
-            document.add(new Paragraph(" "));
-        }
-        
-        document.close();
-        
-        return new ArquivoExportado(nomeArquivo, new ByteArrayInputStream(out.toByteArray()));
-    }
-    
-    private String criarNomeArquivo(Calculo calculo, String extensao) {
-        String razaoSocial = calculo.getCliente().getRazaoSocial()
-                .replaceAll("[^a-zA-Z0-9\\s-]", "")
-                .replace(" ", "_");
-
-        LocalDateTime dataCalculo = calculo.getDataCalculo();
-        String dataFormatada = "data_nao_disponivel";
-        if (dataCalculo != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
-            dataFormatada = dataCalculo.format(formatter);
-        }
-
-        return String.format("Calculo-%s-%s.%s", razaoSocial, dataFormatada, extensao);
-    }
-    
-    private void addTableHeader(PdfPTable table, String... headers) {
-        Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE);
-        for (String header : headers) {
-            PdfPCell cell = new PdfPCell(new Phrase(header, font));
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setBackgroundColor(new Color(0x6c, 0x75, 0x7d));
-            cell.setPadding(5);
-            table.addCell(cell);
-        }
-    }
-
-    private void addTableRow(PdfPTable table, String... cells) {
-        Font font = FontFactory.getFont(FontFactory.HELVETICA, 9);
-        for (int i=0; i < cells.length; i++) {
-            PdfPCell cell = new PdfPCell(new Phrase(cells[i], font));
-            cell.setHorizontalAlignment(i == 0 ? Element.ALIGN_LEFT : Element.ALIGN_RIGHT);
-            cell.setPadding(5);
-            table.addCell(cell);
-        }
-    }
-    
-    private void addTableFooter(PdfPTable table, String... cells) {
-        Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
-        for (int i=0; i < cells.length; i++) {
-            PdfPCell cell = new PdfPCell(new Phrase(cells[i], font));
-            cell.setHorizontalAlignment(i == 0 ? Element.ALIGN_LEFT : Element.ALIGN_RIGHT);
-            cell.setBackgroundColor(new Color(230, 230, 230));
-            cell.setPadding(5);
-            table.addCell(cell);
-        }
-    }
-
-    private String formatCurrency(double value) {
-        return NumberFormat.getCurrencyInstance(new Locale("pt", "BR")).format(value);
-    }
-    
-    private String formatCnpj(String cnpj) {
-        if (cnpj == null || cnpj.length() != 14) {
-            return cnpj;
-        }
-        return cnpj.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
     }
 }

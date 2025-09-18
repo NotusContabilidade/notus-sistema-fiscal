@@ -12,7 +12,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   if (tenant) {
-    config.headers["X-Tenant-ID"] = tenant;
+    config.headers["X-Tenant-Id"] = tenant; // <-- CORRIGIDO!
   }
   return config;
 });

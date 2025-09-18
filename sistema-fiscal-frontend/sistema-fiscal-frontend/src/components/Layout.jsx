@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, KeyRound } from 'lucide-react'; // Removido CalendarClock
+import { LayoutDashboard, Users, KeyRound, FileText } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import SettingsMenu from "./SettingsMenu";
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,6 +21,10 @@ const Header = ({ isAuthenticated, showMenu }) => (
           <NavLink to="/clientes/busca">
             <Users size={18} />
             <span>Clientes</span>
+          </NavLink>
+          <NavLink to="/painel-controle">
+            <FileText size={18} />
+            <span>Painel de Controle</span>
           </NavLink>
         </>
       )}

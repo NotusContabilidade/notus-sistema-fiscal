@@ -1,10 +1,12 @@
 package com.notus.contabil.sistema_fiscal.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- 1. IMPORT ADICIONADO
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,6 +25,13 @@ public class Cliente {
     @Column(unique = true, length = 255)
     private String email;
 
+    @Column(name = "regime_tributario", nullable = false, length = 50)
+    private String regimeTributario;
+
+    @JsonIgnore // <-- 2. ANOTAÇÃO ADICIONADA PARA QUEBRAR O LOOP
+    @OneToOne(mappedBy = "cliente")
+    private ParametrosSN parametrosSN;
+
     // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -35,4 +44,10 @@ public class Cliente {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getRegimeTributario() { return regimeTributario; }
+    public void setRegimeTributario(String regimeTributario) { this.regimeTributario = regimeTributario; }
+
+    public ParametrosSN getParametrosSN() { return parametrosSN; }
+    public void setParametrosSN(ParametrosSN parametrosSN) { this.parametrosSN = parametrosSN; }
 }

@@ -36,7 +36,12 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails, String tenantId) {
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("tenantId", tenantId); // Adicionando o tenantId como um claim!
+        extraClaims.put("tenantId", tenantId);
+
+        // Inclui o papel do usuário no JWT, se disponível
+        if (!userDetails.getAuthorities().isEmpty()) {
+            extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        }
 
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
@@ -82,9 +87,14 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    public String extractTenantId(String token) {
-    Claims claims = extractAllClaims(token);
-    return claims.get("tenantId", String.class);
-}
 
+    public String extractTenantId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("tenantId", String.class);
+    }
+
+    public String extractRole(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
+    }
 }

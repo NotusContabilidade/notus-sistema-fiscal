@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -24,46 +25,50 @@ public class TaskService {
     private ClienteRepository clienteRepository;
 
     public List<TaskDTO> listar() {
-        List<Task> tasks = taskRepository.findAll();
-        List<TaskDTO> dtos = new ArrayList<>();
-        for (Task t : tasks) {
-            dtos.add(toDTO(t));
-        }
-        return dtos;
+        return taskRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public TaskDTO criar(TaskCreateDTO dto) {
         Task task = new Task();
         task.setTitulo(dto.getTitulo());
         task.setDescricao(dto.getDescricao());
-        task.setStatus(dto.getStatus() != null ? dto.getStatus() : "pendente");
+        task.setStatus(dto.getStatus() != null ? dto.getStatus() : "PENDENTE");
         task.setPrazo(dto.getPrazo());
         task.setResponsavel(dto.getResponsavel());
         task.setDataCriacao(LocalDateTime.now());
         task.setAnexos(dto.getAnexos());
+        task.setCategoria(dto.getCategoria()); // <-- LÓGICA ADICIONADA
+
         if (dto.getClienteId() != null) {
             Cliente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
             task.setCliente(cliente);
         }
         task.setHistorico(new ArrayList<>());
+        
         return toDTO(taskRepository.save(task));
     }
 
     public TaskDTO atualizar(Long id, TaskCreateDTO dto) {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Task não encontrada"));
+        
         task.setTitulo(dto.getTitulo());
         task.setDescricao(dto.getDescricao());
         task.setStatus(dto.getStatus());
         task.setPrazo(dto.getPrazo());
         task.setResponsavel(dto.getResponsavel());
         task.setAnexos(dto.getAnexos());
+        task.setCategoria(dto.getCategoria()); // <-- LÓGICA ADICIONADA
+
         if (dto.getClienteId() != null) {
             Cliente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
             task.setCliente(cliente);
         }
+        
         return toDTO(taskRepository.save(task));
     }
 
@@ -74,19 +79,16 @@ public class TaskService {
     public void enviarTaskAoCliente(Long taskId, String canal) {
         Task task = taskRepository.findById(taskId)
             .orElseThrow(() -> new EntityNotFoundException("Task não encontrada"));
-        // Lógica para enviar a task ao cliente pelo canal especificado
+        // Lógica para enviar a task ao cliente pelo canal especificado (a ser implementada)
     }
 
-    // NOVO MÉTODO: Buscar tarefas do cliente autenticado
     public List<TaskDTO> listarMinhasTarefas(String email) {
         Cliente cliente = clienteRepository.findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
-        List<Task> tasks = taskRepository.findByClienteId(cliente.getId());
-        List<TaskDTO> dtos = new ArrayList<>();
-        for (Task t : tasks) {
-            dtos.add(toDTO(t));
-        }
-        return dtos;
+        
+        return taskRepository.findByClienteId(cliente.getId()).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     private TaskDTO toDTO(Task task) {
@@ -97,6 +99,7 @@ public class TaskService {
         dto.setStatus(task.getStatus());
         dto.setPrazo(task.getPrazo());
         dto.setResponsavel(task.getResponsavel());
+        dto.setCategoria(task.getCategoria()); // <-- LÓGICA ADICIONADA
         dto.setDataCriacao(task.getDataCriacao());
         dto.setDataConclusao(task.getDataConclusao());
         dto.setAnexos(task.getAnexos());

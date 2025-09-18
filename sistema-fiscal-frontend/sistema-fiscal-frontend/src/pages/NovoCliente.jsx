@@ -11,7 +11,13 @@ function NovoCliente() {
   const location = useLocation();
   
   const [cnpj, setCnpj] = useState('');
-  const [form, setForm] = useState({ razaoSocial: '', rbt12: '', folha12m: '', email: '' });
+  const [form, setForm] = useState({
+    razaoSocial: '',
+    rbt12: '',
+    folha12m: '',
+    email: '',
+    regimeTributario: 'SIMPLES_NACIONAL' // <-- CORREÇÃO: Adicionado com valor padrão
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -37,26 +43,23 @@ function NovoCliente() {
         razaoSocial: form.razaoSocial,
         rbt12: parseFloat(form.rbt12),
         folha12m: parseFloat(form.folha12m),
-        email: form.email
+        email: form.email,
+        regimeTributario: form.regimeTributario // <-- CORREÇÃO: Enviando o regime tributário
       };
       const response = await api.post('http://localhost:8080/api/clientes', payload);
-      toast.success('Cliente cadastrado/atualizado com sucesso!');
-      navigate(`/clientes/${response.data.id}/dashboard`, { 
-          state: { clienteData: response.data } 
-      });
+      toast.success('Cliente cadastrado com sucesso!');
+      // A resposta agora é o ClienteDashboardDTO, então pegamos o ID de dentro do objeto cliente
+      navigate(`/clientes/${response.data.cliente.id}/dashboard`);
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        toast.error('Este CNPJ já está cadastrado no sistema.');
-      } else {
-        toast.error('Não foi possível salvar o cliente. Verifique os dados.');
-      }
+      const errorMsg = error.response?.data?.erro || 'Não foi possível salvar o cliente. Verifique os dados.';
+      toast.error(errorMsg);
       setIsLoading(false);
     }
   };
 
   return (
     <div className="view-container">
-      <div className="page-header"><h1 className="page-title">Cadastro de Novo Cliente</h1></div>
+      <div className="page-header"><h1 className="page-title">Cadastro de Cliente</h1></div>
       <form className="card" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>CNPJ</label>
@@ -71,16 +74,27 @@ function NovoCliente() {
           <label>Razão Social</label>
           <input type="text" name="razaoSocial" value={form.razaoSocial} onChange={handleChange} required />
         </div>
+        
+        {/* <-- CORREÇÃO: Adicionado campo de seleção para Regime Tributário --> */}
         <div className="form-group">
-          <label>RBT12 (últimos 12 meses)</label>
+          <label>Regime Tributário</label>
+          <select name="regimeTributario" value={form.regimeTributario} onChange={handleChange} required>
+            <option value="SIMPLES_NACIONAL">Simples Nacional</option>
+            <option value="LUCRO_PRESUMIDO">Lucro Presumido</option>
+            <option value="LUCRO_REAL">Lucro Real</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>RBT12 (faturamento dos últimos 12 meses)</label>
           <input type="number" step="0.01" name="rbt12" value={form.rbt12} onFocus={e => e.target.select()} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label>Folha de Pagamento (12m)</label>
+          <label>Folha de Pagamento (últimos 12 meses)</label>
           <input type="number" step="0.01" name="folha12m" value={form.folha12m} onFocus={e => e.target.select()} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label>E-mail</label>
+          <label>E-mail Principal</label>
           <input
             type="email"
             name="email"

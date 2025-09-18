@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import TaskList from "../../components/TaskList";
+import "../../styles/pages/PortalCliente.css";
 
 export default function PortalCliente() {
   const [tasks, setTasks] = useState([]);
