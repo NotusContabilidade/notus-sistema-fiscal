@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import PainelControle from './pages/PainelControle';
 import ProtectedRoute from './components/ProtectedRoute';
+import TarefasRecorrentes from "./pages/TarefasRecorrentes"; // <-- 1. IMPORTE A NOVA PÁGINA
 import './styles/global/BigCalendarDark.css';
 import PortalCliente from "./pages/PortalCliente/PortalCliente";
 
@@ -32,100 +33,31 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Dashboard Geral */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <DashboardGeral />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardGeral />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/" element={<ProtectedRoute><DashboardGeral /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardGeral /></ProtectedRoute>} />
 
         {/* Dashboard do Cliente */}
-        <Route
-          path="/clientes/:clienteId/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes/:clienteId/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
         {/* Listagem de todos os clientes */}
-        <Route
-          path="/clientes"
-          element={
-            <ProtectedRoute>
-              <TodosClientes />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes" element={<ProtectedRoute><TodosClientes /></ProtectedRoute>} />
         {/* Busca de clientes */}
-        <Route
-          path="/clientes/busca"
-          element={
-            <ProtectedRoute>
-              <BuscaCliente />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes/busca" element={<ProtectedRoute><BuscaCliente /></ProtectedRoute>} />
         {/* Cadastro de novo cliente */}
-        <Route
-          path="/clientes/novo"
-          element={
-            <ProtectedRoute>
-              <NovoCliente />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes/novo" element={<ProtectedRoute><NovoCliente /></ProtectedRoute>} />
 
         {/* Calculo para cliente específico */}
-        <Route
-          path="/clientes/:clienteId/calculo"
-          element={
-            <ProtectedRoute>
-              <Calculo />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes/:clienteId/calculo" element={<ProtectedRoute><Calculo /></ProtectedRoute>} />
 
         {/* Resultado do cálculo para cliente específico */}
-        <Route
-          path="/clientes/:clienteId/resultado/:calculoId"
-          element={
-            <ProtectedRoute>
-              <Resultado />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clientes/:clienteId/resultado/:calculoId" element={<ProtectedRoute><Resultado /></ProtectedRoute>} />
 
-        {/* Tasks */}
-        <Route
-          path="/tasks"
-          element={
-            <ProtectedRoute>
-              <Tasks />
-            </ProtectedRoute>
-          }
-        />
+        {/* Tasks (página antiga, pode ser removida/reaproveitada depois) */}
+        <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
 
-        {/* Painel de Controle */}
-        <Route
-          path="/painel-controle"
-          element={
-            <ProtectedRoute>
-              <PainelControle />
-            </ProtectedRoute>
-          }
-        />
+        {/* Ferramentas Principais */}
+        <Route path="/painel-controle" element={<ProtectedRoute><PainelControle /></ProtectedRoute>} />
+        <Route path="/recorrencias" element={<ProtectedRoute><TarefasRecorrentes /></ProtectedRoute>} /> {/* <-- 2. ADICIONE A NOVA ROTA */}
 
         {/* Portal do Cliente */}
         <Route path="/portal-cliente" element={<PortalCliente />} />

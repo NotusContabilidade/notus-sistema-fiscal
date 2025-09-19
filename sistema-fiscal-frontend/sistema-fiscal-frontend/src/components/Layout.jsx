@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, KeyRound, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, KeyRound, FileText, Repeat } from 'lucide-react'; // <-- 1. IMPORTE O ÍCONE
 import { ToastContainer } from 'react-toastify';
 import SettingsMenu from "./SettingsMenu";
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,6 +25,10 @@ const Header = ({ isAuthenticated, showMenu }) => (
           <NavLink to="/painel-controle">
             <FileText size={18} />
             <span>Painel de Controle</span>
+          </NavLink>
+          <NavLink to="/recorrencias"> {/* <-- 2. ADICIONE O NOVO LINK */}
+            <Repeat size={18} />
+            <span>Recorrências</span>
           </NavLink>
         </>
       )}
@@ -65,10 +69,7 @@ function Layout({ dark, setDark, children }) {
 
   // Função de logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_nome");
-    localStorage.removeItem("user_escritorio");
-    localStorage.removeItem("tenant");
+    localStorage.clear();
     window.location.href = "/login";
   };
 

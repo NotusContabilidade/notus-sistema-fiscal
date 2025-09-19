@@ -3,8 +3,8 @@ import api from "../services/api";
 import Spinner from "../components/Spinner";
 import { toast } from 'react-toastify';
 import Modal from 'react-modal';
-import { FileText, CheckSquare, Clock, AlertTriangle, Plus } from 'lucide-react';
-import WorkflowCard from '../components/WorkflowCard'; // Importa o novo componente
+import { FileText, CheckSquare, Clock, AlertTriangle, Plus, X } from 'lucide-react';
+import WorkflowCard from '../components/WorkflowCard';
 import '../styles/pages/PainelControle.css';
 
 const StatCard = ({ icon, title, value, color }) => (
@@ -30,6 +30,11 @@ export default function PainelControle() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [novaTarefa, setNovaTarefa] = useState(initialStateNovaTarefa);
+
+  // --- NOVOS ESTADOS PARA O MODAL DE DETALHES ---
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
+  const [isDetalheModalOpen, setIsDetalheModalOpen] = useState(false);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
 
   const fetchWorkflowItems = useCallback(() => {
     setIsLoading(true);
@@ -92,6 +97,25 @@ export default function PainelControle() {
     }
   };
 
+  // --- NOVA FUNÇÃO PARA ABRIR O MODAL DE DETALHES ---
+  const handleCardClick = (item) => {
+    if (item.tipo === 'TAREFA') {
+      setIsLoadingModal(true);
+      setIsDetalheModalOpen(true);
+      api.get(`/tasks/${item.id}`)
+        .then(res => {
+          setTarefaSelecionada(res.data);
+        })
+        .catch(() => {
+          toast.error("Erro ao buscar detalhes da tarefa.");
+          setIsDetalheModalOpen(false);
+        })
+        .finally(() => setIsLoadingModal(false));
+    } else {
+      toast.info("Visualização de detalhes de documentos ainda não implementada.");
+    }
+  };
+
   const colunas = useMemo(() => {
     const pendentes = workflowItems.filter(item => ["PENDENTE", "EM_ANDAMENTO"].includes(item.status?.toUpperCase()));
     const concluidos = workflowItems.filter(item => item.status?.toUpperCase() === "CONCLUIDO");
@@ -125,14 +149,18 @@ export default function PainelControle() {
             <div className="workflow-coluna">
               <h3>Pendentes / Em Andamento</h3>
               <div className="coluna-content">
-                {colunas.pendentes.map(item => <WorkflowCard key={`${item.tipo}-${item.id}`} item={item} onStatusChange={handleStatusChange} />)}
+                {colunas.pendentes.map(item => 
+                  <WorkflowCard key={`${item.tipo}-${item.id}`} item={item} onStatusChange={handleStatusChange} onClick={handleCardClick} />
+                )}
                 {colunas.pendentes.length === 0 && <p className="coluna-vazia">Nenhuma demanda aqui.</p>}
               </div>
             </div>
             <div className="workflow-coluna">
               <h3>Concluídas</h3>
               <div className="coluna-content">
-                {colunas.concluidos.map(item => <WorkflowCard key={`${item.tipo}-${item.id}`} item={item} onStatusChange={handleStatusChange} />)}
+                {colunas.concluidos.map(item => 
+                  <WorkflowCard key={`${item.tipo}-${item.id}`} item={item} onStatusChange={handleStatusChange} onClick={handleCardClick} />
+                )}
                 {colunas.concluidos.length === 0 && <p className="coluna-vazia">Nenhuma demanda aqui.</p>}
               </div>
             </div>
@@ -149,6 +177,36 @@ export default function PainelControle() {
           <div className="form-group"><label>Descrição / Detalhes</label><textarea name="descricao" value={novaTarefa.descricao} onChange={handleInputChange} rows="3"></textarea></div>
           <div className="modal-actions"><button type="button" className="btn-secundario" onClick={() => setIsModalOpen(false)}>Cancelar</button><button type="submit" className="btn-primario" disabled={isLoading}>{isLoading ? <Spinner /> : 'Criar Demanda'}</button></div>
         </form>
+      </Modal>
+      {/* --- NOVO MODAL DE DETALHES DA TAREFA --- */}
+      <Modal isOpen={isDetalheModalOpen} onRequestClose={() => setIsDetalheModalOpen(false)} style={{ content: { maxWidth: '700px', margin: 'auto', height: 'fit-content' } }}>
+        <div className="modal-header">
+            <h3>Detalhes da Demanda</h3>
+            <button className="btn-close-modal" onClick={() => setIsDetalheModalOpen(false)}><X/></button>
+        </div>
+        <div className="modal-body">
+            {isLoadingModal ? <Spinner /> : (
+                tarefaSelecionada ? (
+                    <div>
+                        <h4>{tarefaSelecionada.titulo}</h4>
+                        <p><strong>Status:</strong> {tarefaSelecionada.status}</p>
+                        <p><strong>Prazo:</strong> {tarefaSelecionada.prazo ? new Date(tarefaSelecionada.prazo).toLocaleDateString() : 'N/D'}</p>
+                        <p><strong>Descrição:</strong> {tarefaSelecionada.descricao || "Sem descrição."}</p>
+                        <hr style={{margin: '1rem 0'}}/>
+                        <h4>Histórico</h4>
+                        <ul className="lista-historico-modal">
+                            {tarefaSelecionada.historico && tarefaSelecionada.historico.length > 0 ? (
+                                tarefaSelecionada.historico.map((h, i) => <li key={i}>{h}</li>)
+                            ) : <li>Nenhum histórico registrado.</li>}
+                        </ul>
+                    </div>
+                ) : <p>Nenhuma tarefa selecionada.</p>
+            )}
+        </div>
+        <div className="modal-actions">
+            <button type="button" className="btn-secundario" onClick={() => setIsDetalheModalOpen(false)}>Fechar</button>
+            <button type="button" className="btn-primario">Editar Demanda</button>
+        </div>
       </Modal>
     </div>
   );
