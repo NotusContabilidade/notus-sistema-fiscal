@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom'; 
 import Modal from 'react-modal';
-import { jwtDecode } from 'jwt-decode'; // Biblioteca para ler o token
+import { jwtDecode } from 'jwt-decode';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
-import { Edit, X, PlusCircle, Search, Trash2, UserCog } from 'lucide-react';
+import { Edit, X, PlusCircle, Search, Trash2, UserCog, Eye } from 'lucide-react'; // Adicionado Eye
 import '../styles/pages/Dashboard.css';
+import DocumentUploader from '../components/DocumentUploader';
+import DocumentList from '../components/DocumentList';
 
-// --- Lógica para pegar a Role do usuário a partir do Token ---
 const getUserRole = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
   try {
     const decodedToken = jwtDecode(token);
-    return decodedToken.role; // Assumindo que a role está no token como "role"
+    return decodedToken.role;
   } catch (error) {
     console.error("Erro ao decodificar token:", error);
     return null;
@@ -24,7 +25,6 @@ const getUserRole = () => {
 function Dashboard() {
   const { clienteId } = useParams();
   const navigate = useNavigate();
-
   const [cliente, setCliente] = useState(null);
   const [isLoading, setIsLoading] = useState(true); 
   const [isEditingParams, setIsEditingParams] = useState(false);
@@ -32,12 +32,11 @@ function Dashboard() {
   const [historico, setHistorico] = useState([]);
   const [historicoVisivel, setHistoricoVisivel] = useState(false);
   const [isLoadingHistorico, setIsLoadingHistorico] = useState(false);
-  
-  // --- Novos estados para as funcionalidades de Admin ---
-  const [userRole, setUserRole] = useState(null);
+  const [userRole] = useState(getUserRole());
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editedClient, setEditedClient] = useState({ razaoSocial: '', cnpj: '', email: '', regimeTributario: '' });
+  const [docRefresh, setDocRefresh] = useState(0);
 
   const fetchCliente = useCallback(async () => {
     try {
@@ -49,7 +48,6 @@ function Dashboard() {
           folha12m: response.data.parametros.folhaPagamento12mAtual
         });
       }
-      // Prepara os dados para o modal de edição
       setEditedClient({
         razaoSocial: response.data.cliente.razaoSocial,
         cnpj: response.data.cliente.cnpj,
@@ -65,17 +63,13 @@ function Dashboard() {
   }, [clienteId, navigate]);
 
   useEffect(() => {
-    setUserRole(getUserRole()); // Pega a role do usuário ao carregar o componente
     fetchCliente();
   }, [fetchCliente]);
 
   const handleUpdateParams = async () => {
     setIsLoading(true);
     try {
-      const payload = {
-        rbt12: parseFloat(editedParams.rbt12),
-        folha12m: parseFloat(editedParams.folha12m)
-      };
+      const payload = { rbt12: parseFloat(editedParams.rbt12), folha12m: parseFloat(editedParams.folha12m) };
       await api.put(`/clientes/${cliente.cliente.id}/parametros`, payload);
       toast.success("Parâmetros atualizados com sucesso!");
       setIsEditingParams(false);
@@ -132,17 +126,17 @@ function Dashboard() {
       setIsLoading(false);
     }
   };
+  
+  const handleDocUpload = () => {
+      setDocRefresh(c => c + 1); // Apenas muda o estado para forçar o DocumentList a recarregar
+  }
 
-  if (isLoading) {
+  if (isLoading || !cliente || !cliente.cliente) {
     return <div className="view-container card"><Spinner /></div>;
   }
 
-  if (!cliente || !cliente.cliente) {
-    return <div className="view-container card"><p>Dados do cliente não encontrados.</p></div>;
-  }
-
   return (
-    <div className="view-container">
+    <div className="view-container anim-fade-in">
       <div className="page-header"><h1 className="page-title">Dashboard do Cliente</h1></div>
       <div className="card">
         <div className="dashboard-grid">
@@ -166,9 +160,7 @@ function Dashboard() {
                   <p><strong>RBT12:</strong> {Number(cliente.parametros.rbt12Atual).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                   <p><strong>Folha (12m):</strong> {Number(cliente.parametros.folhaPagamento12mAtual).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                 </>
-              ) : (
-                <p>Parâmetros fiscais não cadastrados.</p>
-              )
+              ) : <p>Parâmetros fiscais não cadastrados.</p>
             )}
             <button type="button" className="btn-edit" onClick={() => setIsEditingParams(!isEditingParams)}>
               {isEditingParams ? <X size={20}/> : <Edit size={18}/>}
@@ -176,7 +168,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="botoes-acao">
-          <Link to="/clientes/busca" className="btn-secundario"><Search size={16}/> Nova Consulta</Link>
+          <Link to={`/clientes/${clienteId}/portal`} className="btn-secundario"><Eye size={16}/> Ver Portal do Cliente</Link>
           {isEditingParams ? 
             <button type="button" className="btn-primario" onClick={handleUpdateParams} disabled={isLoading}>{isLoading ? <Spinner /> : 'Salvar Parâmetros'}</button> :
             <>
@@ -192,10 +184,8 @@ function Dashboard() {
           }
         </div>
       </div>
-
-      {/* --- INÍCIO DO BLOCO CORRIGIDO --- */}
       {historicoVisivel && (
-        <div className="card">
+        <div className="card anim-slide-in-bottom">
           <h3>Histórico de Cálculos</h3>
           {historico.length > 0 ? (
             <table className="historico-tabela">
@@ -206,11 +196,7 @@ function Dashboard() {
                     <td>{String(calc.mesReferencia).padStart(2, '0')}/{calc.anoReferencia}</td>
                     <td>{Number(calc.dasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td>
-                      <button 
-                        type="button" 
-                        className="btn-primario" 
-                        style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}} 
-                        onClick={() => navigate(`/clientes/${clienteId}/resultado/${calc.id}`)}>
+                      <button type="button" className="btn-primario" style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}} onClick={() => navigate(`/clientes/${clienteId}/resultado/${calc.id}`)}>
                         Ver Detalhes
                       </button>
                     </td>
@@ -221,9 +207,10 @@ function Dashboard() {
           ) : <p>Nenhum cálculo encontrado no histórico para este cliente.</p>}
         </div>
       )}
-      {/* --- FIM DO BLOCO CORRIGIDO --- */}
-
-      {/* --- MODAL DE EDIÇÃO DE CLIENTE (ADMIN) --- */}
+       <div className="card anim-slide-in-bottom">
+          <DocumentUploader clienteId={clienteId} onUpload={handleDocUpload} />
+          <DocumentList clienteId={clienteId} onUpload={docRefresh} />
+      </div>
       <Modal isOpen={isEditModalOpen} onRequestClose={() => setIsEditModalOpen(false)} style={{ content: { maxWidth: '500px', margin: 'auto', height: 'fit-content' } }}>
         <div className="modal-header"><h3>Editar Dados Cadastrais</h3><button className="btn-close-modal" onClick={() => setIsEditModalOpen(false)}><X/></button></div>
         <form onSubmit={handleUpdateClient} className="modal-body">
@@ -241,8 +228,6 @@ function Dashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* --- MODAL DE EXCLUSÃO DE CLIENTE (ADMIN) --- */}
       <Modal isOpen={isDeleteModalOpen} onRequestClose={() => setIsDeleteModalOpen(false)} style={{ content: { maxWidth: '500px', margin: 'auto', height: 'fit-content' } }}>
         <div className="modal-header"><h3>Confirmar Exclusão</h3><button className="btn-close-modal" onClick={() => setIsDeleteModalOpen(false)}><X/></button></div>
         <div className="modal-body">

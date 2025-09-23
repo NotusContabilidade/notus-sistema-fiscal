@@ -9,7 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
+import jakarta.persistence.Lob; // <-- PODE REMOVER ESTE IMPORT
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -45,9 +45,12 @@ public class Documento {
     @Column(name = "usuario_aprovador")
     private String usuarioAprovador;
 
-    @Lob
-    @Column(name = "conteudo", nullable = false)
-    private byte[] conteudo;
+    // @Lob // <-- REMOVIDO
+    // @Column(name = "conteudo", nullable = false) // <-- REMOVIDO
+    // private byte[] conteudo; // <-- REMOVIDO
+
+    @Column(name = "storage_key") // <-- ADICIONADO
+    private String storageKey;    // <-- ADICIONADO
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -55,7 +58,7 @@ public class Documento {
 
     public Documento() {}
 
-    // Getters e Setters
+    // Getters e Setters (conteudo foi removido e storageKey foi adicionado)
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -84,8 +87,11 @@ public class Documento {
     public String getUsuarioAprovador() { return usuarioAprovador; }
     public void setUsuarioAprovador(String usuarioAprovador) { this.usuarioAprovador = usuarioAprovador; }
 
-    public byte[] getConteudo() { return conteudo; }
-    public void setConteudo(byte[] conteudo) { this.conteudo = conteudo; }
+    // public byte[] getConteudo() { return conteudo; } // <-- REMOVIDO
+    // public void setConteudo(byte[] conteudo) { this.conteudo = conteudo; } // <-- REMOVIDO
+
+    public String getStorageKey() { return storageKey; } // <-- ADICIONADO
+    public void setStorageKey(String storageKey) { this.storageKey = storageKey; } // <-- ADICIONADO
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }

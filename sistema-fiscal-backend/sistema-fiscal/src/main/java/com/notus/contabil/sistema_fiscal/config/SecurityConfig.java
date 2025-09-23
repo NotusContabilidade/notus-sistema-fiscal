@@ -11,12 +11,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Importante:
- * - Não define AuthenticationManager nem AuthenticationProvider aqui para evitar conflito/duplicação.
- * - Não injeta AuthenticationServiceImpl, evitando ciclo de beans.
- * - Apenas configura o filtro JWT e as autorizações básicas.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Necessário para @PreAuthorize funcionar
@@ -33,11 +27,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // <-- ADICIONE ESTA LINHA
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/tasks/**").permitAll()
+                    // .requestMatchers("/api/tasks/**").permitAll() // <-- LINHA REMOVIDA
                     .requestMatchers(HttpMethod.GET, "/health").permitAll()
-                    .anyRequest().authenticated()
+                    .anyRequest().authenticated() // <-- Agora esta regra vai proteger as rotas de tasks
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

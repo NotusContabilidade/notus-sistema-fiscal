@@ -12,9 +12,9 @@ import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import PainelControle from './pages/PainelControle';
 import ProtectedRoute from './components/ProtectedRoute';
-import TarefasRecorrentes from "./pages/TarefasRecorrentes"; // <-- 1. IMPORTE A NOVA PÁGINA
+import TarefasRecorrentes from "./pages/TarefasRecorrentes";
+import PortalCliente from "./pages/PortalCliente/PortalCliente"; // <-- Import já existente
 import './styles/global/BigCalendarDark.css';
-import PortalCliente from "./pages/PortalCliente/PortalCliente";
 
 function App() {
   const [dark, setDark] = useState(() => {
@@ -57,10 +57,10 @@ function App() {
 
         {/* Ferramentas Principais */}
         <Route path="/painel-controle" element={<ProtectedRoute><PainelControle /></ProtectedRoute>} />
-        <Route path="/recorrencias" element={<ProtectedRoute><TarefasRecorrentes /></ProtectedRoute>} /> {/* <-- 2. ADICIONE A NOVA ROTA */}
+        <Route path="/recorrencias" element={<ProtectedRoute><TarefasRecorrentes /></ProtectedRoute>} />
 
-        {/* Portal do Cliente */}
-        <Route path="/portal-cliente" element={<PortalCliente />} />
+        {/* --- ROTA DO PORTAL DO CLIENTE CORRIGIDA --- */}
+        <Route path="/clientes/:clienteId/portal" element={<ProtectedRoute><PortalCliente /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route

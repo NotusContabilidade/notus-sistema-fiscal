@@ -4,13 +4,17 @@ import com.notus.contabil.sistema_fiscal.dto.DocumentoDTO;
 import com.notus.contabil.sistema_fiscal.entity.Documento;
 import com.notus.contabil.sistema_fiscal.entity.Cliente;
 import com.notus.contabil.sistema_fiscal.services.DocumentoService;
+import com.notus.contabil.sistema_fiscal.services.StorageService; // <-- NOVO IMPORT
 import com.notus.contabil.sistema_fiscal.repository.ClienteRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI; // <-- NOVO IMPORT
+import java.net.URL; // <-- NOVO IMPORT
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,11 +25,13 @@ import java.util.stream.Collectors;
 public class DocumentoController {
 
     private final DocumentoService documentoService;
+    private final StorageService storageService; // <-- INJETAR O STORAGE SERVICE
     private final ClienteRepository clienteRepository;
 
     @Autowired
-    public DocumentoController(DocumentoService documentoService, ClienteRepository clienteRepository) {
+    public DocumentoController(DocumentoService documentoService, StorageService storageService, ClienteRepository clienteRepository) { // <-- CONSTRUTOR ATUALIZADO
         this.documentoService = documentoService;
+        this.storageService = storageService;
         this.clienteRepository = clienteRepository;
     }
 
@@ -49,19 +55,33 @@ public class DocumentoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * MÉTODO DOWNLOAD COMPLETAMENTE REFATORADO
+     * Não envia mais os bytes do arquivo. Agora, gera uma URL segura e temporária
+     * e redireciona o navegador do usuário para ela.
+     * Isso é muito mais performático e escalável.
+     */
     @GetMapping("/{id}/download")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<byte[]> downloadDocumento(@PathVariable Long id) {
-        Optional<Documento> doc = documentoService.buscarPorId(id);
-        if (doc.isEmpty()) return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> downloadDocumento(@PathVariable Long id) {
+        Documento doc = documentoService.buscarPorId(id)
+            .orElseThrow(() -> new RuntimeException("Documento não encontrado"));
 
-        Documento documento = doc.get();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDisposition(ContentDisposition.attachment().filename(documento.getNomeArquivo()).build());
-        return new ResponseEntity<>(documento.getConteudo(), headers, HttpStatus.OK);
+        // 1. Pede ao StorageService para gerar uma URL de download pré-assinada
+        URL url = storageService.gerarUrlParaDownload(doc.getStorageKey());
+        
+        // 2. Retorna uma resposta de redirecionamento (HTTP 302 Found)
+        // O navegador do usuário irá seguir este link e baixar o arquivo diretamente do MinIO/S3.
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(url.toString()))
+                .build();
     }
 
+    /**
+     * MÉTODO UPLOAD REFATORADO
+     * A lógica principal agora está no DocumentoService. O controller apenas
+     * orquestra a chamada, passando o MultipartFile para o serviço.
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<DocumentoDTO> uploadDocumento(
@@ -79,11 +99,12 @@ public class DocumentoController {
             documento.setTipoDocumento(tipoDocumento);
             documento.setUsuarioUpload(usuarioUpload);
             documento.setCliente(cliente);
-            documento.setConteudo(file.getBytes());
-
-            Documento salvo = documentoService.salvar(documento);
+            
+            // A mágica acontece aqui: passamos a entidade E o arquivo para o serviço.
+            Documento salvo = documentoService.salvar(documento, file);
             return ResponseEntity.ok(toDTO(salvo));
         } catch (Exception e) {
+            e.printStackTrace(); // É bom manter isso durante o desenvolvimento
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -137,6 +158,7 @@ public class DocumentoController {
         dto.setUsuarioUpload(doc.getUsuarioUpload());
         dto.setUsuarioAprovador(doc.getUsuarioAprovador());
         dto.setClienteId(doc.getCliente() != null ? doc.getCliente().getId() : null);
+        // Não expomos a storageKey no DTO, é um detalhe de implementação interna
         return dto;
     }
 }

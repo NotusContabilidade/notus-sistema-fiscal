@@ -17,8 +17,6 @@ function useDebounce(value, delay) {
 function TodosClientes() {
   const [clientes, setClientes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Novos estados para busca/autocomplete
   const [busca, setBusca] = useState('');
   const [sugestoes, setSugestoes] = useState([]);
   const [showSugestoes, setShowSugestoes] = useState(false);
@@ -40,7 +38,6 @@ function TodosClientes() {
     fetchClientes();
   }, []);
 
-  // Busca por razão social (autocomplete)
   useEffect(() => {
     if (debouncedBusca.length < 2) {
       setSugestoes([]);
@@ -67,7 +64,7 @@ function TodosClientes() {
   };
 
   const handleBlur = () => {
-    setTimeout(() => setShowSugestoes(false), 150); // para permitir clique
+    setTimeout(() => setShowSugestoes(false), 150);
   };
 
   if (isLoading) {
@@ -75,55 +72,24 @@ function TodosClientes() {
   }
 
   return (
-    <div className="view-container">
+    <div className="view-container anim-fade-in">
       <div className="page-header"><h1 className="page-title">Todos os Clientes</h1></div>
       <div className="card">
         <div style={{ marginBottom: 24, position: 'relative', maxWidth: 400 }}>
           <input
             ref={inputRef}
             type="text"
-            placeholder="Buscar por razão social ou CNPJ"
+            placeholder="Buscar por razão social..."
             value={busca}
             onChange={handleInputChange}
             onFocus={() => setShowSugestoes(true)}
             onBlur={handleBlur}
-            style={{
-              width: '100%',
-              padding: '0.7rem 1rem',
-              borderRadius: 6,
-              border: '1.5px solid #a13751',
-              fontSize: '1.08rem'
-            }}
+            style={{ width: '100%', padding: '0.7rem 1rem', borderRadius: 6, border: '1.5px solid #a13751', fontSize: '1.08rem' }}
           />
           {showSugestoes && sugestoes.length > 0 && (
-            <ul
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: '110%',
-                background: 'var(--card-bg, #fff)',
-                border: '1.5px solid #a13751',
-                borderRadius: 6,
-                zIndex: 10,
-                maxHeight: 220,
-                overflowY: 'auto',
-                boxShadow: '0 2px 8px 0 #a1375133',
-                margin: 0,
-                padding: 0,
-                listStyle: 'none'
-              }}
-            >
+            <ul style={{ position: 'absolute', left: 0, right: 0, top: '110%', background: 'var(--card-bg, #fff)', border: '1.5px solid #a13751', borderRadius: 6, zIndex: 10, maxHeight: 220, overflowY: 'auto', boxShadow: '0 2px 8px 0 #a1375133', margin: 0, padding: 0, listStyle: 'none' }}>
               {sugestoes.map(cliente => (
-                <li
-                  key={cliente.id}
-                  style={{
-                    padding: '0.7rem 1rem',
-                    cursor: 'pointer',
-                    background: '#fff'
-                  }}
-                  onMouseDown={() => handleSugestaoClick(cliente)}
-                >
+                <li key={cliente.id} style={{ padding: '0.7rem 1rem', cursor: 'pointer', background: 'var(--card-bg, #fff)' }} onMouseDown={() => handleSugestaoClick(cliente)}>
                   <strong>{cliente.razaoSocial}</strong>
                   <div style={{ fontSize: '0.95em', color: '#a13751' }}>{cliente.cnpj}</div>
                 </li>
@@ -135,18 +101,12 @@ function TodosClientes() {
           <table className="lista-detalhes-tabela">
             <thead><tr><th>Razão Social</th><th>CNPJ</th></tr></thead>
             <tbody>
-              {clientes
-                .filter(cliente =>
-                  !busca ||
-                  cliente.razaoSocial.toLowerCase().includes(busca.toLowerCase()) ||
-                  cliente.cnpj.replace(/\D/g, '').includes(busca.replace(/\D/g, ''))
-                )
-                .map(cliente => (
-                  <tr key={cliente.id}>
-                    <td><Link to={`/clientes/${cliente.id}/dashboard`}>{cliente.razaoSocial}</Link></td>
-                    <td>{cliente.cnpj}</td>
-                  </tr>
-                ))}
+              {clientes.filter(cliente => !busca || cliente.razaoSocial.toLowerCase().includes(busca.toLowerCase())).map(cliente => (
+                <tr key={cliente.id}>
+                  <td><Link to={`/clientes/${cliente.id}/dashboard`}>{cliente.razaoSocial}</Link></td>
+                  <td>{cliente.cnpj}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         ) : <p>Nenhum cliente cadastrado.</p>}

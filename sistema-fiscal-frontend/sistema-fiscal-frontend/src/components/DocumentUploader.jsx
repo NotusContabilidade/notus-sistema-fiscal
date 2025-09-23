@@ -1,3 +1,5 @@
+// src/components/DocumentUploader.jsx
+
 import React, { useState } from "react";
 import api from "../services/api";
 import Spinner from "./Spinner";
@@ -19,7 +21,7 @@ const DocumentUploader = ({ clienteId, onUpload }) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("tipoDocumento", tipoDocumento);
-    formData.append("usuarioUpload", localStorage.getItem("user") || ""); // ajuste conforme seu contexto
+    formData.append("usuarioUpload", localStorage.getItem("user_nome") || "usuario");
     formData.append("clienteId", clienteId);
 
     try {
@@ -38,23 +40,30 @@ const DocumentUploader = ({ clienteId, onUpload }) => {
   };
 
   return (
-    <form className="card" onSubmit={handleSubmit}>
+    // Usando as classes de formulário padrão
+    <form className="form-portal" onSubmit={handleSubmit}>
       <h4>Enviar Documento</h4>
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files[0])}
-        accept="application/pdf,image/*"
-      />
-      <input
-        type="text"
-        placeholder="Tipo do documento"
-        value={tipoDocumento}
-        onChange={(e) => setTipoDocumento(e.target.value)}
-      />
-      <button type="submit" disabled={loading}>
+      <div className="form-group">
+        <label>Arquivo</label>
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          accept="application/pdf,image/*"
+        />
+      </div>
+      <div className="form-group">
+        <label>Tipo do documento</label>
+        <input
+          type="text"
+          placeholder="Ex: Guia DAS, Contrato Social..."
+          value={tipoDocumento}
+          onChange={(e) => setTipoDocumento(e.target.value)}
+        />
+      </div>
+      <button type="submit" className="btn-primario" disabled={loading} style={{width: '100%'}}>
         {loading ? <Spinner /> : "Enviar"}
       </button>
-      {msg && <div style={{ marginTop: 8 }}>{msg}</div>}
+      {msg && <div className="form-message">{msg}</div>}
     </form>
   );
 };

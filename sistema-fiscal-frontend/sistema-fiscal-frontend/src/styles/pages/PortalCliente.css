@@ -1,18 +1,75 @@
+/* Container principal da página */
 .portal-cliente-container {
-  max-width: 700px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px #0001;
-  padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
+
+/* Seções dentro do card principal */
+.portal-section {
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.portal-section h3 {
+    color: var(--cor-primaria);
+    margin-top: 0;
+    border-bottom: 2px solid var(--cor-borda);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Card de tarefa do cliente */
 .task-card-cliente {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  background: #fafafa;
+    border: 1px solid var(--cor-borda);
+    border-left: 4px solid var(--cor-primaria);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    background: #fff;
 }
+
 .task-card-cliente h4 {
-  margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem 0;
+}
+
+/* Estilos para o formulário de upload */
+.form-portal .form-group {
+    margin-bottom: 1rem;
+}
+
+.form-portal input[type="file"] {
+    border: 1px solid var(--cor-borda);
+    padding: 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.form-message {
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Tabela de documentos */
+.document-list-container {
+    margin-top: 2rem;
+}
+
+/* Dark Mode */
+body.dark .portal-section {
+    background: #1c151f;
+    border-color: #3e2a4d;
+}
+
+body.dark .task-card-cliente {
+    background: #23162a;
+    border-color: #a13751;
+}
+
+body.dark .form-portal input[type="file"] {
+    background: #2d1b2f;
+    border-color: #a13751;
 }

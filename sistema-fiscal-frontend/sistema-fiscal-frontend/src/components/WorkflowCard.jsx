@@ -1,42 +1,108 @@
 import React from 'react';
-import { FileText, CheckSquare, AlertTriangle } from 'lucide-react';
+import { Clock, AlertTriangle, FileText, CheckSquare, CalendarCheck } from 'lucide-react';
+import '../styles/components/WorkflowCard.css';
 
-// Adicionamos a propriedade 'onClick'
-export default function WorkflowCard({ item, onStatusChange, onClick }) { 
-  const isAtrasado = item.prazo && new Date(item.prazo) < new Date();
+// Função para calcular a diferença de tempo de forma legível
+const formatTimeDiff = (start, end) => {
+    if (!start || !end) return null;
+    const diff = new Date(end) - new Date(start);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h`;
+    const minutes = Math.floor((diff / 1000 / 60) % 60);
+    return `${minutes}m`;
+};
 
-  const handleSelectClick = (e) => {
-    e.stopPropagation();
-  };
-  
-  // Adicionamos o evento onClick ao div principal
-  return (
-    <div className="workflow-card" onClick={() => onClick(item)}> 
-      <div className="card-header">
-        <span className="card-tipo-icon">
-          {item.tipo === 'TAREFA' ? <CheckSquare size={16} /> : <FileText size={16} />}
-        </span>
-        <span className="card-cliente">{item.clienteNome}</span>
-      </div>
-      <p className="card-titulo">{item.titulo}</p>
-      <div className="card-footer-container">
-        <div className={`card-footer ${isAtrasado ? 'atrasado' : ''}`}>
-          {isAtrasado && <AlertTriangle size={14} />}
-          <span>{item.prazo ? `Vence em: ${new Date(item.prazo).toLocaleDateString()}` : 'Sem prazo'}</span>
+// Função auxiliar para determinar o status e a classe CSS correspondente
+const getStatusInfo = (item) => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const isAtrasado = item.prazo && new Date(item.prazo) < hoje && item.status?.toUpperCase() !== 'CONCLUIDO';
+
+    if (isAtrasado) {
+        return { text: 'Atrasado', className: 'status-atrasado' };
+    }
+
+    switch (item.status?.toUpperCase()) {
+        case 'PENDENTE':
+            return { text: 'Pendente', className: 'status-pendente' };
+        case 'EM_ANDAMENTO':
+            return { text: 'Em Andamento', className: 'status-em-andamento' };
+        case 'CONCLUIDO':
+            return { text: 'Concluído', className: 'status-concluido' };
+        default:
+            return { text: item.status || 'N/D', className: 'status-default' };
+    }
+};
+
+export default function WorkflowCard({ item, onStatusChange, onClick }) {
+    const statusInfo = getStatusInfo(item);
+    const isAtrasado = statusInfo.className === 'status-atrasado';
+    const isConcluido = statusInfo.className === 'status-concluido';
+    const tempoResolucao = formatTimeDiff(item.dataCriacao, item.dataConclusao);
+
+    // Impede que o clique no select propague para o card e abra o modal
+    const handleSelectClick = (e) => {
+        e.stopPropagation();
+    };
+
+    // Função para o clique no card, que abre o modal de detalhes
+    const handleCardClick = () => {
+        if (onClick) {
+            onClick(item);
+        }
+    };
+
+    return (
+        <div className={`workflow-card ${isAtrasado ? 'card-atrasado' : ''} ${isConcluido ? 'card-concluido' : ''}`} onClick={handleCardClick}>
+            <div className="card-header">
+                <span className={`status-tag ${statusInfo.className}`}>{statusInfo.text}</span>
+                <div className="card-tipo-icon">
+                    {/* Usa ícones diferentes para Tarefa ou Documento */}
+                    {item.tipo === 'TAREFA' ? <CheckSquare size={16} /> : <FileText size={16} />}
+                    <span>{item.cliente?.razaoSocial || item.clienteNome || 'N/A'}</span>
+                </div>
+            </div>
+
+            <h4 className="card-titulo">{item.titulo}</h4>
+
+            <div className="card-footer-container">
+                <div className="card-footer">
+                    {isConcluido ? (
+                        <span className="prazo-info concluido">
+                            <CalendarCheck size={14} />
+                            Concluído em: {new Date(item.dataConclusao).toLocaleDateString('pt-BR')}
+                            {tempoResolucao && ` (${tempoResolucao})`}
+                        </span>
+                    ) : isAtrasado ? (
+                        <span className="prazo-info atrasado">
+                            <AlertTriangle size={14} />
+                            Venceu em: {new Date(item.prazo).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                        </span>
+                    ) : (
+                        item.prazo && (
+                            <span className="prazo-info">
+                                <Clock size={14} />
+                                Vence em: {new Date(item.prazo).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                            </span>
+                        )
+                    )}
+                </div>
+                {/* Mostra o seletor de status apenas para tarefas não concluídas */}
+                {item.tipo === 'TAREFA' && (
+                     <select
+                        className="status-select"
+                        value={item.status}
+                        onChange={(e) => onStatusChange(item.id, e.target.value)}
+                        onClick={handleSelectClick}
+                    >
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                        <option value="CONCLUIDO">Concluir</option>
+                    </select>
+                )}
+            </div>
         </div>
-        {item.tipo === 'TAREFA' && (
-          <select 
-            value={item.status} 
-            onChange={(e) => onStatusChange(item.id, e.target.value)}
-            onClick={handleSelectClick} 
-            className="status-select"
-          >
-            <option value="PENDENTE">Pendente</option>
-            <option value="EM_ANDAMENTO">Em Andamento</option>
-            <option value="CONCLUIDO">Concluído</option>
-          </select>
-        )}
-      </div>
-    </div>
-  );
+    );
 }

@@ -1,0 +1,137 @@
+.workflow-card {
+    background: var(--cor-fundo-card);
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    padding: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    animation: fadeIn 0.5s;
+}
+
+.workflow-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.1);
+}
+
+.workflow-card.card-atrasado {
+    border-left: 4px solid var(--cor-erro);
+}
+
+.workflow-card.card-concluido {
+    background-color: var(--cor-fundo-card); /* MUDADO: Mantém o fundo padrão */
+    border-left: 4px solid var(--cor-sucesso);
+}
+.workflow-card.card-concluido .card-titulo {
+    text-decoration: line-through;
+    color: var(--cor-texto-secundario);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.status-tag {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Cores das tags para MODO CLARO */
+.status-tag.status-atrasado { background-color: #fee2e2; color: #b91c1c; }
+.status-tag.status-pendente { background-color: #fefce8; color: #a16207; }
+.status-tag.status-em-andamento { background-color: #eef2ff; color: #4338ca; }
+.status-tag.status-concluido { background-color: #f0fdf4; color: #15803d; }
+.status-tag.status-default { background-color: #f3f4f6; color: #4b5563; }
+
+
+.card-tipo-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--cor-texto-secundario);
+}
+
+.card-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cor-texto);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+.card-footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.prazo-info {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+}
+
+.prazo-info.atrasado {
+    color: var(--cor-erro);
+    font-weight: 600;
+}
+
+.prazo-info.concluido {
+    color: var(--cor-sucesso);
+    font-weight: 500;
+}
+
+.status-select {
+    background-color: #f8fafc; /* Fundo do select um pouco diferente */
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--cor-texto-secundario);
+    transition: border-color 0.2s;
+}
+
+.status-select:hover {
+    border-color: var(--cor-primaria);
+}
+
+/* DARK MODE PARA CARDS */
+body.dark .workflow-card {
+    background: var(--cor-fundo-card);
+    border-color: var(--cor-borda);
+}
+body.dark .card-titulo { color: var(--cor-texto); }
+
+body.dark .workflow-card.card-concluido {
+    background-color: #211a2c;
+    border-left-color: var(--cor-sucesso);
+}
+body.dark .workflow-card.card-concluido .card-titulo {
+    color: #64748b;
+}
+
+/* Cores das tags para MODO ESCURO */
+body.dark .status-tag.status-atrasado { background-color: #450a0a; color: #fecaca; }
+body.dark .status-tag.status-pendente { background-color: #422006; color: #fde68a; }
+body.dark .status-tag.status-em-andamento { background-color: #312e81; color: #c7d2fe; }
+body.dark .status-tag.status-concluido { background-color: #064e3b; color: #a7f3d0; }
+body.dark .status-tag.status-default { background-color: #374151; color: #d1d5db; }
+
+body.dark .status-select {
+    background-color: #181225;
+    border-color: var(--cor-borda);
+    color: var(--cor-texto-secundario);
+}
+body.dark .status-select:hover {
+    border-color: var(--cor-primaria);
+}

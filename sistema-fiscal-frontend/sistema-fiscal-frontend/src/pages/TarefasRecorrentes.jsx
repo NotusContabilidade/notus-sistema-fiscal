@@ -5,7 +5,6 @@ import Modal from 'react-modal';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
 import Spinner from '../components/Spinner';
 
-// Estado inicial para o formulário, usado para criar e resetar
 const initialStateRecorrencia = {
   clienteId: '',
   titulo: '',
@@ -26,14 +25,12 @@ export default function TarefasRecorrentes() {
   const [formState, setFormState] = useState(initialStateRecorrencia);
   const [editingId, setEditingId] = useState(null);
 
-  // Busca a lista de clientes para preencher o dropdown de filtro
   useEffect(() => {
     api.get("/clientes/todos")
       .then(res => setClientes(res.data))
       .catch(() => toast.error("Erro ao carregar clientes."));
   }, []);
 
-  // Busca as tarefas recorrentes do cliente selecionado
   const fetchRecorrencias = useCallback(() => {
     if (!filtroClienteId) {
         setRecorrencias([]);
@@ -50,7 +47,6 @@ export default function TarefasRecorrentes() {
     fetchRecorrencias();
   }, [fetchRecorrencias]);
   
-  // Manipulador genérico para as mudanças nos inputs do formulário
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormState(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -69,7 +65,7 @@ export default function TarefasRecorrentes() {
   const openModalParaEditar = (recorrencia) => {
     setEditingId(recorrencia.id);
     setFormState({
-      clienteId: recorrencia.cliente.id,
+      clienteId: recorrencia.clienteId, // Corrigido para usar o ID que já vem no DTO de resposta
       titulo: recorrencia.titulo,
       descricao: recorrencia.descricao || '',
       categoria: recorrencia.categoria,
@@ -122,7 +118,7 @@ export default function TarefasRecorrentes() {
   };
 
   return (
-    <div className="view-container">
+    <div className="view-container anim-fade-in">
       <div className="page-header">
         <h1 className="page-title">Gestão de Tarefas Recorrentes</h1>
         <button className="btn-primario" onClick={openModalParaCriar} disabled={!filtroClienteId}>
@@ -168,47 +164,52 @@ export default function TarefasRecorrentes() {
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={{ content: { maxWidth: '600px', margin: 'auto', height: 'fit-content' } }}>
+      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={{ content: { maxWidth: '600px', width: '90%' } }}>
           <div className="modal-header"><h3>{editingId ? "Editar" : "Criar"} Molde de Tarefa</h3><button className="btn-close-modal" onClick={() => setIsModalOpen(false)}><X/></button></div>
-          <form onSubmit={handleSubmit} className="modal-body form-nova-demanda">
-              <div className="form-group">
-                <label>Título*</label>
-                <input type="text" name="titulo" value={formState.titulo} onChange={handleInputChange} placeholder="Ex: Gerar Guia DAS" required />
+          {/* CORREÇÃO: O <form> agora envolve o body e o actions */}
+          <form onSubmit={handleSubmit}>
+              {/* CORREÇÃO: O modal-body agora contém apenas o formulário rolável */}
+              <div className="modal-body form-nova-demanda">
+                  <div className="form-group">
+                    <label>Título*</label>
+                    <input type="text" name="titulo" value={formState.titulo} onChange={handleInputChange} placeholder="Ex: Gerar Guia DAS" required />
+                  </div>
+                  <div className="form-group">
+                    <label>Categoria</label>
+                    <select name="categoria" value={formState.categoria} onChange={handleInputChange}>
+                      <option value="OBRIGACAO_ACESSORIA">Obrigação Acessória</option>
+                      <option value="IMPOSTO">Imposto</option>
+                      <option value="DOCUMENTO_CLIENTE">Documento do Cliente</option>
+                      <option value="INTERNO">Interno</option>
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Frequência</label>
+                      <select name="frequencia" value={formState.frequencia} onChange={handleInputChange}>
+                        <option value="MENSAL">Mensal</option>
+                        <option value="ANUAL">Anual</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Dia do Vencimento*</label>
+                      <input type="number" name="diaVencimento" value={formState.diaVencimento} onChange={handleInputChange} min="1" max="31" required />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Responsável</label>
+                    <input type="text" name="responsavel" value={formState.responsavel} onChange={handleInputChange} placeholder="Nome do membro da equipe" />
+                  </div>
+                  <div className="form-group">
+                    <label>Descrição Padrão</label>
+                    <textarea name="descricao" value={formState.descricao} onChange={handleInputChange} rows="3"></textarea>
+                  </div>
+                  <div className="form-group-inline" style={{ justifyContent: 'flex-start' }}>
+                    <input type="checkbox" name="ativa" id="ativa" checked={formState.ativa} onChange={handleInputChange} />
+                    <label htmlFor="ativa" style={{ marginBottom: 0 }}>Este molde está ativo?</label>
+                  </div>
               </div>
-              <div className="form-group">
-                <label>Categoria</label>
-                <select name="categoria" value={formState.categoria} onChange={handleInputChange}>
-                  <option value="OBRIGACAO_ACESSORIA">Obrigação Acessória</option>
-                  <option value="IMPOSTO">Imposto</option>
-                  <option value="DOCUMENTO_CLIENTE">Documento do Cliente</option>
-                  <option value="INTERNO">Interno</option>
-                </select>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Frequência</label>
-                  <select name="frequencia" value={formState.frequencia} onChange={handleInputChange}>
-                    <option value="MENSAL">Mensal</option>
-                    <option value="ANUAL">Anual</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Dia do Vencimento*</label>
-                  <input type="number" name="diaVencimento" value={formState.diaVencimento} onChange={handleInputChange} min="1" max="31" required />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Responsável</label>
-                <input type="text" name="responsavel" value={formState.responsavel} onChange={handleInputChange} placeholder="Nome do membro da equipe" />
-              </div>
-              <div className="form-group">
-                <label>Descrição Padrão</label>
-                <textarea name="descricao" value={formState.descricao} onChange={handleInputChange} rows="3"></textarea>
-              </div>
-              <div className="form-group-inline" style={{ justifyContent: 'flex-start' }}>
-                <input type="checkbox" name="ativa" id="ativa" checked={formState.ativa} onChange={handleInputChange} />
-                <label htmlFor="ativa" style={{ marginBottom: 0 }}>Este molde está ativo?</label>
-              </div>
+              {/* CORREÇÃO: O modal-actions foi movido para fora do modal-body */}
               <div className="modal-actions">
                   <button type="button" className="btn-secundario" onClick={() => setIsModalOpen(false)}>Cancelar</button>
                   <button type="submit" className="btn-primario" disabled={isLoading}>{isLoading ? <Spinner /> : "Salvar Molde"}</button>
