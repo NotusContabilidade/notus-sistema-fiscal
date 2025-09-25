@@ -1,0 +1,166 @@
+/* ================================================================ */
+/* ====== COMPONENTE CLIENTE SEARCH SELECT - ANIMAÇÃO SÓLIDA ====== */
+/* ================================================================ */
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.searchable-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* O CONTAINER DA TRANSFORMAÇÃO */
+.searchable-select-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  /* A linha de base sutil no estado padrão */
+  border-bottom: 1px solid var(--cor-borda);
+  padding: 0.75rem 0.25rem;
+  cursor: text;
+  /* Transições para todas as propriedades que serão animadas */
+  transition: background-color 0.3s ease, padding 0.3s ease, border-radius 0.3s ease;
+}
+
+/* ESTADO DE BUSCA: SÓLIDO E ANIMADO */
+.searchable-select-input-container.searching {
+  background-color: var(--cor-fundo-input);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  /* Remove a borda inferior para dar lugar ao pseudo-elemento animado */
+  border-bottom-color: transparent;
+}
+
+/* A NOVA LINHA DE BASE ANIMADA (SÓLIDA) */
+.searchable-select-input-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--cor-borda);
+  transform: scaleX(1);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), height 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease;
+}
+
+.searchable-select-input-container.searching::after {
+  height: 2px; /* A linha fica mais espessa */
+  background-color: var(--cor-primaria); /* E ganha a cor primária */
+  transform: scaleX(1); /* Garante que ela ocupe toda a largura */
+}
+
+
+/* ANIMAÇÃO DO ÍCONE DE BUSCA */
+.search-icon {
+  color: var(--cor-texto-secundario);
+  margin-right: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.3s, transform 0.3s ease;
+  z-index: 2;
+  transform: translateX(0);
+}
+.searchable-select-input-container.searching .search-icon {
+  color: var(--cor-primaria);
+  transform: translateX(-4px); /* Desliza para a esquerda */
+}
+
+/* O RÓTULO DE EXIBIÇÃO (ESTADO PADRÃO) */
+.searchable-select-display-label {
+  position: absolute;
+  left: 38px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cor-texto);
+  font-weight: 500;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+  z-index: 1;
+}
+
+/* FAZ O RÓTULO DESLIZAR E DESAPARECER */
+.searchable-select-input-container.searching .searchable-select-display-label {
+  transform: translateY(-150%);
+  opacity: 0;
+}
+
+/* O INPUT REAL (ESCONDIDO ATÉ A BUSCA) */
+.searchable-select-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--cor-texto);
+  padding: 0;
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 0.3s ease 0.1s; /* Leve delay para aparecer após o rótulo sumir */
+}
+.searchable-select-input::placeholder {
+  color: var(--cor-texto-placeholder);
+  font-weight: 400;
+}
+
+/* TORNA O INPUT VISÍVEL DURANTE A BUSCA */
+.searchable-select-input-container.searching .searchable-select-input {
+  opacity: 1;
+}
+
+.searchable-select-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cor-texto-secundario);
+  padding-left: 0.5rem;
+  z-index: 2;
+}
+
+.clear-button {
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  color: inherit; display: flex; align-items: center;
+  transition: color 0.2s, transform 0.2s;
+}
+.clear-button:hover { color: var(--cor-primaria); transform: scale(1.1); }
+
+.arrow-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.arrow-icon.open { transform: rotate(180deg); }
+
+/* DROPDOWN (sem alterações) */
+.searchable-select-dropdown {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background-color: var(--cor-fundo-dropdown);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--cor-borda-transparente); border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); list-style: none;
+  padding: 0.5rem; margin: 0; max-height: 300px; overflow-y: auto;
+  z-index: 1050; animation: dropdownFadeIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.searchable-select-dropdown li {
+  padding: 0.85rem 1rem; cursor: pointer; border-radius: 6px;
+  transition: background-color 0.2s, transform 0.2s;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 0.1rem; color: var(--cor-texto);
+}
+.searchable-select-dropdown li:hover { background-color: var(--cor-fundo-hover); transform: translateX(4px); }
+.searchable-select-dropdown li .client-name { font-weight: 600; color: var(--cor-texto); font-size: 0.95rem; }
+.searchable-select-dropdown li .client-cnpj { font-size: 0.8rem; color: var(--cor-texto-secundario); }
+.all-clients-option {
+  flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;
+  font-weight: 600; color: var(--cor-primaria) !important;
+  border-bottom: 1px solid var(--cor-borda); margin-bottom: 0.5rem;
+}
+.all-clients-option:hover { background-color: var(--cor-primaria-super-transparente) !important; transform: none !important; }
+.dropdown-message {
+  color: var(--cor-texto-secundario); font-style: italic; cursor: default;
+  text-align: center; padding: 1.5rem 1rem; display: flex;
+  align-items: center; justify-content: center; gap: 0.5rem;
+}
+.dropdown-message:hover { background-color: transparent; transform: none; }

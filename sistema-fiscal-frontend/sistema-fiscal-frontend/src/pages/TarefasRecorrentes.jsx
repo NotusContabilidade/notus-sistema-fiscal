@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import Modal from 'react-modal';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
 import Spinner from '../components/Spinner';
+import ClienteSearchableSelect from '../components/ClienteSearchableSelect'; // IMPORTAÇÃO
 
 const initialStateRecorrencia = {
   clienteId: '',
@@ -65,7 +66,7 @@ export default function TarefasRecorrentes() {
   const openModalParaEditar = (recorrencia) => {
     setEditingId(recorrencia.id);
     setFormState({
-      clienteId: recorrencia.clienteId, // Corrigido para usar o ID que já vem no DTO de resposta
+      clienteId: recorrencia.clienteId,
       titulo: recorrencia.titulo,
       descricao: recorrencia.descricao || '',
       categoria: recorrencia.categoria,
@@ -128,10 +129,12 @@ export default function TarefasRecorrentes() {
       
       <div className="card filtros-card">
         <label htmlFor="cliente-select">Selecione um Cliente para Gerenciar:</label>
-        <select id="cliente-select" value={filtroClienteId} onChange={e => setFiltroClienteId(e.target.value)}>
-          <option value="" disabled>Selecione...</option>
-          {clientes.map(c => <option key={c.id} value={c.id}>{c.razaoSocial}</option>)}
-        </select>
+        {/* SUBSTITUIÇÃO DO SELECT */}
+        <ClienteSearchableSelect
+            clients={clientes}
+            value={filtroClienteId}
+            onChange={setFiltroClienteId}
+        />
       </div>
 
       <div className="card">
@@ -166,9 +169,7 @@ export default function TarefasRecorrentes() {
 
       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={{ content: { maxWidth: '600px', width: '90%' } }}>
           <div className="modal-header"><h3>{editingId ? "Editar" : "Criar"} Molde de Tarefa</h3><button className="btn-close-modal" onClick={() => setIsModalOpen(false)}><X/></button></div>
-          {/* CORREÇÃO: O <form> agora envolve o body e o actions */}
           <form onSubmit={handleSubmit}>
-              {/* CORREÇÃO: O modal-body agora contém apenas o formulário rolável */}
               <div className="modal-body form-nova-demanda">
                   <div className="form-group">
                     <label>Título*</label>
@@ -209,7 +210,6 @@ export default function TarefasRecorrentes() {
                     <label htmlFor="ativa" style={{ marginBottom: 0 }}>Este molde está ativo?</label>
                   </div>
               </div>
-              {/* CORREÇÃO: O modal-actions foi movido para fora do modal-body */}
               <div className="modal-actions">
                   <button type="button" className="btn-secundario" onClick={() => setIsModalOpen(false)}>Cancelar</button>
                   <button type="submit" className="btn-primario" disabled={isLoading}>{isLoading ? <Spinner /> : "Salvar Molde"}</button>

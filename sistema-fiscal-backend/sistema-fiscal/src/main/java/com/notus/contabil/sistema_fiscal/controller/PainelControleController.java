@@ -1,10 +1,9 @@
 package com.notus.contabil.sistema_fiscal.controller;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Stream;
-
+import com.notus.contabil.sistema_fiscal.entity.Documento;
+import com.notus.contabil.sistema_fiscal.entity.Task;
+import com.notus.contabil.sistema_fiscal.repository.DocumentoRepository;
+import com.notus.contabil.sistema_fiscal.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,65 +13,82 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.notus.contabil.sistema_fiscal.repository.DocumentoRepository;
-import com.notus.contabil.sistema_fiscal.repository.TaskRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/painel-controle")
-@PreAuthorize("hasAnyRole('ADMIN', 'CONTADOR')")
 public class PainelControleController {
 
-    @Autowired private TaskRepository taskRepository;
-    @Autowired private DocumentoRepository documentoRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
-    public record WorkflowItemDTO(
-        Long id,
-        String tipo, // "TAREFA" ou "DOCUMENTO"
-        String titulo,
-        String status,
-        LocalDate prazo,
-        Long clienteId,
-        String clienteNome
+    @Autowired
+    private DocumentoRepository documentoRepository;
+
+    // DTO para unificar itens no painel
+    public record PainelItemDTO(
+            Long id,
+            String tipo,
+            String titulo,
+            String descricao,
+            String status,
+            LocalDate prazo,
+            String responsavel,
+            Long clienteId,
+            String clienteNome,
+            LocalDateTime dataCriacao
     ) {}
 
     @GetMapping("/workflow")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<WorkflowItemDTO>> getWorkflowItems(
-        @RequestParam(required = false) Long clienteId
-    ) {
-        Stream<WorkflowItemDTO> tasksStream = (clienteId == null 
-            ? taskRepository.findAll() 
-            : taskRepository.findByClienteId(clienteId))
-            .stream()
-            .map(task -> new WorkflowItemDTO(
-                task.getId(), 
-                "TAREFA", 
-                task.getTitulo(), 
-                task.getStatus(), 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTADOR')")
+    public ResponseEntity<List<PainelItemDTO>> getWorkflowItems(@RequestParam(required = false) Long clienteId) {
+        List<Task> tasks;
+        List<Documento> documentos;
+
+        if (clienteId != null) {
+            tasks = taskRepository.findByClienteId(clienteId);
+            documentos = documentoRepository.findByClienteIdAndStatus(clienteId, "PENDENTE");
+        } else {
+            tasks = taskRepository.findAll();
+            documentos = documentoRepository.findByStatus("PENDENTE");
+        }
+
+        Stream<PainelItemDTO> taskStream = tasks.stream().map(task -> new PainelItemDTO(
+                task.getId(),
+                "TAREFA",
+                task.getTitulo(),
+                task.getDescricao(),
+                task.getStatus(),
                 task.getPrazo(),
-                task.getCliente().getId(),
-                task.getCliente().getRazaoSocial()
-            ));
+                task.getResponsavel(),
+                task.getCliente() != null ? task.getCliente().getId() : null,
+                task.getCliente() != null ? task.getCliente().getRazaoSocial() : "N/A",
+                task.getDataCriacao()
+        ));
 
-        Stream<WorkflowItemDTO> documentosStream = (clienteId == null
-            ? documentoRepository.findAll()
-            : documentoRepository.findByClienteId(clienteId))
-            .stream()
-            .filter(doc -> "PENDENTE".equalsIgnoreCase(doc.getStatus()))
-            .map(doc -> new WorkflowItemDTO(
-                doc.getId(), 
-                "DOCUMENTO", 
-                "Revisar: " + doc.getNomeArquivo(),
+        Stream<PainelItemDTO> docStream = documentos.stream().map(doc -> new PainelItemDTO(
+                doc.getId(),
+                "DOCUMENTO",
+                "Revisar Documento: " + doc.getNomeArquivo(),
+                "Documento enviado pelo cliente para revisão.",
                 doc.getStatus(),
-                null, 
-                doc.getCliente().getId(),
-                doc.getCliente().getRazaoSocial()
-            ));
+                doc.getDataUpload().toLocalDate().plusDays(1),
+                "N/A",
+                doc.getCliente() != null ? doc.getCliente().getId() : null,
+                doc.getCliente() != null ? doc.getCliente().getRazaoSocial() : "N/A",
+                doc.getDataUpload()
+        ));
 
-        List<WorkflowItemDTO> workflowItems = Stream.concat(tasksStream, documentosStream)
-            .sorted(Comparator.comparing(WorkflowItemDTO::prazo, Comparator.nullsLast(Comparator.naturalOrder())))
-            .toList();
+        List<PainelItemDTO> combinedList = Stream.concat(taskStream, docStream)
+                .sorted(Comparator.comparing(PainelItemDTO::dataCriacao).reversed())
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(workflowItems);
+        return ResponseEntity.ok(combinedList);
     }
 }

@@ -32,6 +32,7 @@
   flex-direction: column;
   align-items: stretch;
   animation: cardFadeIn 0.8s cubic-bezier(.23,1.02,.32,1) both;
+  position: relative; /* Necessário para o posicionamento do dropdown */
 }
 
 @keyframes cardFadeIn {
@@ -55,11 +56,11 @@
   margin-left: 2px;
 }
 
-/* REFINADO: input e botão lado a lado, botão nunca sai do card */
 .input-group-saas {
+  position: relative; /* Contexto para o dropdown */
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.5rem;
+  gap: 0; /* Removido o gap */
   align-items: stretch;
   width: 100%;
 }
@@ -74,41 +75,29 @@
   transition: border-color 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 4px #a137510a;
   border-right: none;
+  z-index: 2; /* Garante que o input fique sobre o dropdown */
 }
 
 .input-group-saas input:focus {
   border-color: #a13751;
   outline: none;
   box-shadow: 0 0 0 2px #a1375122;
+  z-index: 1051; /* Input fica acima do dropdown quando focado */
 }
 
-.btn-primario-saas {
+/* Botão de busca agora é um indicador visual, sem ação de clique */
+.btn-primario-saas-indicator {
   border-radius: 0 7px 7px 0;
   height: 100%;
-  margin: 0;
   padding: 0 1.5rem;
-  font-size: 1rem;
-  font-weight: 700;
   background: #a13751;
   color: #fff;
   border: 1.5px solid #a13751;
   border-left: none;
-  box-shadow: none;
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  transition: background 0.2s, color 0.2s, transform 0.18s, filter 0.18s;
-  cursor: pointer;
-}
-.btn-primario-saas:hover, .btn-primario-saas:focus {
-  background: #812c41;
-  color: #fff;
-  transform: translateY(-2px) scale(1.04);
-  filter: brightness(1.08);
-}
-.btn-primario-saas:active {
-  background: #a13751;
-  transform: scale(0.98);
+  justify-content: center;
+  z-index: 2;
 }
 
 .separador-ou-saas {
@@ -165,6 +154,70 @@
   transform: scale(0.98);
 }
 
+/* ================================================================ */
+/* ====== ESTILOS DO DROPDOWN DE SUGESTÕES (NOVOS) ====== */
+/* ================================================================ */
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sugestoes-dropdown-saas {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: var(--cor-fundo-dropdown, #fff);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--cor-borda-transparente, #0000001a);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  padding: 0.5rem;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1050;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sugestao-item-saas {
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  color: var(--cor-texto, #333);
+}
+.sugestao-item-saas:hover {
+  background-color: var(--cor-fundo-hover, #f0f0f0);
+  transform: translateX(4px);
+}
+.sugestao-nome {
+  font-weight: 600;
+  color: var(--cor-texto, #333);
+  font-size: 0.95rem;
+}
+.sugestao-cnpj {
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario, #777);
+}
+.sugestao-mensagem {
+  color: var(--cor-texto-secundario, #777);
+  font-style: italic;
+  cursor: default;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 @media (max-width: 600px) {
   .busca-card-saas {
     padding: 1.2rem;
@@ -178,7 +231,7 @@
     border-right: 1.5px solid #e0e0e0;
     border-bottom: none;
   }
-  .btn-primario-saas {
+  .btn-primario-saas-indicator {
     border-radius: 0 0 7px 7px;
     width: 100%;
     border-left: 1.5px solid #a13751;
@@ -208,18 +261,10 @@ body.dark .input-group-saas input:focus {
   border-color: #e07ea1 !important;
   box-shadow: 0 0 0 2px #a1375180 !important;
 }
-body.dark .btn-primario-saas {
+body.dark .btn-primario-saas-indicator {
   background: #a13751 !important;
   color: #fff !important;
   border-color: #a13751 !important;
-}
-body.dark .btn-primario-saas:hover, body.dark .btn-primario-saas:focus {
-  background: #e07ea1 !important;
-  color: #fff !important;
-}
-body.dark .btn-primario-saas:active {
-  background: #a13751 !important;
-  transform: scale(0.98) !important;
 }
 body.dark .btn-secundario-saas {
   background: #2d1b2f !important;
@@ -237,4 +282,24 @@ body.dark .btn-secundario-saas:active {
   color: #2d1b2f !important;
   border-color: #e07ea1 !important;
   transform: scale(0.98);
+}
+/* DARK MODE para o dropdown */
+body.dark .sugestoes-dropdown-saas {
+  background-color: #2d1b2f !important;
+  border-color: #a13751 !important;
+}
+body.dark .sugestao-item-saas {
+  color: #e0e0e0 !important;
+}
+body.dark .sugestao-item-saas:hover {
+  background-color: #a1375155 !important;
+}
+body.dark .sugestao-nome {
+  color: #fff !important;
+}
+body.dark .sugestao-cnpj {
+  color: #aaa !important;
+}
+body.dark .sugestao-mensagem {
+  color: #aaa !important;
 }

@@ -8,5 +8,10 @@ import java.util.List;
 
 @Repository
 public interface DocumentoRepository extends JpaRepository<Documento, Long> {
+
     List<Documento> findByClienteId(Long clienteId);
+
+    List<Documento> findByClienteIdAndStatus(Long clienteId, String status);
+
+    List<Documento> findByStatus(String status);
 }

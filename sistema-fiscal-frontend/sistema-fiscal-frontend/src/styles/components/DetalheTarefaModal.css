@@ -1,0 +1,199 @@
+/* ================================================================ */
+/* ====== MODAL DE DETALHES DA TAREFA - DESIGN IMPECÁVEL ====== */
+/* ================================================================ */
+
+.modal-body.detalhe-tarefa-modal {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-bottom: 100px; 
+}
+
+.modal-body.detalhe-tarefa-modal::-webkit-scrollbar { width: 8px; }
+.modal-body.detalhe-tarefa-modal::-webkit-scrollbar-track { background: transparent; }
+.modal-body.detalhe-tarefa-modal::-webkit-scrollbar-thumb { background: var(--cor-borda); border-radius: 4px; }
+.modal-body.detalhe-tarefa-modal::-webkit-scrollbar-thumb:hover { background: var(--cor-primaria-transparente); }
+
+.tarefa-titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.tarefa-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--cor-fundo-input);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+/* REFINAMENTO: Destaque para o cliente dentro da grid */
+.meta-item.cliente-destaque {
+  grid-column: 1 / -1; /* Ocupa a linha inteira */
+  background-color: var(--cor-primaria-super-transparente);
+  border: 1px solid var(--cor-primaria-transparente);
+}
+.meta-item.cliente-destaque .meta-value {
+  font-weight: 600;
+}
+
+.meta-icon { color: var(--cor-primaria); flex-shrink: 0; }
+.meta-content { display: flex; flex-direction: column; }
+.meta-label { font-size: 0.8rem; color: var(--cor-texto-secundario); text-transform: uppercase; font-weight: 600; }
+.meta-value { font-size: 0.95rem; color: var(--cor-texto); font-weight: 500; }
+
+.tarefa-descricao {
+  font-size: 1rem; color: var(--cor-texto-secundario); background-color: var(--cor-fundo-input);
+  padding: 1rem; border-radius: 8px; border-left: 3px solid var(--cor-primaria-transparente); margin: 0;
+}
+
+/* NOVA BARRA DE AÇÕES */
+.task-actions-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  background-color: var(--cor-fundo-input);
+  padding: 1rem;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+.action-item { display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+.action-item label { font-size: 0.8rem; font-weight: 600; color: var(--cor-texto-secundario); }
+.action-item select, .action-item input {
+  width: 100%; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--cor-borda);
+  background-color: var(--cor-fundo-card); color: var(--cor-texto); font-size: 0.9rem;
+}
+.btn-complete-task {
+  background-color: var(--cor-sucesso); color: #fff; border: none; border-radius: 6px;
+  padding: 0.6rem 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+.btn-complete-task:hover:not(:disabled) { background-color: #15803d; }
+.btn-complete-task:disabled { background-color: var(--cor-borda); cursor: not-allowed; }
+
+
+/* SEÇÃO DE COMENTÁRIOS */
+.comentarios-section {
+  display: flex; flex-direction: column; gap: 1rem;
+  flex-grow: 1; min-height: 0;
+}
+.comentarios-titulo {
+  font-size: 1.1rem; font-weight: 600; color: var(--cor-texto);
+  border-bottom: 1px solid var(--cor-borda); padding-bottom: 0.75rem; margin: 0;
+}
+.comentarios-timeline {
+  overflow-y: visible; padding: 0.5rem 1rem 0.5rem 0.5rem;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+.comentario-item { display: flex; gap: 1rem; align-items: flex-start; }
+.comentario-item.optimistic { opacity: 0.6; }
+.comentario-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background-color: var(--cor-primaria);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+}
+.comentario-content { display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
+.comentario-header { display: flex; justify-content: space-between; align-items: baseline; }
+.comentario-autor { font-weight: 600; color: var(--cor-texto); font-size: 0.95rem; }
+.comentario-data { font-size: 0.75rem; color: var(--cor-texto-secundario); }
+.comentario-texto {
+  background-color: var(--cor-fundo-input); padding: 0.75rem 1rem; border-radius: 8px;
+  font-size: 0.9rem; color: var(--cor-texto-secundario); line-height: 1.5; word-break: break-word;
+}
+.sem-comentarios { text-align: center; color: var(--cor-texto-secundario); padding: 2rem 0; font-style: italic; }
+
+/* FORMULÁRIO DE COMENTÁRIO STICKY */
+.comentario-form {
+  padding: 1rem;
+  border-top: 1px solid var(--cor-borda);
+  margin-top: auto;
+  background: var(--cor-fundo-modal);
+  position: sticky;
+  bottom: -100px;
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+.comentario-input-wrapper { position: relative; display: flex; align-items: center; }
+.comentario-input-wrapper input {
+  width: 100%; padding: 0.85rem 3.5rem 0.85rem 1rem; border-radius: 8px;
+  border: 1px solid var(--cor-borda); background-color: var(--cor-fundo-input);
+  color: var(--cor-texto); font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.comentario-input-wrapper input:focus {
+  outline: none; border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px var(--cor-primaria-super-transparente);
+}
+.btn-send {
+  position: absolute; right: 6px; background-color: var(--cor-primaria); color: #fff;
+  border: none; border-radius: 6px; width: 36px; height: 36px; display: flex;
+  align-items: center; justify-content: center; cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.btn-send:hover:not(:disabled) { background-color: var(--cor-primaria-hover); transform: scale(1.05); }
+.btn-send:disabled { background-color: var(--cor-borda); cursor: not-allowed; }
+
+
+/* ================================================================ */
+/* ====== CORREÇÕES PARA O TEMA CLARO (LIGHT MODE) ====== */
+/* ================================================================ */
+
+body.light .meta-item,
+body.light .tarefa-descricao,
+body.light .task-actions-bar,
+body.light .comentario-texto {
+  background-color: #f3f4f6; /* Cinza bem claro */
+  border-color: #e5e7eb;
+}
+
+body.light .meta-item.cliente-destaque {
+  background-color: #fee2e2; /* Vermelho bem claro */
+  border-color: #fca5a5;
+}
+
+body.light .meta-label,
+body.light .action-item label {
+  color: #4b5563; /* Cinza escuro */
+}
+
+body.light .meta-value,
+body.light .tarefa-descricao,
+body.light .comentario-autor,
+body.light .comentario-texto {
+  color: #1f2937; /* Cinza bem escuro */
+}
+
+body.light .comentario-data {
+  color: #6b7280; /* Cinza médio */
+}
+
+body.light .action-item select, 
+body.light .action-item input {
+  background-color: #fff;
+  color: #1f2937;
+  border-color: #d1d5db;
+}
+
+body.light .comentario-form {
+  background: #fff;
+}
+
+body.light .comentario-input-wrapper input {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #1f2937;
+}

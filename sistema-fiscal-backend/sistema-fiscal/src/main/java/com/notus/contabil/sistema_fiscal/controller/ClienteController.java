@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -82,12 +83,26 @@ public class ClienteController {
 
     @GetMapping("/busca")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<ClienteListaDTO>> buscarPorRazaoSocial(@RequestParam("razaoSocial") String razaoSocial) {
-        List<ClienteListaDTO> lista = clienteRepository.findByRazaoSocialContainingIgnoreCase(razaoSocial)
-            .stream()
-            .map(c -> new ClienteListaDTO(c.getId(), c.getCnpj(), c.getRazaoSocial()))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(lista);
+    public ResponseEntity<List<ClienteListaDTO>> buscarClientes(@RequestParam("q") String query) {
+        if (query == null || query.trim().length() < 2) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        String cnpjQuery = query.replaceAll("[^\\d]", "");
+
+        // Busca por Razão Social
+        List<Cliente> porRazaoSocial = clienteRepository.findByRazaoSocialContainingIgnoreCase(query);
+
+        // Busca por CNPJ se a query contiver números
+        List<Cliente> porCnpj = cnpjQuery.isEmpty() ? List.of() : clienteRepository.findByCnpjContaining(cnpjQuery);
+
+        // Combina as listas, remove duplicatas e mapeia para o DTO
+        List<ClienteListaDTO> resultado = Stream.concat(porRazaoSocial.stream(), porCnpj.stream())
+                .distinct()
+                .map(c -> new ClienteListaDTO(c.getId(), c.getCnpj(), c.getRazaoSocial()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultado);
     }
 
     @Transactional

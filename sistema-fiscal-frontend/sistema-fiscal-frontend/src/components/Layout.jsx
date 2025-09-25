@@ -4,6 +4,7 @@ import { LayoutDashboard, Users, KeyRound, FileText, Repeat } from 'lucide-react
 import { ToastContainer } from 'react-toastify';
 import SettingsMenu from "./SettingsMenu";
 import 'react-toastify/dist/ReactToastify.css';
+import '../styles/components/Modal.css';
 
 const Header = ({ isAuthenticated, showMenu }) => (
   <header className="top-navbar">
