@@ -1,23 +1,45 @@
 // src/components/DocumentUploader.jsx
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import api from "../services/api";
 import Spinner from "./Spinner";
+import { UploadCloud, File, XCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const DocumentUploader = ({ clienteId, onUpload }) => {
   const [file, setFile] = useState(null);
   const [tipoDocumento, setTipoDocumento] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (files) => {
+    if (files && files[0]) {
+      setFile(files[0]);
+    }
+  };
+
+  const handleDragEvents = (e, dragging) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(dragging);
+  };
+
+  const handleDrop = (e) => {
+    handleDragEvents(e, false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileChange(e.dataTransfer.files);
+      e.dataTransfer.clearData();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file || !tipoDocumento) {
-      setMsg("Selecione um arquivo e o tipo do documento.");
+      toast.warn("Selecione um arquivo e defina o tipo do documento.");
       return;
     }
     setLoading(true);
-    setMsg("");
     const formData = new FormData();
     formData.append("file", file);
     formData.append("tipoDocumento", tipoDocumento);
@@ -28,29 +50,50 @@ const DocumentUploader = ({ clienteId, onUpload }) => {
       await api.post("/documentos", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setMsg("Documento enviado com sucesso!");
+      toast.success("Documento enviado com sucesso!");
       setFile(null);
       setTipoDocumento("");
       if (onUpload) onUpload();
     } catch (err) {
-      setMsg("Erro ao enviar documento.");
+      toast.error("Erro ao enviar documento.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    // Usando as classes de formulário padrão
-    <form className="form-portal" onSubmit={handleSubmit}>
-      <h4>Enviar Documento</h4>
-      <div className="form-group">
-        <label>Arquivo</label>
+    <form className="document-uploader-form" onSubmit={handleSubmit}>
+      <div
+        className={`dropzone-area ${isDragging ? 'is-dragging' : ''}`}
+        onClick={() => fileInputRef.current.click()}
+        onDragEnter={(e) => handleDragEvents(e, true)}
+        onDragLeave={(e) => handleDragEvents(e, false)}
+        onDragOver={(e) => handleDragEvents(e, true)}
+        onDrop={handleDrop}
+      >
         <input
           type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          accept="application/pdf,image/*"
+          ref={fileInputRef}
+          onChange={(e) => handleFileChange(e.target.files)}
+          accept="application/pdf,image/*,.doc,.docx,.xml,.xls,.xlsx"
+          style={{ display: 'none' }}
         />
+        {file ? (
+          <div className="file-preview">
+            <File size={40} />
+            <span className="file-name">{file.name}</span>
+            <button type="button" className="btn-remove-file" onClick={(e) => { e.stopPropagation(); setFile(null); }}>
+              <XCircle size={20} />
+            </button>
+          </div>
+        ) : (
+          <div className="dropzone-prompt">
+            <UploadCloud size={48} />
+            <p><strong>Arraste e solte</strong> um arquivo aqui, ou <strong>clique para selecionar</strong>.</p>
+          </div>
+        )}
       </div>
+
       <div className="form-group">
         <label>Tipo do documento</label>
         <input
@@ -58,12 +101,12 @@ const DocumentUploader = ({ clienteId, onUpload }) => {
           placeholder="Ex: Guia DAS, Contrato Social..."
           value={tipoDocumento}
           onChange={(e) => setTipoDocumento(e.target.value)}
+          required
         />
       </div>
-      <button type="submit" className="btn-primario" disabled={loading} style={{width: '100%'}}>
-        {loading ? <Spinner /> : "Enviar"}
+      <button type="submit" className="btn-primario" disabled={loading || !file || !tipoDocumento}>
+        {loading ? <Spinner /> : "Enviar Documento"}
       </button>
-      {msg && <div className="form-message">{msg}</div>}
     </form>
   );
 };

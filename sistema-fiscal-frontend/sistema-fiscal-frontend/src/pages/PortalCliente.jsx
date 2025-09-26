@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import api from "../../services/api";
-import DocumentUploader from "../../components/DocumentUploader";
-import DocumentList from "../../components/DocumentList";
-import Spinner from "../../components/Spinner";
-import "../../styles/pages/PortalCliente.css";
+import api from "../services/api"; // CORRIGIDO: O caminho era "../../services/api"
+import DocumentUploader from "../components/DocumentUploader";
+import DocumentList from "../components/DocumentList";
+import Spinner from "../components/Spinner";
+import "../styles/pages/PortalCliente.css"; // CORRIGIDO: O caminho era "../../styles/pages/PortalCliente.css"
 
 // Função para pegar a Role do usuário a partir do Token
 const getUserRole = () => {

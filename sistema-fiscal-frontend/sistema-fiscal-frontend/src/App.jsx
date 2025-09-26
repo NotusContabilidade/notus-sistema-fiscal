@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import BuscaCliente from './pages/BuscaCliente';
-import Dashboard from './pages/Dashboard';
-import NovoCliente from './pages/NovoCliente';
-import Calculo from './pages/Calculo';
-import Resultado from './pages/Resultado';
-import DashboardGeral from './pages/DashboardGeral';
-import TodosClientes from './pages/TodosClientes';
-import Login from './pages/Login';
-import Tasks from './pages/Tasks';
-import PainelControle from './pages/PainelControle';
 import ProtectedRoute from './components/ProtectedRoute';
+import BuscaCliente from './pages/BuscaCliente';
+import Calculo from './pages/Calculo';
+import Dashboard from './pages/Dashboard';
+import DashboardGeral from './pages/DashboardGeral';
+import Login from './pages/Login';
+import NovoCliente from './pages/NovoCliente';
+import PainelControle from './pages/PainelControle';
+import PortalCliente from './pages/PortalCliente'; // <-- Import já existente
+import Resultado from './pages/Resultado';
 import TarefasRecorrentes from "./pages/TarefasRecorrentes";
-import PortalCliente from "./pages/PortalCliente/PortalCliente"; // <-- Import já existente
+import Tasks from './pages/Tasks';
+import TodosClientes from './pages/TodosClientes';
 import './styles/global/BigCalendarDark.css';
 
 function App() {
