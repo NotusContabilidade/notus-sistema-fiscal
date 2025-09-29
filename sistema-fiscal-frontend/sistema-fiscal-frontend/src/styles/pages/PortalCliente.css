@@ -1,75 +1,221 @@
-/* Container principal da página */
-.portal-cliente-container {
+/* ================================================================ */
+/* ====== PORTAL DO CLIENTE 2.0 - ESTILO PROFISSIONAL ====== */
+/* ================================================================ */
+
+.portal-cliente-page {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-/* Seções dentro do card principal */
-.portal-section {
-    background: var(--cor-fundo);
+.portal-header {
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    background: var(--cor-fundo-card);
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
-    padding: 1.5rem;
 }
 
-.portal-section h3 {
-    color: var(--cor-primaria);
-    margin-top: 0;
+.portal-subtitle {
+    color: var(--cor-texto-secundario);
+    margin: -0.5rem 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.portal-main-card {
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 60vh;
+}
+
+/* Abas de Navegação */
+.portal-tabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
     border-bottom: 2px solid var(--cor-borda);
-    padding-bottom: 0.75rem;
+    background: var(--cor-fundo-coluna);
+}
+
+.portal-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: var(--cor-texto-secundario);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.portal-tabs button:hover {
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto);
+}
+
+.portal-tabs button.active {
+    color: var(--cor-primaria);
+    background: var(--cor-primaria-super-transparente);
+    border-bottom-color: var(--cor-primaria);
+}
+
+/* Conteúdo das Abas */
+.portal-content-container {
+    padding: 2rem;
+    flex-grow: 1;
+}
+
+.portal-tab-content h4 {
+    font-size: 1.3rem;
+    color: var(--cor-texto);
+    margin-top: 0;
     margin-bottom: 1.5rem;
 }
 
-/* Card de tarefa do cliente */
-.task-card-cliente {
+.empty-message {
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+/* Aba Início (Dashboard) */
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.portal-widget {
+    background: var(--cor-fundo-coluna);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+}
+
+.portal-widget.full-width {
+    grid-column: 1 / -1;
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.widget-header svg { color: var(--cor-primaria); }
+.widget-header h4 { font-size: 1.1rem; margin: 0; }
+
+.widget-content { padding: 1.25rem; }
+
+.widget-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--cor-borda-transparente);
+}
+.widget-list-item:last-child { border-bottom: none; }
+
+.comunicado-item {
+    padding: 1rem;
+    background: var(--cor-fundo-hover);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+.comunicado-item p { margin: 0.25rem 0; }
+.comunicado-item small { color: var(--cor-texto-secundario); }
+
+
+/* Aba Documentos */
+.documentos-portal-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+.documentos-uploader-container, .documentos-list-container {
+    background: var(--cor-fundo-coluna);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--cor-borda);
+}
+.documentos-uploader-container p, .documentos-list-container p {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    margin-top: -1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Aba Solicitações */
+.solicitacoes-list { display: flex; flex-direction: column; gap: 1rem; }
+.solicitacao-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--cor-fundo-coluna);
     border: 1px solid var(--cor-borda);
     border-left: 4px solid var(--cor-primaria);
     border-radius: 8px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    background: #fff;
 }
+.solicitacao-info h5 { margin: 0 0 0.25rem 0; font-size: 1.1rem; }
+.solicitacao-info p { margin: 0; color: var(--cor-texto-secundario); }
+.solicitacao-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; font-size: 0.9rem; }
 
-.task-card-cliente h4 {
-    margin: 0 0 0.5rem 0;
-}
-
-/* Estilos para o formulário de upload */
-.form-portal .form-group {
-    margin-bottom: 1rem;
-}
-
-.form-portal input[type="file"] {
+/* Aba Dados da Empresa */
+.dados-cadastrais-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem 2rem;
+    background: var(--cor-fundo-coluna);
+    padding: 1.5rem;
+    border-radius: 12px;
     border: 1px solid var(--cor-borda);
-    padding: 0.5rem;
-    border-radius: 4px;
-    width: 100%;
+}
+.dados-cadastrais-grid p { margin: 0.5rem 0; }
+.dados-cadastrais-grid p strong { color: var(--cor-texto); }
+
+.portal-aviso {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--cor-fundo-aviso);
+    border: 1px solid var(--cor-borda-aviso);
+    color: var(--cor-texto-aviso);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.form-message {
-    margin-top: 1rem;
-    text-align: center;
-    font-weight: 500;
+/* Badges de Status */
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
 }
+.status-badge.status-pendente { background-color: #f8e7d1; color: #b47d25; }
+.status-badge.status-concluído { background-color: #d1f8e1; color: #25b463; }
+.status-badge.status-atrasado { background-color: #f8d1d1; color: #b42525; }
 
-/* Tabela de documentos */
-.document-list-container {
-    margin-top: 2rem;
+/* Responsividade */
+@media (max-width: 900px) {
+    .documentos-portal-layout { grid-template-columns: 1fr; }
 }
-
-/* Dark Mode */
-body.dark .portal-section {
-    background: #1c151f;
-    border-color: #3e2a4d;
-}
-
-body.dark .task-card-cliente {
-    background: #23162a;
-    border-color: #a13751;
-}
-
-body.dark .form-portal input[type="file"] {
-    background: #2d1b2f;
-    border-color: #a13751;
+@media (max-width: 768px) {
+    .portal-tabs { gap: 0; overflow-x: auto; }
+    .portal-tabs button { padding: 0.6rem 0.8rem; }
+    .solicitacao-card { flex-direction: column; align-items: flex-start; }
+    .solicitacao-meta { flex-direction: row; width: 100%; justify-content: space-between; margin-top: 1rem; }
 }

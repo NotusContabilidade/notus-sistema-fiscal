@@ -138,3 +138,256 @@
 /* estão centralizadas em styles/components/Modal.css para evitar   */
 /* conflitos e garantir consistência.                               */
 /* ================================================================ */
+
+.painel-controle-card {
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 60vh;
+    margin-top: 2.5rem; /* Espaçamento adicionado */
+}
+
+.painel-controle-tabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 2px solid var(--cor-borda);
+    background: var(--cor-fundo-coluna);
+}
+
+.painel-controle-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: var(--cor-texto-secundario);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.painel-controle-tabs button:hover {
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto);
+}
+
+.painel-controle-tabs button.active {
+    color: var(--cor-primaria);
+    background: var(--cor-primaria-super-transparente);
+    border-bottom-color: var(--cor-primaria);
+}
+
+.painel-controle-content {
+    padding: 2rem;
+}
+
+/* ================================================================ */
+/* ====== MÓDULO DE COMUNICADOS - REVOLUÇÃO VISUAL 300% ====== */
+/* ================================================================ */
+
+@keyframes glass-edge-in {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+        border-top-color: transparent;
+        border-left-color: transparent;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        border-top-color: rgba(255, 255, 255, 0.3);
+        border-left-color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+.anim-glass-edge {
+    animation: glass-edge-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.anim-glass-edge-delay {
+    opacity: 0;
+    animation: glass-edge-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.15s forwards;
+    animation-fill-mode: both;
+}
+
+.comunicado-module-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: flex-start;
+}
+
+.comunicado-sender-container, .comunicado-history-container {
+    /* Efeito Glassmorphism */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.3);
+    border-left-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+}
+
+.comunicado-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.comunicado-header h4 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: var(--cor-texto);
+}
+
+.comunicado-header svg {
+    color: var(--cor-primaria);
+}
+
+.card-subtitle {
+    color: var(--cor-texto-secundario);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.comunicado-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.btn-enviar-comunicado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.9rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 10px;
+}
+
+/* Histórico de Comunicados */
+.comunicado-history-container {
+    padding-top: 1.5rem;
+}
+
+.comunicado-history-container .comunicado-header {
+    padding: 0 0.5rem 1.5rem 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    margin-right: -1rem; /* Esconde a scrollbar feia */
+    padding-right: 1rem; /* Adiciona espaço para a scrollbar */
+}
+
+/* Estilização da Scrollbar */
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+.history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.history-list::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.history-item {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--cor-borda);
+    padding: 1.25rem;
+    border-radius: 12px;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.history-item:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.history-item-header strong {
+    color: var(--cor-texto);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.history-item-date {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--cor-texto-secundario);
+    background: rgba(0,0,0,0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+.history-item-recipient {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    background-color: var(--cor-primaria-super-transparente);
+    padding: 0.3rem 0.8rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+}
+
+.history-item-recipient svg {
+    flex-shrink: 0;
+}
+
+.history-item-message {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--cor-texto-secundario);
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 1200px) {
+    .comunicado-module-grid {
+        grid-template-columns: 1fr;
+    }
+    .history-list {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .workflow-board.four-columns {
+        grid-template-columns: 1fr;
+    }
+}

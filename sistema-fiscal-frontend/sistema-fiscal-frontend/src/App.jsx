@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import BuscaCliente from './pages/BuscaCliente';
@@ -9,7 +9,7 @@ import DashboardGeral from './pages/DashboardGeral';
 import Login from './pages/Login';
 import NovoCliente from './pages/NovoCliente';
 import PainelControle from './pages/PainelControle';
-import PortalCliente from './pages/PortalCliente'; // <-- Import já existente
+import PortalCliente from './pages/PortalCliente';
 import Resultado from './pages/Resultado';
 import TarefasRecorrentes from "./pages/TarefasRecorrentes";
 import Tasks from './pages/Tasks';
@@ -31,6 +31,9 @@ function App() {
       <Routes>
         {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        {/* Rota de correção para o link do menu "Portal do Cliente" */}
+        <Route path="/portal-cliente" element={<Navigate to="/clientes/busca" replace />} />
 
         {/* Dashboard Geral */}
         <Route path="/" element={<ProtectedRoute><DashboardGeral /></ProtectedRoute>} />
@@ -59,7 +62,7 @@ function App() {
         <Route path="/painel-controle" element={<ProtectedRoute><PainelControle /></ProtectedRoute>} />
         <Route path="/recorrencias" element={<ProtectedRoute><TarefasRecorrentes /></ProtectedRoute>} />
 
-        {/* --- ROTA DO PORTAL DO CLIENTE CORRIGIDA --- */}
+        {/* Rota correta do Portal do Cliente (acessada pelo dashboard) */}
         <Route path="/clientes/:clienteId/portal" element={<ProtectedRoute><PortalCliente /></ProtectedRoute>} />
 
         {/* 404 */}

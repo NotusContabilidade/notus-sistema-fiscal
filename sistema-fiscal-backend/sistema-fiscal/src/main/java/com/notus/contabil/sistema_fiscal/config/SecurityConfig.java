@@ -29,9 +29,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
-                    // .requestMatchers("/api/tasks/**").permitAll() // <-- LINHA REMOVIDA
                     .requestMatchers(HttpMethod.GET, "/health").permitAll()
-                    .anyRequest().authenticated() // <-- Agora esta regra vai proteger as rotas de tasks
+                    
+                    // LIBERAÇÃO DAS ROTAS DO PORTAL E PAINEL DE CONTROLE
+                    .requestMatchers(
+                        "/api/tasks/por-cliente/{clienteId}",
+                        "/api/documentos/cliente/{clienteId}",
+                        "/api/clientes/id/{clienteId}",
+                        "/api/comunicados/**" // Libera TODAS as rotas de /api/comunicados
+                    ).authenticated()
+
+                    .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
