@@ -1,11 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import Spinner from "./Spinner";
-import { Download } from 'lucide-react'; // Usando ícones para os botões
+import { Download, FileText, FileCode, FileImage, FileSpreadsheet, FileType } from 'lucide-react';
+import '../styles/components/DocumentList.css'; // Importe o novo CSS
+import { toast } from "react-toastify";
+
+// Helper para obter o ícone e a classe com base na extensão do arquivo
+const getFileIcon = (fileName) => {
+    const extension = fileName?.split('.').pop().toLowerCase() || '';
+    if (extension === 'pdf') return { Icon: FileText, className: 'type-pdf' };
+    if (extension === 'xml') return { Icon: FileCode, className: 'type-xml' };
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) return { Icon: FileImage, className: 'type-img' };
+    if (['doc', 'docx'].includes(extension)) return { Icon: FileType, className: 'type-doc' };
+    if (['xls', 'xlsx', 'csv'].includes(extension)) return { Icon: FileSpreadsheet, className: 'type-xls' };
+    return { Icon: FileText, className: 'type-other' };
+};
 
 const DocumentList = ({ clienteId, onUpload }) => {
   const [docs, setDocs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
@@ -13,7 +26,7 @@ const DocumentList = ({ clienteId, onUpload }) => {
       const res = await api.get(`/documentos/cliente/${clienteId}`);
       setDocs(res.data);
     } catch {
-      console.error("Erro ao buscar documentos.");
+      toast.error("Erro ao buscar documentos.");
     } finally {
       setLoading(false);
     }
@@ -21,61 +34,59 @@ const DocumentList = ({ clienteId, onUpload }) => {
 
   useEffect(() => {
     fetchDocs();
-  }, [fetchDocs, onUpload]); // Re-executa o fetch quando `onUpload` muda (após um novo upload)
+  }, [fetchDocs, onUpload]);
 
-  const handleDownload = async (id, nomeArquivo) => {
+  const handleDownload = async (doc) => {
+    toast.info(`Iniciando download de ${doc.nomeArquivo}...`);
     try {
-      const res = await api.get(`/documentos/${id}/download`, {
+      const res = await api.get(`/documentos/${doc.id}/download`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", nomeArquivo);
+      link.setAttribute("download", doc.nomeArquivo);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch {
-      console.error("Erro ao baixar documento.");
+      toast.error("Erro ao baixar o documento.");
     }
   };
 
   if (loading) return <Spinner />;
 
   return (
-    <div className="document-list-container">
-      <h4>Documentos Enviados</h4>
+    <div className="document-list-revamped">
       {docs.length > 0 ? (
-        <table className="lista-detalhes-tabela">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Tipo</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {docs.map((doc) => (
-              <tr key={doc.id}>
-                <td>{doc.nomeArquivo}</td>
-                <td>{doc.tipoDocumento}</td>
-                <td>
-                  <span className={`status-badge ${doc.status?.toLowerCase()}`}>
-                    {doc.status}
-                  </span>
-                </td>
-                <td className="acoes-tabela">
-                  <button onClick={() => handleDownload(doc.id, doc.nomeArquivo)} className="btn-acao download" title="Baixar documento">
-                    <Download size={16} />
+        docs.map((doc, index) => {
+          const { Icon, className } = getFileIcon(doc.nomeArquivo);
+          return (
+            <div key={doc.id} className="document-card" style={{ animationDelay: `${index * 100}ms` }}>
+              <div className={`doc-icon-wrapper ${className}`}>
+                <Icon size={28} />
+              </div>
+              <div className="doc-main-info">
+                <h5>{doc.tipoDocumento}</h5>
+                <p>{doc.nomeArquivo}</p>
+              </div>
+              <div className="doc-metadata">
+                <span className={`status-badge status-${doc.status?.toLowerCase()}`}>{doc.status}</span>
+                <div className="doc-actions">
+                  <button onClick={() => handleDownload(doc)} className="btn-doc-action" title="Baixar documento">
+                    <Download size={18} />
                   </button>
-                  {/* Futuramente, botões de aprovar/rejeitar podem entrar aqui com a mesma estilização */}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : <p>Nenhum documento encontrado para este cliente.</p>}
+                </div>
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        <div className="empty-docs-message">
+          <p>Nenhum documento disponível para este cliente no momento.</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,36 @@
 /* ================================================================ */
-/* ====== PORTAL DO CLIENTE 2.0 - ESTILO PROFISSIONAL ====== */
+/* ====== PORTAL DO CLIENTE 5.0 - EXPERIÊNCIA CINEMATOGRÁFICA ====== */
 /* ================================================================ */
 
+/* --- KEYFRAMES PARA ANIMAÇÕES ÉPICAS --- */
+@keyframes background-pan {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes subtle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes shine-effect {
+    0% { transform: translateX(-150%) skewX(-30deg); }
+    100% { transform: translateX(150%) skewX(-30deg); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- ESTILO BASE DA PÁGINA --- */
 .portal-cliente-page {
     display: flex;
     flex-direction: column;
@@ -9,15 +38,16 @@
 }
 
 .portal-header {
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
     background: var(--cor-fundo-card);
     border: 1px solid var(--cor-borda);
+    animation: fadeInUp 0.5s ease-out;
 }
 
 .portal-subtitle {
     color: var(--cor-texto-secundario);
-    margin: -0.5rem 0 0.5rem 0;
+    margin: -0.75rem 0 0.5rem 0;
     font-size: 1rem;
 }
 
@@ -29,9 +59,10 @@
     display: flex;
     flex-direction: column;
     min-height: 60vh;
+    animation: fadeInUp 0.6s ease-out;
 }
 
-/* Abas de Navegação */
+/* --- ABAS DE NAVEGAÇÃO COM EFEITOS --- */
 .portal-tabs {
     display: flex;
     gap: 0.5rem;
@@ -52,25 +83,35 @@
     font-size: 0.95rem;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    top: 2px;
     border-bottom: 2px solid transparent;
 }
 
 .portal-tabs button:hover {
     background: var(--cor-fundo-hover);
     color: var(--cor-texto);
+    transform: translateY(-2px);
 }
 
 .portal-tabs button.active {
     color: var(--cor-primaria);
     background: var(--cor-primaria-super-transparente);
     border-bottom-color: var(--cor-primaria);
+    transform: translateY(0);
 }
 
-/* Conteúdo das Abas */
+/* --- CONTEÚDO COM FUNDO ANIMADO --- */
 .portal-content-container {
-    padding: 2rem;
+    padding: 2.5rem;
     flex-grow: 1;
+    background: linear-gradient(110deg, 
+        var(--cor-fundo-coluna) 0%, 
+        var(--cor-fundo-card) 50%, 
+        var(--cor-fundo-coluna) 100%);
+    background-size: 200% 200%;
+    animation: background-pan 15s ease infinite;
 }
 
 .portal-tab-content h4 {
@@ -87,135 +128,163 @@
     padding: 2rem 0;
 }
 
-/* Aba Início (Dashboard) */
+/* --- WIDGETS COM ANIMAÇÃO E EFEITOS DE HOVER --- */
 .portal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
 }
 
 .portal-widget {
-    background: var(--cor-fundo-coluna);
-    border: 1px solid var(--cor-borda);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+.portal-widget:nth-child(1) { animation-delay: 0.1s; }
+.portal-widget:nth-child(2) { animation-delay: 0.2s; }
+.portal-widget:nth-child(3) { animation-delay: 0.3s; }
+
+.portal-widget:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 45px rgba(0,0,0,0.25);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.portal-widget.full-width {
-    grid-column: 1 / -1;
+/* Efeito de brilho no hover */
+.portal-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-150%) skewX(-30deg);
+    transition: transform 0.7s ease;
+}
+.portal-widget:hover::before {
+    transform: translateX(800%) skewX(-30deg);
 }
 
 .widget-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--cor-borda);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.widget-header svg { color: var(--cor-primaria); }
-.widget-header h4 { font-size: 1.1rem; margin: 0; }
+.widget-header svg { color: var(--cor-primaria); animation: subtle-float 4s ease-in-out infinite; }
+.widget-header h4 { font-size: 1.1rem; margin: 0; font-weight: 600; color: var(--cor-texto); }
 
-.widget-content { padding: 1.25rem; }
+.widget-content { padding: 0.5rem 1.5rem 1.5rem 1.5rem; }
+
+/* --- ITENS DE LISTA ANIMADOS --- */
+.anim-list-item {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
 
 .widget-list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--cor-borda-transparente);
-}
-.widget-list-item:last-child { border-bottom: none; }
-
-.comunicado-item {
     padding: 1rem;
-    background: var(--cor-fundo-hover);
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    border-radius: 10px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
-.comunicado-item p { margin: 0.25rem 0; }
-.comunicado-item small { color: var(--cor-texto-secundario); }
 
+.widget-list-item.clickable:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    cursor: pointer;
+    transform: translateX(5px);
+}
 
-/* Aba Documentos */
-.documentos-portal-layout {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    align-items: flex-start;
-}
-.documentos-uploader-container, .documentos-list-container {
-    background: var(--cor-fundo-coluna);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--cor-borda);
-}
-.documentos-uploader-container p, .documentos-list-container p {
-    font-size: 0.9rem;
+.doc-info { display: flex; align-items: center; gap: 0.75rem; }
+.doc-icon { color: var(--cor-texto-secundario); }
+.doc-name { font-size: 0.9rem; font-weight: 500; }
+
+.btn-icon-download {
+    background: transparent;
+    border: none;
     color: var(--cor-texto-secundario);
-    margin-top: -1rem;
-    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-icon-download:hover {
+    color: var(--cor-primaria);
+    background-color: var(--cor-primaria-super-transparente);
+    transform: scale(1.2);
 }
 
-/* Aba Solicitações */
-.solicitacoes-list { display: flex; flex-direction: column; gap: 1rem; }
-.solicitacao-card {
+/* --- COMUNICADOS COM DESTAQUE --- */
+.comunicado-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
     padding: 1.25rem;
-    background: var(--cor-fundo-coluna);
+    background: rgba(0,0,0,0.15);
     border: 1px solid var(--cor-borda);
-    border-left: 4px solid var(--cor-primaria);
-    border-radius: 8px;
-}
-.solicitacao-info h5 { margin: 0 0 0.25rem 0; font-size: 1.1rem; }
-.solicitacao-info p { margin: 0; color: var(--cor-texto-secundario); }
-.solicitacao-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; font-size: 0.9rem; }
-
-/* Aba Dados da Empresa */
-.dados-cadastrais-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem 2rem;
-    background: var(--cor-fundo-coluna);
-    padding: 1.5rem;
     border-radius: 12px;
-    border: 1px solid var(--cor-borda);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
 }
-.dados-cadastrais-grid p { margin: 0.5rem 0; }
-.dados-cadastrais-grid p strong { color: var(--cor-texto); }
+.comunicado-item:hover {
+    transform: scale(1.02);
+    border-color: var(--cor-primaria-transparente);
+}
 
-.portal-aviso {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--cor-fundo-aviso);
-    border: 1px solid var(--cor-borda-aviso);
-    color: var(--cor-texto-aviso);
-    border-radius: 8px;
+.comunicado-icon-wrapper {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    background-color: var(--cor-primaria-super-transparente);
+    color: var(--cor-primaria);
+    animation: subtle-float 3.5s ease-in-out infinite 0.5s;
 }
+.comunicado-content p { margin: 0.25rem 0; }
+.comunicado-content p strong { font-size: 1.05rem; color: var(--cor-texto); font-weight: 600; }
+.comunicado-content small { color: var(--cor-texto-secundario); margin-top: 0.5rem; display: block; }
 
-/* Badges de Status */
+/* --- BADGES DE STATUS --- */
 .status-badge {
-    padding: 0.25rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: transform 0.2s ease;
+}
+.status-badge:hover {
+    transform: scale(1.1);
 }
 .status-badge.status-pendente { background-color: #f8e7d1; color: #b47d25; }
-.status-badge.status-concluído { background-color: #d1f8e1; color: #25b463; }
+.status-badge.status-concluido { background-color: #d1f8e1; color: #25b463; }
 .status-badge.status-atrasado { background-color: #f8d1d1; color: #b42525; }
 
-/* Responsividade */
-@media (max-width: 900px) {
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 1200px) {
+    .portal-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 1024px) {
     .documentos-portal-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
+    .portal-content-container { padding: 1.5rem; }
     .portal-tabs { gap: 0; overflow-x: auto; }
     .portal-tabs button { padding: 0.6rem 0.8rem; }
-    .solicitacao-card { flex-direction: column; align-items: flex-start; }
-    .solicitacao-meta { flex-direction: row; width: 100%; justify-content: space-between; margin-top: 1rem; }
 }

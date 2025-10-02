@@ -5,65 +5,102 @@ import api from "../services/api";
 import DocumentUploader from "../components/DocumentUploader";
 import DocumentList from "../components/DocumentList";
 import Spinner from "../components/Spinner";
-import { Home, Folder, Bell, HelpCircle, Building, AlertTriangle, Download, FileText } from 'lucide-react';
+import { Home, Folder, Bell, HelpCircle, Building, AlertTriangle, Download, FileText, UploadCloud } from 'lucide-react';
 import "../styles/pages/PortalCliente.css";
+
+// --- Função de Download Reutilizável ---
+const handleDownload = async (doc) => {
+    toast.info(`Iniciando download de ${doc.nomeArquivo}...`);
+    try {
+      const res = await api.get(`/documentos/${doc.id}/download`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", doc.nomeArquivo);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Erro ao baixar o documento.");
+    }
+};
 
 // --- Componentes das Abas ---
 
-const PortalDashboard = ({ cliente, tasks, comunicados, documentos, setActiveTab }) => (
-  <div className="portal-tab-content anim-fade-in">
-    <div className="portal-grid">
-      <div className="portal-widget">
-        <div className="widget-header">
-          <AlertTriangle size={20} />
-          <h4>Pendências Urgentes</h4>
-        </div>
-        <div className="widget-content">
-          {tasks.length > 0 ? tasks.slice(0, 3).map(task => (
-            <div key={task.id} className="widget-list-item clickable" onClick={() => setActiveTab('solicitacoes')}>
-              <span>{task.titulo}</span>
-              <span className={`status-badge status-${task.status.toLowerCase()}`}>{task.status}</span>
-            </div>
-          )) : <p className="empty-message">Nenhuma pendência no momento.</p>}
-        </div>
-      </div>
-      <div className="portal-widget">
-        <div className="widget-header">
-          <Folder size={20} />
-          <h4>Últimos Documentos</h4>
-        </div>
-        <div className="widget-content">
-          {documentos.length > 0 ? documentos.slice(0, 3).map(doc => (
-            <div key={doc.id} className="widget-list-item">
-              <div className="doc-info">
-                <FileText size={18} className="doc-icon" />
-                <span className="doc-name">{doc.nome}</span>
+const PortalDashboard = ({ cliente, tasks, comunicados, documentos, setActiveTab }) => {
+  const pendencias = tasks.filter(task => task.status?.toUpperCase() !== 'CONCLUIDO');
+
+  return (
+    <div className="portal-tab-content anim-fade-in">
+      <div className="portal-grid">
+        <div className="portal-widget">
+          <div className="widget-header">
+            <AlertTriangle size={20} />
+            <h4>Pendências Urgentes</h4>
+          </div>
+          <div className="widget-content">
+            {pendencias.length > 0 ? pendencias.slice(0, 3).map((task, index) => (
+              <div 
+                key={task.id} 
+                className="widget-list-item clickable anim-list-item" 
+                style={{ animationDelay: `${150 + index * 100}ms` }}
+                onClick={() => setActiveTab('solicitacoes')}>
+                <span>{task.titulo}</span>
+                <span className={`status-badge status-${task.status.toLowerCase()}`}>{task.status}</span>
               </div>
-              <a href={doc.url} target="_blank" rel="noopener noreferrer" className="btn-icon-download" title="Baixar documento">
-                <Download size={16} />
-              </a>
-            </div>
-          )) : <p className="empty-message">Nenhum documento recente.</p>}
+            )) : <p className="empty-message anim-list-item">Nenhuma pendência no momento.</p>}
+          </div>
         </div>
-      </div>
-      <div className="portal-widget full-width">
-        <div className="widget-header">
-          <Bell size={20} />
-          <h4>Comunicados Importantes</h4>
+        <div className="portal-widget">
+          <div className="widget-header">
+            <Folder size={20} />
+            <h4>Últimos Documentos</h4>
+          </div>
+          <div className="widget-content">
+            {documentos.length > 0 ? documentos.slice(0, 3).map((doc, index) => (
+              <div 
+                key={doc.id} 
+                className="widget-list-item anim-list-item"
+                style={{ animationDelay: `${150 + index * 100}ms` }}>
+                <div className="doc-info">
+                  <FileText size={18} className="doc-icon" />
+                  <span className="doc-name">{doc.nomeArquivo}</span>
+                </div>
+                <button onClick={() => handleDownload(doc)} className="btn-icon-download" title="Baixar documento">
+                  <Download size={16} />
+                </button>
+              </div>
+            )) : <p className="empty-message anim-list-item">Nenhum documento recente.</p>}
+          </div>
         </div>
-        <div className="widget-content">
-          {comunicados.length > 0 ? comunicados.map(com => (
-            <div key={com.id} className="comunicado-item">
-              <p><strong>{com.titulo}</strong></p>
-              <p>{com.mensagem}</p>
-              <small>Postado em: {new Date(com.dataCriacao).toLocaleDateString()}</small>
-            </div>
-          )) : <p className="empty-message">Nenhum comunicado da contabilidade.</p>}
+        <div className="portal-widget full-width">
+          <div className="widget-header">
+            <Bell size={20} />
+            <h4>Comunicados Importantes</h4>
+          </div>
+          <div className="widget-content">
+            {comunicados.length > 0 ? comunicados.map((com, index) => (
+              <div 
+                key={com.id} 
+                className="comunicado-item anim-list-item"
+                style={{ animationDelay: `${200 + index * 120}ms` }}>
+                <div className="comunicado-icon-wrapper"><Bell size={20} /></div>
+                <div className="comunicado-content">
+                  <p><strong>{com.titulo}</strong></p>
+                  <p>{com.mensagem}</p>
+                  <small>Postado em: {new Date(com.dataCriacao).toLocaleDateString()}</small>
+                </div>
+              </div>
+            )) : <p className="empty-message anim-list-item">Nenhum comunicado da contabilidade.</p>}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PortalDocumentos = ({ clienteId }) => {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -76,13 +113,19 @@ const PortalDocumentos = ({ clienteId }) => {
         <div className="portal-tab-content anim-fade-in">
             <div className="documentos-portal-layout">
                 <div className="documentos-uploader-container">
-                    <h4>Enviar Documentos</h4>
-                    <p>Arraste ou selecione os arquivos que a contabilidade solicitou.</p>
+                    <div className="widget-header">
+                        <UploadCloud size={20} />
+                        <h4>Enviar Documentos</h4>
+                    </div>
+                    <p className="widget-subtitle">Arraste ou selecione os arquivos que a contabilidade solicitou.</p>
                     <DocumentUploader clienteId={clienteId} onUpload={handleUploadSuccess} />
                 </div>
                 <div className="documentos-list-container">
-                    <h4>Documentos Disponíveis</h4>
-                    <p>Baixe guias, relatórios e outros arquivos importantes.</p>
+                    <div className="widget-header">
+                        <Folder size={20} />
+                        <h4>Documentos Disponíveis</h4>
+                    </div>
+                    <p className="widget-subtitle">Baixe guias, relatórios e outros arquivos importantes.</p>
                     <DocumentList key={refreshKey} clienteId={clienteId} onUpload={refreshKey} />
                 </div>
             </div>
