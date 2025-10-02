@@ -36,6 +36,18 @@ const getStatusInfo = (item) => {
     }
 };
 
+// **NOVO**: Função segura para formatar datas, evitando "Invalid Date"
+const formatarData = (dataString) => {
+    if (!dataString) return 'N/D';
+    const data = new Date(dataString);
+    // Verifica se a data é válida
+    if (isNaN(data.getTime())) {
+        return 'Data Inválida';
+    }
+    return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+};
+
+
 export default function WorkflowCard({ item, onStatusChange, onClick }) {
     const statusInfo = getStatusInfo(item);
     const isAtrasado = statusInfo.className === 'status-atrasado';
@@ -72,19 +84,22 @@ export default function WorkflowCard({ item, onStatusChange, onClick }) {
                     {isConcluido ? (
                         <span className="prazo-info concluido">
                             <CalendarCheck size={14} />
-                            Concluído em: {new Date(item.dataConclusao).toLocaleDateString('pt-BR')}
+                            {/* **CORRIGIDO**: Usa a função segura de formatação */}
+                            Concluído em: {formatarData(item.dataConclusao)}
                             {tempoResolucao && ` (${tempoResolucao})`}
                         </span>
                     ) : isAtrasado ? (
                         <span className="prazo-info atrasado">
                             <AlertTriangle size={14} />
-                            Venceu em: {new Date(item.prazo).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                            {/* **CORRIGIDO**: Usa a função segura de formatação */}
+                            Venceu em: {formatarData(item.prazo)}
                         </span>
                     ) : (
                         item.prazo && (
                             <span className="prazo-info">
                                 <Clock size={14} />
-                                Vence em: {new Date(item.prazo).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                {/* **CORRIGIDO**: Usa a função segura de formatação */}
+                                Vence em: {formatarData(item.prazo)}
                             </span>
                         )
                     )}

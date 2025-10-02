@@ -268,7 +268,7 @@
 .comunicado-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2.5rem; /* Aumentado para dar mais respiro */
 }
 
 .btn-enviar-comunicado {
@@ -281,6 +281,52 @@
     margin-top: 0.5rem;
     border-radius: 10px;
 }
+
+/* ====== NOVO: ESTILO DE INPUT COM ETIQUETA FLUTUANTE ====== */
+.floating-label-group {
+    position: relative;
+}
+
+.floating-label-group input,
+.floating-label-group textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 4px;
+    font-size: 1rem;
+    color: var(--cor-texto);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.floating-label-group label {
+    position: absolute;
+    top: 10px;
+    left: 4px;
+    font-size: 1rem;
+    color: var(--cor-texto-secundario);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* A MÁGICA DA ANIMAÇÃO */
+.floating-label-group input:focus ~ label,
+.floating-label-group input:not(:placeholder-shown) ~ label,
+.floating-label-group textarea:focus ~ label,
+.floating-label-group textarea:not(:placeholder-shown) ~ label {
+    top: -14px;
+    left: 0;
+    font-size: 0.8rem;
+    color: var(--cor-primaria);
+}
+
+.floating-label-group input:focus,
+.floating-label-group textarea:focus {
+    border-bottom-color: var(--cor-primaria);
+}
+
 
 /* Histórico de Comunicados */
 .comunicado-history-container {

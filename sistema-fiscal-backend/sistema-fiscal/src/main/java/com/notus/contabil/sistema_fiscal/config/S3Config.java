@@ -14,35 +14,34 @@ import java.net.URI;
 @Configuration
 public class S3Config {
 
-    @Value("${aws.s3.access-key-id}")
+    @Value("${aws.s3.endpoint}")
+    private String endpoint;
+
+    @Value("${aws.accessKeyId}")
     private String accessKey;
 
-    @Value("${aws.s3.secret-access-key}")
+    @Value("${aws.secretKey}")
     private String secretKey;
 
-    @Value("${aws.s3.endpoint-url}")
-    private String endpointUrl;
-
-    @Value("${aws.s3.region}")
+    @Value("${aws.region}")
     private String region;
 
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpointUrl))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+                .forcePathStyle(true)
                 .build();
     }
 
     @Bean
     public S3Presigner s3Presigner() {
-         return S3Presigner.builder()
+        return S3Presigner.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpointUrl))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
                 .build();
     }
 }

@@ -13,9 +13,9 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.UUID;
 
 @Service
 public class MinIOStorageService implements StorageService {
@@ -33,9 +33,11 @@ public class MinIOStorageService implements StorageService {
     public String salvar(MultipartFile arquivo, String pathPrefix) {
         try {
             String nomeArquivoOriginal = arquivo.getOriginalFilename();
-            String extensao = nomeArquivoOriginal.substring(nomeArquivoOriginal.lastIndexOf("."));
-            String nomeArquivoUnico = UUID.randomUUID().toString() + extensao;
-            String storageKey = pathPrefix + nomeArquivoUnico;
+            // Garante que o prefixo termine com uma barra
+            String prefixoCorrigido = (pathPrefix != null && !pathPrefix.endsWith("/")) ? pathPrefix + "/" : pathPrefix;
+            
+            // Mantém o nome original do arquivo
+            String storageKey = (prefixoCorrigido != null ? prefixoCorrigido : "") + nomeArquivoOriginal;
 
             PutObjectRequest putRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -45,6 +47,8 @@ public class MinIOStorageService implements StorageService {
             s3Client.putObject(putRequest, RequestBody.fromInputStream(arquivo.getInputStream(), arquivo.getSize()));
 
             return storageKey;
+        } catch (IOException e) {
+            throw new RuntimeException("Erro de I/O ao ler o arquivo.", e);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao salvar arquivo no storage", e);
         }
@@ -59,7 +63,7 @@ public class MinIOStorageService implements StorageService {
                     .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(10)) // Link válido por 10 minutos
+                    .signatureDuration(Duration.ofMinutes(60)) // Link válido por 60 minutos
                     .getObjectRequest(getRequest)
                     .build();
 

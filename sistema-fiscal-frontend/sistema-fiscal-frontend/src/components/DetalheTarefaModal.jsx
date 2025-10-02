@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import Spinner from './Spinner';
 import { toast } from 'react-toastify';
-import { Calendar, User, Tag, Send, Briefcase, CheckCircle } from 'lucide-react';
+import { Calendar, User, Tag, Send, Briefcase, CheckCircle, Trash2 } from 'lucide-react';
 import '../styles/components/DetalheTarefaModal.css';
 
 function formatStatus(status) {
@@ -79,7 +79,7 @@ const TaskActions = ({ task, onActionSuccess }) => {
     };
 
     return (
-        <div className="task-actions-bar">
+        <div className="task-actions-bar anim-rise">
             <div className="action-item">
                 <label htmlFor="status-select">Alterar Status</label>
                 <select id="status-select" value={status} onChange={handleStatusChange} disabled={isUpdating}>
@@ -106,6 +106,7 @@ export default function DetalheTarefaModal({ item, onRequestClose, onActionSucce
     const [novoComentario, setNovoComentario] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [clienteNome, setClienteNome] = useState('Carregando...');
     const commentsEndRef = useRef(null);
 
@@ -180,26 +181,43 @@ export default function DetalheTarefaModal({ item, onRequestClose, onActionSucce
         }
     };
 
+    const handleExcluirDemanda = async () => {
+        if (!window.confirm(`Tem certeza que deseja excluir a demanda "${item.titulo}"? Esta ação não pode ser desfeita.`)) {
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            await api.delete(`/tasks/${item.id}`);
+            toast.success("Demanda excluída com sucesso!");
+            if (onActionSuccess) onActionSuccess();
+            onRequestClose();
+        } catch (error) {
+            toast.error("Erro ao excluir a demanda.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     if (!item) return null;
 
     return (
         <>
             <div className="modal-body detalhe-tarefa-modal">
-                <h3 className="tarefa-titulo">{item.titulo}</h3>
+                <h3 className="tarefa-titulo anim-rise">{item.titulo}</h3>
                 
-                <div className="tarefa-meta-grid">
+                <div className="tarefa-meta-grid anim-rise">
                     <MetaItem className="cliente-destaque" icon={<Briefcase size={20} />} label="Cliente" value={clienteNome} />
                     <MetaItem icon={<Tag size={20} />} label="Status" value={formatStatus(item.status)} />
                     <MetaItem icon={<Calendar size={20} />} label="Prazo" value={item.prazo ? new Date(item.prazo).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/D'} />
                     <MetaItem icon={<User size={20} />} label="Responsável" value={item.responsavel || 'N/D'} />
                 </div>
 
-                {item.descricao && <p className="tarefa-descricao">{item.descricao}</p>}
+                {item.descricao && <p className="tarefa-descricao anim-rise">{item.descricao}</p>}
 
                 {item.tipo === 'TAREFA' && (
                     <>
                         <TaskActions task={item} onActionSuccess={onActionSuccess} />
-                        <div className="comentarios-section">
+                        <div className="comentarios-section anim-rise">
                             <h4 className="comentarios-titulo">Comentários</h4>
                             <div className="comentarios-timeline">
                                 {isLoading ? <Spinner /> : (
@@ -239,6 +257,10 @@ export default function DetalheTarefaModal({ item, onRequestClose, onActionSucce
                 )}
             </div>
             <div className="modal-actions">
+                <button type="button" className="btn-delete" onClick={handleExcluirDemanda} disabled={isDeleting}>
+                    {isDeleting ? <Spinner size={16} /> : <Trash2 size={16} />}
+                    Excluir Demanda
+                </button>
                 <button type="button" className="btn-secundario" onClick={onRequestClose}>Fechar</button>
             </div>
         </>

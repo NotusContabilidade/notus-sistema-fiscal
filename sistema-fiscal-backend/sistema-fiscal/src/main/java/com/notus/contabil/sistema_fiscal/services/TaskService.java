@@ -1,5 +1,8 @@
 package com.notus.contabil.sistema_fiscal.services;
 
+import java.net.URL;
+import java.text.Normalizer;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -9,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.notus.contabil.sistema_fiscal.dto.ComentarioDTO;
 import com.notus.contabil.sistema_fiscal.dto.TaskCreateDTO;
@@ -34,6 +38,9 @@ public class TaskService {
     @Autowired
     private ComentarioRepository comentarioRepository;
 
+    @Autowired
+    private MinIOStorageService storageService; // Injeção do serviço de storage
+
     public List<TaskDTO> listar() {
         return taskRepository.findAll().stream()
                 .map(this::toDTO)
@@ -48,7 +55,7 @@ public class TaskService {
         task.setPrazo(dto.getPrazo());
         task.setResponsavel(dto.getResponsavel());
         task.setDataCriacao(LocalDateTime.now());
-        task.setAnexos(dto.getAnexos());
+        task.setAnexos(new ArrayList<>()); // Inicia com lista vazia
         task.setCategoria(dto.getCategoria());
 
         if (dto.getClienteId() != null) {
@@ -109,6 +116,57 @@ public class TaskService {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada com ID: " + id));
         return toDTO(task);
+    }
+
+    /**
+     * Adiciona um anexo a uma tarefa, salvando-o em uma pasta organizada no MinIO.
+     */
+    @Transactional
+    public TaskDTO adicionarAnexo(Long taskId, MultipartFile file) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada com o ID: " + taskId));
+
+        Cliente cliente = task.getCliente();
+        if (cliente == null) {
+            throw new IllegalStateException("A tarefa precisa estar associada a um cliente para adicionar anexos.");
+        }
+
+        // 1. Monta o prefixo do caminho (a "pasta")
+        String nomePastaCliente = sanitizarNome(cliente.getRazaoSocial());
+        String anoMes = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        String pathPrefix = String.format("%s/%s/", nomePastaCliente, anoMes);
+
+        // 2. Salva o arquivo usando o serviço de storage, que retorna a chave de armazenamento
+        String storageKey = storageService.salvar(file, pathPrefix);
+
+        // 3. Gera uma URL de download para a chave e adiciona à lista de anexos da tarefa
+        URL downloadUrl = storageService.gerarUrlParaDownload(storageKey);
+        
+        List<String> anexos = task.getAnexos();
+        if (anexos == null) {
+            anexos = new ArrayList<>();
+        }
+        anexos.add(downloadUrl.toString());
+        task.setAnexos(anexos);
+
+        Task updatedTask = taskRepository.save(task);
+        return toDTO(updatedTask);
+    }
+
+    /**
+     * Remove acentos e caracteres especiais para criar um nome de pasta seguro.
+     */
+    private String sanitizarNome(String nome) {
+        if (nome == null || nome.isBlank()) return "sem-cliente";
+        
+        String nomeNormalizado = Normalizer.normalize(nome, Normalizer.Form.NFD);
+        nomeNormalizado = nomeNormalizado.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        
+        return nomeNormalizado
+                .toLowerCase()
+                .trim()
+                .replaceAll("\\s+", "-") // Substitui espaços por hífens
+                .replaceAll("[^a-z0-9-]", ""); // Remove caracteres inválidos
     }
 
     public List<ComentarioDTO> getComentariosByTaskId(Long taskId) {

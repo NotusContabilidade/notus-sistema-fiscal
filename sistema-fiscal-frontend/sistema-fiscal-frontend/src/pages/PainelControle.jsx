@@ -28,7 +28,7 @@ const initialStateNovaTarefa = {
   categoria: 'OBRIGACAO_ACESSORIA'
 };
 
-// --- Componente para o Formulário de Comunicados (Lógica Sincronizada) ---
+// --- Componente para o Formulário de Comunicados (Lógica Sincronizada e Visual Repaginado) ---
 const ComunicadoSender = ({ initialClienteId, key }) => {
     const [selectedClienteId, setSelectedClienteId] = useState(initialClienteId || "ALL");
     const [titulo, setTitulo] = useState('');
@@ -102,14 +102,30 @@ const ComunicadoSender = ({ initialClienteId, key }) => {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label>Título do Comunicado</label>
-                        <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} required placeholder="Ex: Atualização Importante sobre o eSocial" />
+                    <div className="form-group floating-label-group">
+                        <input 
+                            type="text" 
+                            id="comunicado-titulo"
+                            value={titulo} 
+                            onChange={e => setTitulo(e.target.value)} 
+                            required 
+                            placeholder=" " 
+                        />
+                        <label htmlFor="comunicado-titulo">Título do Comunicado</label>
                     </div>
-                    <div className="form-group">
-                        <label>Mensagem</label>
-                        <textarea rows="5" value={mensagem} onChange={e => setMensagem(e.target.value)} required placeholder="Digite a mensagem detalhada aqui..." />
+                    
+                    <div className="form-group floating-label-group">
+                        <textarea 
+                            id="comunicado-mensagem"
+                            rows="5" 
+                            value={mensagem} 
+                            onChange={e => setMensagem(e.target.value)} 
+                            required 
+                            placeholder=" " 
+                        />
+                        <label htmlFor="comunicado-mensagem">Mensagem</label>
                     </div>
+
                     <button type="submit" className="btn-primario btn-enviar-comunicado" disabled={loading}>
                         {loading ? <Spinner /> : <><Send size={16} /> Enviar Comunicado</>}
                     </button>
